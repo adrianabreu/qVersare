@@ -12,6 +12,7 @@ public:
     explicit Client(qintptr fd, QObject *parent = 0);
 
     void start();
+    void die();
 
 signals:
     void forwardMessage(QString message, int fd);
@@ -19,7 +20,6 @@ signals:
                                      //object should be destroyed
 
 public slots:
-    void disconnected();
     void readyRead();
     void newMessage(QString message, int fd);
     void deleteLater();

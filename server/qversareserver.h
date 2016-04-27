@@ -17,12 +17,12 @@ class QVersareServer : public QTcpServer
     Q_OBJECT
 public:
     explicit QVersareServer(QObject *parent = 0);
+    ~QVersareServer();
     void startServer();
 
 protected:
     /* Per new connection create a new thread
-     * and an indepent socket
-     */
+     * and a new socket */
     void incomingConnection(qintptr handle);
 
 signals:

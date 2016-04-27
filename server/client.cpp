@@ -5,13 +5,12 @@
 
 Client::Client(qintptr fd, QObject *parent) : QObject(parent),
     my_socket(this),
-    my_thread(parent)
+    my_thread(this)
 {
     qDebug() << fd;
     my_socket.setSocketDescriptor(fd);
     my_socket_fd = fd;
 
-    connect(&my_socket, &QTcpSocket::disconnected, this, &Client::disconnected );
     connect(&my_socket, &QTcpSocket::readyRead, this, &Client::readyRead );
 
     connect(this, &Client::forwardMessage,
@@ -33,11 +32,6 @@ Client::Client(qintptr fd, QObject *parent) : QObject(parent),
     qDebug() << "Client connected";
 }
 
-void Client::disconnected()
-{
-    qDebug() << "Disconnected...";
-
-}
 
 void Client::readyRead()
 {
@@ -53,6 +47,7 @@ void Client::newMessage(QString message, int fd)
 
 void Client::deleteLater()
 {
+    qDebug() << "Disconnected...";
     emit disconnectedClient(my_socket_fd);
 }
 
@@ -60,4 +55,9 @@ void Client::start()
 {
     this->moveToThread(&my_thread);
     my_thread.start();
+}
+
+void Client::die()
+{
+    my_socket.disconnectFromHost();
 }

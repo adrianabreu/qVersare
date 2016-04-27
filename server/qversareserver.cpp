@@ -6,6 +6,14 @@ QVersareServer::QVersareServer(QObject *parent) : QTcpServer(parent)
 
 }
 
+QVersareServer::~QVersareServer()
+{
+    for(QMap<qintptr,QPointer<Client>>::Iterator i = clients.begin();
+        i != clients.end(); ++i) {
+        i.value()->die();
+    }
+}
+
 void QVersareServer::startServer()
 {
     if(!this->listen(QHostAddress::Any,8000)) {
