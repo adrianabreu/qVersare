@@ -3,13 +3,14 @@
 #include <QByteArray>
 #include "qversareserver.h"
 
-Client::Client(qintptr fd, QObject *parent) : QObject(parent), my_socket(this)
+Client::Client(qintptr fd, QObject *parent) : QObject(parent),
+    my_socket(this),
+    my_thread(parent)
 {
     qDebug() << fd;
     my_socket.setSocketDescriptor(fd);
     my_socket_fd = fd;
-    //connect(sender, &Sender::valueChanged,
-    //receiver, &Receiver::updateValue );
+
     connect(&my_socket, &QTcpSocket::disconnected, this, &Client::disconnected );
     connect(&my_socket, &QTcpSocket::readyRead, this, &Client::readyRead );
 
@@ -35,7 +36,7 @@ Client::Client(qintptr fd, QObject *parent) : QObject(parent), my_socket(this)
 void Client::disconnected()
 {
     qDebug() << "Disconnected...";
-    emit disconnectedClient(my_socket_fd);
+
 }
 
 void Client::readyRead()
@@ -50,10 +51,10 @@ void Client::newMessage(QString message, int fd)
         my_socket.write(message.toUtf8());
 }
 
-/*void Client::deleteLater()
+void Client::deleteLater()
 {
-    my_socket.close();
-}*/
+    emit disconnectedClient(my_socket_fd);
+}
 
 void Client::start()
 {
