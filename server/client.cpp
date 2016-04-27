@@ -1,27 +1,35 @@
 #include "client.h"
 #include <QDebug>
 #include <QByteArray>
+#include "qversareserver.h"
 
 Client::Client(qintptr fd, QObject *parent) : QObject(parent), my_socket(this)
 {
     qDebug() << fd;
     my_socket.setSocketDescriptor(fd);
     my_socket_fd = fd;
-    connect(&my_socket,SIGNAL(disconnected()),this,SLOT(disconnected()));
-    connect(&my_socket,SIGNAL(readyRead()),this,SLOT(readyRead()));
-    connect(this,SIGNAL(forwardMessage(QString,int)),
-            parent,SLOT(newMessageFromClient(QString,int)));
-    connect(parent,SIGNAL(forwardedMessage(QString,int)),this,
-            SLOT(newMessage(QString,int)));
-    connect(this,SIGNAL(disconnectedClient(int)),parent,SLOT(clientDisconnected(int)));
+    //connect(sender, &Sender::valueChanged,
+    //receiver, &Receiver::updateValue );
+    connect(&my_socket, &QTcpSocket::disconnected, this, &Client::disconnected );
+    connect(&my_socket, &QTcpSocket::readyRead, this, &Client::readyRead );
+
+    connect(this, &Client::forwardMessage,
+            static_cast<QVersareServer*>(parent),
+            &QVersareServer::newMessageFromClient );
+
+    connect(static_cast<QVersareServer*>(parent),
+            &QVersareServer::forwardedMessage,
+            this, &Client::newMessage);
+
+    connect(this, &Client::disconnectedClient,
+            static_cast<QVersareServer*>(parent),
+            &QVersareServer::clientDisconnected);
+
+    connect(&my_thread, &QThread::finished, this, &Client::deleteLater );
+
+    connect(&my_socket, &QTcpSocket::disconnected, &my_thread, &QThread::quit);
 
     qDebug() << "Client connected";
-}
-
-Client::~Client()
-{
-    qDebug() << "Called destructor";
-    my_thread.exit();
 }
 
 void Client::disconnected()
@@ -42,9 +50,13 @@ void Client::newMessage(QString message, int fd)
         my_socket.write(message.toUtf8());
 }
 
+/*void Client::deleteLater()
+{
+    my_socket.close();
+}*/
+
 void Client::start()
 {
-    this->setParent(0);
     this->moveToThread(&my_thread);
     my_thread.start();
 }
