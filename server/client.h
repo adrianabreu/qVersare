@@ -10,11 +10,13 @@ class Client : public QObject
     Q_OBJECT
 public:
     explicit Client(qintptr fd, QObject *parent = 0);
+    ~Client();
 
     void start();
 
 signals:
     void forwardMessage(QString message, int fd);
+    void disconnectedClient(int fd);
 
 public slots:
     void disconnected();
@@ -22,6 +24,7 @@ public slots:
     void newMessage(QString message, int fd);
 
 private:
+    int my_socket_fd; //for remove from qmap
     QTcpSocket my_socket;
     QThread my_thread;
 };

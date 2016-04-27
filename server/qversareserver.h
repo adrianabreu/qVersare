@@ -3,7 +3,7 @@
 
 #include <QAbstractSocket>
 #include <QDebug>
-#include <QList>
+#include <QMap>
 #include <QPointer>
 #include <QObject>
 #include <QTcpServer>
@@ -30,10 +30,11 @@ signals:
 
 public slots:
     void newMessageFromClient(QString mymessage, int fd);
+    void clientDisconnected(int fd);
     //void readyRead();
 
 private:
-    QList<QPointer<Client>> clients;
+    QMap<qintptr,QPointer<Client>> clients;
 
 
 };

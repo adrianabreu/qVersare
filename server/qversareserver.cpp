@@ -19,7 +19,7 @@ void QVersareServer::incomingConnection(qintptr handle)
 {
     //QThread *newClient = new QThread;
     QPointer<Client> clientSocket = new Client(handle, this);
-    clients.push_back(clientSocket);
+    clients.insert(clients.end(),handle,clientSocket);
     //threads with parents are not movable
     clientSocket->start();
 
@@ -29,4 +29,10 @@ void QVersareServer::newMessageFromClient(QString mymessage,int fd)
 {
     qDebug() << mymessage;
     emit forwardedMessage(mymessage,fd);
+}
+
+void QVersareServer::clientDisconnected(int fd)
+{
+    clients.remove(fd);
+
 }
