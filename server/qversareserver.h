@@ -4,8 +4,9 @@
 #include <QAbstractSocket>
 #include <QDebug>
 #include <QMap>
-#include <QPointer>
 #include <QObject>
+#include <QPointer>
+#include <QSettings>
 #include <QTcpServer>
 #include <QThread>
 #include <QString>
@@ -35,6 +36,7 @@ public slots:
 
 private:
     QMap<qintptr,QPointer<Client>> clients;
+    QSettings settings;
 
 
 };

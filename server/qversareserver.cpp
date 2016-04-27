@@ -1,3 +1,6 @@
+#include <QVariant>
+#include <QHostAddress>
+
 #include "qversareserver.h"
 #include "client.h"
 
@@ -16,7 +19,17 @@ QVersareServer::~QVersareServer()
 
 void QVersareServer::startServer()
 {
-    if(!this->listen(QHostAddress::Any,8000)) {
+    QSettings settings;
+
+    if(!settings.contains("ip"))
+        settings.setValue("ip", "127.0.0.1");
+    if(!settings.contains("port"))
+        settings.setValue("port",8000);
+
+    QString ipAddress = settings.value("ip","127.0.0.1").toString();
+    quint16 port = settings.value("port", 8000).toString().toUInt();
+
+    if(!this->listen( QHostAddress(ipAddress), port) ){
         qDebug() << "Could not start server";
     } else {
         qDebug() << "Listening...";
