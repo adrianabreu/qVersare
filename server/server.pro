@@ -12,8 +12,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     qversareserver.cpp \
-    client.cpp
+    client.cpp \
+    serversettings.cpp
 
 HEADERS += \
     qversareserver.h \
-    client.h
+    client.h \
+    serversettings.h

@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("qVersare");
 
 
-    QVersareServer myServer;
+    QVersareServer myServer(&a);
     myServer.startServer();
 
     return a.exec();

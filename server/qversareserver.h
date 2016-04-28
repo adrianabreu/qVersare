@@ -2,6 +2,7 @@
 #define QVERSARESERVER_H
 
 #include <QAbstractSocket>
+#include <QCoreApplication>
 #include <QDebug>
 #include <QMap>
 #include <QObject>
@@ -12,12 +13,13 @@
 #include <QString>
 
 #include "client.h"
+#include "serversettings.h"
 
 class QVersareServer : public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit QVersareServer(QObject *parent = 0);
+    explicit QVersareServer(QObject *parent = 0, QCoreApplication* app = 0);
     ~QVersareServer();
     void startServer();
 
@@ -35,8 +37,8 @@ public slots:
     //void readyRead();
 
 private:
-    QMap<qintptr,QPointer<Client>> clients;
-    QSettings settings;
+    QMap<qintptr,QPointer<Client>> clients_;
+    ServerSettings* settings;
 
 
 };
