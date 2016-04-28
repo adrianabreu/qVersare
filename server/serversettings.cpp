@@ -1,14 +1,21 @@
 #include "serversettings.h"
 #include <QSettings>
 #include <QCommandLineParser>
+#include <QList>
 
 ServerSettings::ServerSettings(QCoreApplication *a)
 {
     QCommandLineParser parser;
     QSettings settings;
 
-    parser.addOption({"ip","Set ip to listen to", "ip","127.0.0.1"});
-    parser.addOption({"port","Set port to listen to","port","9000"});
+    QList<QCommandLineOption> options(
+    {
+        {"ip","Set ip to listen to", "ip","127.0.0.1"},
+        {"port","Set port to listen to","port","9000"}
+    });
+
+    parser.addOptions(options);
+
 
     parser.parse(a->arguments());
     if(!settings.contains("ip") || (!settings.contains("port") ) )
