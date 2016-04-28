@@ -7,8 +7,8 @@ ServerSettings::ServerSettings(QCoreApplication *a)
     QCommandLineParser parser;
     QSettings settings;
 
-    parser.addOption({"ip","Set ip to listen to", "ip"});
-    parser.addOption({"port","Set port to listen to","port"});
+    parser.addOption({"ip","Set ip to listen to", "ip","127.0.0.1"});
+    parser.addOption({"port","Set port to listen to","port","9000"});
 
     parser.parse(a->arguments());
     if(!settings.contains("ip") || (!settings.contains("port") ) )
