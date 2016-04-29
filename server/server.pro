@@ -22,4 +22,8 @@ HEADERS += \
     serversettings.h
 
 DISTFILES += \
-    users.db
+    users.db \
+    QVERSO.proto
+
+PROTOS = QVERSO.proto
+include (protobuf.pri)

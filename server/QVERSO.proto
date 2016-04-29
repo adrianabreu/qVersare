@@ -1,5 +1,11 @@
+//paquete QVERSO.proto
 
 message LOG {
-	required string username = 1;
-	required string password = 2;
+    required string username = 1;
+    required string password = 2;
+}
+
+message QVERSO {
+    optional string imtesting = 1;
+    required uint32 keeptesting = 2;
 }
