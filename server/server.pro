@@ -1,6 +1,7 @@
 QT += core
 QT -= gui
 QT += network
+QT += sql
 
 CONFIG += c++11
 
@@ -19,3 +20,6 @@ HEADERS += \
     qversareserver.h \
     client.h \
     serversettings.h
+
+DISTFILES += \
+    users.db

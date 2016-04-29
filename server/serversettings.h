@@ -18,11 +18,14 @@ public:
 
     quint16 getPort() const;
 
+    QString getDbName() const;
+
 private:
     void setDefaultSettings(QSettings *settings);
 
     QString ipAddress_;
     quint16 port_;
+    QString dbName_;
 
 };
 

@@ -11,14 +11,15 @@ ServerSettings::ServerSettings(QCoreApplication *a)
     QList<QCommandLineOption> options(
     {
         {"ip","Set ip to listen to", "ip","127.0.0.1"},
-        {"port","Set port to listen to","port","9000"}
+        {"port","Set port to listen to","port","9000"},
+        {"db","Set dbname","db","users.db"}
     });
 
     parser.addOptions(options);
 
 
     parser.parse(a->arguments());
-    if(!settings.contains("ip") || (!settings.contains("port") ) )
+    if(!settings.contains("ip") || (!settings.contains("port") || (!settings.contains("db")) ) )
         setDefaultSettings(&settings);
 
     if ( parser.isSet("ip") ) {
@@ -33,6 +34,12 @@ ServerSettings::ServerSettings(QCoreApplication *a)
         port_ = settings.value("port", 8000).toString().toUInt();
     }
 
+    if (parser.isSet("db") ) {
+        dbName_ = parser.value("db");
+    } else {
+        dbName_ = settings.value("db", "users.db").toString();
+    }
+
 }
 
 QString ServerSettings::getIpAddress() const
@@ -45,8 +52,14 @@ quint16 ServerSettings::getPort() const
     return port_;
 }
 
+QString ServerSettings::getDbName() const
+{
+    return dbName_;
+}
+
 void ServerSettings::setDefaultSettings(QSettings *settings)
 {
     settings->setValue("ip", "127.0.0.1");
     settings->setValue("port",8000);
+    settings->setValue("db","users.db");
 }

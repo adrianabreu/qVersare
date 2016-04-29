@@ -8,9 +8,11 @@
 #include <QObject>
 #include <QPointer>
 #include <QSettings>
+#include <QSqlDatabase>
+#include <QString>
 #include <QTcpServer>
 #include <QThread>
-#include <QString>
+
 
 #include "client.h"
 #include "serversettings.h"
@@ -22,6 +24,7 @@ public:
     explicit QVersareServer(QObject *parent = 0, QCoreApplication* app = 0);
     ~QVersareServer();
     void startServer();
+    bool goodCredentials(QString user, QString password);
 
 protected:
     /* Per new connection create a new thread
@@ -39,7 +42,7 @@ public slots:
 private:
     QMap<qintptr,QPointer<Client>> clients_;
     ServerSettings* settings;
-
+    QSqlDatabase mydb_;
 
 };
 
