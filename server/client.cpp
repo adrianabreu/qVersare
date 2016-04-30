@@ -1,21 +1,74 @@
-#include <QDebug>
 #include <QByteArray>
+#include <QDebug>
 
 #include "client.h"
 #include "qversareserver.h"
 #include "QVERSO.pb.h"
 
 Client::Client(qintptr fd, QObject *parent) : QObject(parent),
-    my_socket(this),
-    my_thread(this),
+    socket_(this),
     logged_(false)
 {
+    thread_ = new QThread(parent);
     qDebug() << fd;
-    my_socket.setSocketDescriptor(fd);
-    my_socket_fd = fd;
-    //TO DO: create connection.... REALLY NEEDED
+    socket_.setSocketDescriptor(fd);
+    socketFd_ = fd;
     //TO DO: rename attributes with _
-    connect(&my_socket, &QTcpSocket::readyRead, this, &Client::readyRead );
+
+    makeConnections(parent);
+
+    qDebug() << "Client connected";
+}
+
+Client::~Client()
+{
+    socket_.close();
+
+}
+
+
+void Client::readyRead()
+{
+    QString messageToForward(socket_.readAll());
+
+    if (!logged_) {
+        QVERSO my_verso;
+        my_verso.ParseFromString(messageToForward.toStdString() );
+        if (my_verso.has_login() && my_verso.login() == true)
+           if (my_verso.has_username() && my_verso.has_password() )
+               emit validateMe(QString::fromStdString(my_verso.username()),
+                               QString::fromStdString(my_verso.password()) );
+    } else {
+       emit forwardMessage(messageToForward, socket_.socketDescriptor());
+    }
+
+}
+
+void Client::newMessage(QString message, int fd)
+{
+    if (fd != socket_.socketDescriptor())
+        socket_.write(message.toUtf8());
+}
+
+void Client::deleteLater()
+{
+    qDebug() << "Disconnected...";
+    emit disconnectedClient(socketFd_);
+}
+
+void Client::readyValidate(bool status)
+{
+    logged_ = status;
+}
+
+bool Client::getLogged() const
+{
+    return logged_;
+}
+
+void Client::makeConnections(QObject *parent)
+{
+    connect(&socket_, &QTcpSocket::readyRead, this, &Client::readyRead );
 
     connect(this, &Client::forwardMessage,
             static_cast<QVersareServer*>(parent),
@@ -35,60 +88,21 @@ Client::Client(qintptr fd, QObject *parent) : QObject(parent),
     connect(static_cast<QVersareServer*>(parent),
             &QVersareServer::validateResult,this,&Client::readyValidate);
 
-    connect(&my_thread, &QThread::finished, this, &Client::deleteLater );
+    connect(thread_, &QThread::finished, this, &Client::deleteLater );
 
-    connect(&my_socket, &QTcpSocket::disconnected, &my_thread, &QThread::quit);
+    connect(thread_, &QThread::finished, thread_, &QThread::deleteLater );
 
-    qDebug() << "Client connected";
-}
+    connect(&socket_, &QTcpSocket::disconnected, thread_, &QThread::quit);
 
-
-void Client::readyRead()
-{
-    QString messageToForward(my_socket.readAll());
-
-    if (!logged_) {
-        QVERSO my_verso;
-        my_verso.ParseFromString(messageToForward.toStdString() );
-        if (my_verso.has_login() && my_verso.login() == true)
-           if (my_verso.has_username() && my_verso.has_password() )
-               emit validateMe(QString::fromStdString(my_verso.username()),
-                               QString::fromStdString(my_verso.password()) );
-    } else {
-       emit forwardMessage(messageToForward, my_socket.socketDescriptor());
-    }
-
-}
-
-void Client::newMessage(QString message, int fd)
-{
-    if (fd != my_socket.socketDescriptor())
-        my_socket.write(message.toUtf8());
-}
-
-void Client::deleteLater()
-{
-    qDebug() << "Disconnected...";
-    emit disconnectedClient(my_socket_fd);
-}
-
-void Client::readyValidate(bool status)
-{
-    logged_ = status;
-}
-
-bool Client::getLogged() const
-{
-    return logged_;
 }
 
 void Client::start()
 {
-    this->moveToThread(&my_thread);
-    my_thread.start();
+    this->moveToThread(thread_);
+    thread_->start();
 }
 
 void Client::die()
 {
-    my_socket.disconnectFromHost();
+    socket_.disconnectFromHost();
 }

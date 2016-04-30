@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include <QObject>
+#include <QPointer>
 #include <QTcpSocket>
 #include <QThread>
 
@@ -10,11 +11,14 @@ class Client : public QObject
     Q_OBJECT
 public:
     explicit Client(qintptr fd, QObject *parent = 0);
+    ~Client();
 
     void start();
     void die();
 
     bool getLogged() const;
+
+    void makeConnections(QObject *parent);
 
 signals:
     void forwardMessage(QString message, int fd);
@@ -29,9 +33,9 @@ public slots:
     void readyValidate(bool status);
 
 private:
-    int my_socket_fd; //for remove from qmap
-    QTcpSocket my_socket;
-    QThread my_thread;
+    int socketFd_; //for remove from qmap
+    QTcpSocket socket_;
+    QPointer<QThread> thread_;
     bool logged_; //Store the status like a finite machine
 };
 

@@ -1,7 +1,9 @@
-#include "serversettings.h"
-#include <QSettings>
 #include <QCommandLineParser>
 #include <QList>
+#include <QSettings>
+
+#include "serversettings.h"
+
 
 ServerSettings::ServerSettings(QCoreApplication *a)
 {
