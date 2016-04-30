@@ -18,9 +18,6 @@
 
 namespace {
 
-const ::google::protobuf::Descriptor* LOG_descriptor_ = NULL;
-const ::google::protobuf::internal::GeneratedMessageReflection*
-  LOG_reflection_ = NULL;
 const ::google::protobuf::Descriptor* QVERSO_descriptor_ = NULL;
 const ::google::protobuf::internal::GeneratedMessageReflection*
   QVERSO_reflection_ = NULL;
@@ -34,26 +31,11 @@ void protobuf_AssignDesc_QVERSO_2eproto() {
     ::google::protobuf::DescriptorPool::generated_pool()->FindFileByName(
       "QVERSO.proto");
   GOOGLE_CHECK(file != NULL);
-  LOG_descriptor_ = file->message_type(0);
-  static const int LOG_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LOG, username_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LOG, password_),
-  };
-  LOG_reflection_ =
-    new ::google::protobuf::internal::GeneratedMessageReflection(
-      LOG_descriptor_,
-      LOG::default_instance_,
-      LOG_offsets_,
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LOG, _has_bits_[0]),
-      GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(LOG, _unknown_fields_),
-      -1,
-      ::google::protobuf::DescriptorPool::generated_pool(),
-      ::google::protobuf::MessageFactory::generated_factory(),
-      sizeof(LOG));
-  QVERSO_descriptor_ = file->message_type(1);
-  static const int QVERSO_offsets_[2] = {
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, imtesting_),
-    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, keeptesting_),
+  QVERSO_descriptor_ = file->message_type(0);
+  static const int QVERSO_offsets_[3] = {
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, login_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, username_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, password_),
   };
   QVERSO_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -79,16 +61,12 @@ inline void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
-    LOG_descriptor_, &LOG::default_instance());
-  ::google::protobuf::MessageFactory::InternalRegisterGeneratedMessage(
     QVERSO_descriptor_, &QVERSO::default_instance());
 }
 
 }  // namespace
 
 void protobuf_ShutdownFile_QVERSO_2eproto() {
-  delete LOG::default_instance_;
-  delete LOG_reflection_;
   delete QVERSO::default_instance_;
   delete QVERSO_reflection_;
 }
@@ -100,14 +78,11 @@ void protobuf_AddDesc_QVERSO_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014QVERSO.proto\")\n\003LOG\022\020\n\010username\030\001 \002(\t\022"
-    "\020\n\010password\030\002 \002(\t\"0\n\006QVERSO\022\021\n\timtesting"
-    "\030\001 \001(\t\022\023\n\013keeptesting\030\002 \002(\r", 107);
+    "\n\014QVERSO.proto\";\n\006QVERSO\022\r\n\005login\030\001 \001(\010\022"
+    "\020\n\010username\030\002 \001(\t\022\020\n\010password\030\003 \001(\t", 75);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "QVERSO.proto", &protobuf_RegisterTypes);
-  LOG::default_instance_ = new LOG();
   QVERSO::default_instance_ = new QVERSO();
-  LOG::default_instance_->InitAsDefaultInstance();
   QVERSO::default_instance_->InitAsDefaultInstance();
   ::google::protobuf::internal::OnShutdown(&protobuf_ShutdownFile_QVERSO_2eproto);
 }
@@ -122,313 +97,9 @@ struct StaticDescriptorInitializer_QVERSO_2eproto {
 // ===================================================================
 
 #ifndef _MSC_VER
-const int LOG::kUsernameFieldNumber;
-const int LOG::kPasswordFieldNumber;
-#endif  // !_MSC_VER
-
-LOG::LOG()
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  // @@protoc_insertion_point(constructor:LOG)
-}
-
-void LOG::InitAsDefaultInstance() {
-}
-
-LOG::LOG(const LOG& from)
-  : ::google::protobuf::Message() {
-  SharedCtor();
-  MergeFrom(from);
-  // @@protoc_insertion_point(copy_constructor:LOG)
-}
-
-void LOG::SharedCtor() {
-  ::google::protobuf::internal::GetEmptyString();
-  _cached_size_ = 0;
-  username_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-}
-
-LOG::~LOG() {
-  // @@protoc_insertion_point(destructor:LOG)
-  SharedDtor();
-}
-
-void LOG::SharedDtor() {
-  if (username_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete username_;
-  }
-  if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete password_;
-  }
-  if (this != default_instance_) {
-  }
-}
-
-void LOG::SetCachedSize(int size) const {
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-}
-const ::google::protobuf::Descriptor* LOG::descriptor() {
-  protobuf_AssignDescriptorsOnce();
-  return LOG_descriptor_;
-}
-
-const LOG& LOG::default_instance() {
-  if (default_instance_ == NULL) protobuf_AddDesc_QVERSO_2eproto();
-  return *default_instance_;
-}
-
-LOG* LOG::default_instance_ = NULL;
-
-LOG* LOG::New() const {
-  return new LOG;
-}
-
-void LOG::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_username()) {
-      if (username_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        username_->clear();
-      }
-    }
-    if (has_password()) {
-      if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        password_->clear();
-      }
-    }
-  }
-  ::memset(_has_bits_, 0, sizeof(_has_bits_));
-  mutable_unknown_fields()->Clear();
-}
-
-bool LOG::MergePartialFromCodedStream(
-    ::google::protobuf::io::CodedInputStream* input) {
-#define DO_(EXPRESSION) if (!(EXPRESSION)) goto failure
-  ::google::protobuf::uint32 tag;
-  // @@protoc_insertion_point(parse_start:LOG)
-  for (;;) {
-    ::std::pair< ::google::protobuf::uint32, bool> p = input->ReadTagWithCutoff(127);
-    tag = p.first;
-    if (!p.second) goto handle_unusual;
-    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // required string username = 1;
-      case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_username()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->username().data(), this->username().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "username");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectTag(18)) goto parse_password;
-        break;
-      }
-
-      // required string password = 2;
-      case 2: {
-        if (tag == 18) {
-         parse_password:
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_password()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->password().data(), this->password().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "password");
-        } else {
-          goto handle_unusual;
-        }
-        if (input->ExpectAtEnd()) goto success;
-        break;
-      }
-
-      default: {
-      handle_unusual:
-        if (tag == 0 ||
-            ::google::protobuf::internal::WireFormatLite::GetTagWireType(tag) ==
-            ::google::protobuf::internal::WireFormatLite::WIRETYPE_END_GROUP) {
-          goto success;
-        }
-        DO_(::google::protobuf::internal::WireFormat::SkipField(
-              input, tag, mutable_unknown_fields()));
-        break;
-      }
-    }
-  }
-success:
-  // @@protoc_insertion_point(parse_success:LOG)
-  return true;
-failure:
-  // @@protoc_insertion_point(parse_failure:LOG)
-  return false;
-#undef DO_
-}
-
-void LOG::SerializeWithCachedSizes(
-    ::google::protobuf::io::CodedOutputStream* output) const {
-  // @@protoc_insertion_point(serialize_start:LOG)
-  // required string username = 1;
-  if (has_username()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->username().data(), this->username().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "username");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->username(), output);
-  }
-
-  // required string password = 2;
-  if (has_password()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->password().data(), this->password().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "password");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      2, this->password(), output);
-  }
-
-  if (!unknown_fields().empty()) {
-    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
-        unknown_fields(), output);
-  }
-  // @@protoc_insertion_point(serialize_end:LOG)
-}
-
-::google::protobuf::uint8* LOG::SerializeWithCachedSizesToArray(
-    ::google::protobuf::uint8* target) const {
-  // @@protoc_insertion_point(serialize_to_array_start:LOG)
-  // required string username = 1;
-  if (has_username()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->username().data(), this->username().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "username");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->username(), target);
-  }
-
-  // required string password = 2;
-  if (has_password()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->password().data(), this->password().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "password");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        2, this->password(), target);
-  }
-
-  if (!unknown_fields().empty()) {
-    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
-        unknown_fields(), target);
-  }
-  // @@protoc_insertion_point(serialize_to_array_end:LOG)
-  return target;
-}
-
-int LOG::ByteSize() const {
-  int total_size = 0;
-
-  if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // required string username = 1;
-    if (has_username()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->username());
-    }
-
-    // required string password = 2;
-    if (has_password()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->password());
-    }
-
-  }
-  if (!unknown_fields().empty()) {
-    total_size +=
-      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
-        unknown_fields());
-  }
-  GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
-  _cached_size_ = total_size;
-  GOOGLE_SAFE_CONCURRENT_WRITES_END();
-  return total_size;
-}
-
-void LOG::MergeFrom(const ::google::protobuf::Message& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  const LOG* source =
-    ::google::protobuf::internal::dynamic_cast_if_available<const LOG*>(
-      &from);
-  if (source == NULL) {
-    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
-  } else {
-    MergeFrom(*source);
-  }
-}
-
-void LOG::MergeFrom(const LOG& from) {
-  GOOGLE_CHECK_NE(&from, this);
-  if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_username()) {
-      set_username(from.username());
-    }
-    if (from.has_password()) {
-      set_password(from.password());
-    }
-  }
-  mutable_unknown_fields()->MergeFrom(from.unknown_fields());
-}
-
-void LOG::CopyFrom(const ::google::protobuf::Message& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-void LOG::CopyFrom(const LOG& from) {
-  if (&from == this) return;
-  Clear();
-  MergeFrom(from);
-}
-
-bool LOG::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000003) != 0x00000003) return false;
-
-  return true;
-}
-
-void LOG::Swap(LOG* other) {
-  if (other != this) {
-    std::swap(username_, other->username_);
-    std::swap(password_, other->password_);
-    std::swap(_has_bits_[0], other->_has_bits_[0]);
-    _unknown_fields_.Swap(&other->_unknown_fields_);
-    std::swap(_cached_size_, other->_cached_size_);
-  }
-}
-
-::google::protobuf::Metadata LOG::GetMetadata() const {
-  protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::Metadata metadata;
-  metadata.descriptor = LOG_descriptor_;
-  metadata.reflection = LOG_reflection_;
-  return metadata;
-}
-
-
-// ===================================================================
-
-#ifndef _MSC_VER
-const int QVERSO::kImtestingFieldNumber;
-const int QVERSO::kKeeptestingFieldNumber;
+const int QVERSO::kLoginFieldNumber;
+const int QVERSO::kUsernameFieldNumber;
+const int QVERSO::kPasswordFieldNumber;
 #endif  // !_MSC_VER
 
 QVERSO::QVERSO()
@@ -450,8 +121,9 @@ QVERSO::QVERSO(const QVERSO& from)
 void QVERSO::SharedCtor() {
   ::google::protobuf::internal::GetEmptyString();
   _cached_size_ = 0;
-  imtesting_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
-  keeptesting_ = 0u;
+  login_ = false;
+  username_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -461,8 +133,11 @@ QVERSO::~QVERSO() {
 }
 
 void QVERSO::SharedDtor() {
-  if (imtesting_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-    delete imtesting_;
+  if (username_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete username_;
+  }
+  if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete password_;
   }
   if (this != default_instance_) {
   }
@@ -490,13 +165,18 @@ QVERSO* QVERSO::New() const {
 }
 
 void QVERSO::Clear() {
-  if (_has_bits_[0 / 32] & 3) {
-    if (has_imtesting()) {
-      if (imtesting_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
-        imtesting_->clear();
+  if (_has_bits_[0 / 32] & 7) {
+    login_ = false;
+    if (has_username()) {
+      if (username_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        username_->clear();
       }
     }
-    keeptesting_ = 0u;
+    if (has_password()) {
+      if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        password_->clear();
+      }
+    }
   }
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
@@ -512,30 +192,47 @@ bool QVERSO::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // optional string imtesting = 1;
+      // optional bool login = 1;
       case 1: {
-        if (tag == 10) {
-          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
-                input, this->mutable_imtesting()));
-          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-            this->imtesting().data(), this->imtesting().length(),
-            ::google::protobuf::internal::WireFormat::PARSE,
-            "imtesting");
+        if (tag == 8) {
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &login_)));
+          set_has_login();
         } else {
           goto handle_unusual;
         }
-        if (input->ExpectTag(16)) goto parse_keeptesting;
+        if (input->ExpectTag(18)) goto parse_username;
         break;
       }
 
-      // required uint32 keeptesting = 2;
+      // optional string username = 2;
       case 2: {
-        if (tag == 16) {
-         parse_keeptesting:
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::uint32, ::google::protobuf::internal::WireFormatLite::TYPE_UINT32>(
-                 input, &keeptesting_)));
-          set_has_keeptesting();
+        if (tag == 18) {
+         parse_username:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_username()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->username().data(), this->username().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "username");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(26)) goto parse_password;
+        break;
+      }
+
+      // optional string password = 3;
+      case 3: {
+        if (tag == 26) {
+         parse_password:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_password()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->password().data(), this->password().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "password");
         } else {
           goto handle_unusual;
         }
@@ -568,19 +265,29 @@ failure:
 void QVERSO::SerializeWithCachedSizes(
     ::google::protobuf::io::CodedOutputStream* output) const {
   // @@protoc_insertion_point(serialize_start:QVERSO)
-  // optional string imtesting = 1;
-  if (has_imtesting()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->imtesting().data(), this->imtesting().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "imtesting");
-    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
-      1, this->imtesting(), output);
+  // optional bool login = 1;
+  if (has_login()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(1, this->login(), output);
   }
 
-  // required uint32 keeptesting = 2;
-  if (has_keeptesting()) {
-    ::google::protobuf::internal::WireFormatLite::WriteUInt32(2, this->keeptesting(), output);
+  // optional string username = 2;
+  if (has_username()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->username().data(), this->username().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "username");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      2, this->username(), output);
+  }
+
+  // optional string password = 3;
+  if (has_password()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->password().data(), this->password().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "password");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      3, this->password(), output);
   }
 
   if (!unknown_fields().empty()) {
@@ -593,20 +300,31 @@ void QVERSO::SerializeWithCachedSizes(
 ::google::protobuf::uint8* QVERSO::SerializeWithCachedSizesToArray(
     ::google::protobuf::uint8* target) const {
   // @@protoc_insertion_point(serialize_to_array_start:QVERSO)
-  // optional string imtesting = 1;
-  if (has_imtesting()) {
-    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
-      this->imtesting().data(), this->imtesting().length(),
-      ::google::protobuf::internal::WireFormat::SERIALIZE,
-      "imtesting");
-    target =
-      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
-        1, this->imtesting(), target);
+  // optional bool login = 1;
+  if (has_login()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(1, this->login(), target);
   }
 
-  // required uint32 keeptesting = 2;
-  if (has_keeptesting()) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteUInt32ToArray(2, this->keeptesting(), target);
+  // optional string username = 2;
+  if (has_username()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->username().data(), this->username().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "username");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        2, this->username(), target);
+  }
+
+  // optional string password = 3;
+  if (has_password()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->password().data(), this->password().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "password");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        3, this->password(), target);
   }
 
   if (!unknown_fields().empty()) {
@@ -621,18 +339,23 @@ int QVERSO::ByteSize() const {
   int total_size = 0;
 
   if (_has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    // optional string imtesting = 1;
-    if (has_imtesting()) {
-      total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::StringSize(
-          this->imtesting());
+    // optional bool login = 1;
+    if (has_login()) {
+      total_size += 1 + 1;
     }
 
-    // required uint32 keeptesting = 2;
-    if (has_keeptesting()) {
+    // optional string username = 2;
+    if (has_username()) {
       total_size += 1 +
-        ::google::protobuf::internal::WireFormatLite::UInt32Size(
-          this->keeptesting());
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->username());
+    }
+
+    // optional string password = 3;
+    if (has_password()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->password());
     }
 
   }
@@ -662,11 +385,14 @@ void QVERSO::MergeFrom(const ::google::protobuf::Message& from) {
 void QVERSO::MergeFrom(const QVERSO& from) {
   GOOGLE_CHECK_NE(&from, this);
   if (from._has_bits_[0 / 32] & (0xffu << (0 % 32))) {
-    if (from.has_imtesting()) {
-      set_imtesting(from.imtesting());
+    if (from.has_login()) {
+      set_login(from.login());
     }
-    if (from.has_keeptesting()) {
-      set_keeptesting(from.keeptesting());
+    if (from.has_username()) {
+      set_username(from.username());
+    }
+    if (from.has_password()) {
+      set_password(from.password());
     }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
@@ -685,15 +411,15 @@ void QVERSO::CopyFrom(const QVERSO& from) {
 }
 
 bool QVERSO::IsInitialized() const {
-  if ((_has_bits_[0] & 0x00000002) != 0x00000002) return false;
 
   return true;
 }
 
 void QVERSO::Swap(QVERSO* other) {
   if (other != this) {
-    std::swap(imtesting_, other->imtesting_);
-    std::swap(keeptesting_, other->keeptesting_);
+    std::swap(login_, other->login_);
+    std::swap(username_, other->username_);
+    std::swap(password_, other->password_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

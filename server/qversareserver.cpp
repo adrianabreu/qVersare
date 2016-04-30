@@ -23,6 +23,7 @@ QVersareServer::~QVersareServer()
         i != clients_.end(); ++i) {
         i.value()->die();
     }
+    mydb_.close();
 }
 
 void QVersareServer::startServer()
@@ -54,7 +55,6 @@ void QVersareServer::incomingConnection(qintptr handle)
     QPointer<Client> clientSocket = new Client(handle, this);
     clients_.insert(clients_.end(),handle,clientSocket);
     //threads with parents are not movable
-    goodCredentials("tiger","khon");
     clientSocket->setParent(0);
     clientSocket->start();
 
@@ -70,4 +70,9 @@ void QVersareServer::clientDisconnected(int fd)
 {
     QPointer<Client> temp = clients_.take(fd);
     delete temp;
+}
+
+void QVersareServer::validateClient(QString user, QString password)
+{
+    emit validateResult(goodCredentials(user,password));
 }

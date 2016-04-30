@@ -33,10 +33,12 @@ protected:
 
 signals:
     void forwardedMessage(QString mymessage, int fd);
+    void validateResult(bool status);
 
 public slots:
     void newMessageFromClient(QString mymessage, int fd);
     void clientDisconnected(int fd);
+    void validateClient(QString user, QString password);
     //void readyRead();
 
 private:
