@@ -15,6 +15,9 @@ public:
     explicit ConfDialog(QWidget *parent = 0);
     ~ConfDialog();
 
+public slots:
+    void done(int r);
+
 private:
     Ui::ConfDialog *ui;
 };

@@ -15,6 +15,9 @@ public:
     explicit logindialog(QWidget *parent = 0);
     ~logindialog();
 
+public slots:
+    void done(int r);
+
 private:
     Ui::logindialog *ui;
 };
