@@ -1,0 +1,7 @@
+//paquete QVERSO.proto
+
+message QVERSO {
+    optional bool login = 1;
+    optional string username = 2;
+    optional string password = 3;
+}
