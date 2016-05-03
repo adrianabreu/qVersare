@@ -1777,7 +1777,11 @@ logindialog.o: logindialog.cpp logindialog.h \
 		/usr/include/qt5/QtWidgets/QSpacerItem \
 		/usr/include/qt5/QtWidgets/QVBoxLayout \
 		/usr/include/qt5/QtWidgets/qmessagebox.h \
-		/usr/include/qt5/QtCore/qsettings.h
+		/usr/include/qt5/QtCore/qsettings.h \
+		simplecrypt.h \
+		/usr/include/qt5/QtCore/QString \
+		/usr/include/qt5/QtCore/QVector \
+		/usr/include/qt5/QtCore/QFlags
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o logindialog.o logindialog.cpp
 
 simplecrypt.o: simplecrypt.cpp simplecrypt.h \

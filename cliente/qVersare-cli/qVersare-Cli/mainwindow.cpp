@@ -69,6 +69,7 @@ void MainWindow::on_SendTextEdit_returnPressed()
 {
     QString line = ui->SendTextEdit->text() + '\n';
     client_->sentTo(line);
+    ui->ReciveTextEdit->appendPlainText(line);
     ui->SendTextEdit->clear();
 }
 
