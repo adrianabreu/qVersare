@@ -16,13 +16,16 @@ public:
 
     //establecer conexion
     int connectTo();
-    //enviar
 
-    //recibir
+    void makeConnect(QObject *parent);
 
-//signals:
-//    void connected();
-//    void disconnected();
+    void sentTo(QString line);
+
+public slots:
+    void recivedFrom();
+
+signals:
+    void messageRecive(QString message);
 
 private:
     QTcpSocket socket_;
