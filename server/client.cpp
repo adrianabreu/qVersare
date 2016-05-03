@@ -88,11 +88,14 @@ void Client::makeConnections(QObject *parent)
     connect(static_cast<QVersareServer*>(parent),
             &QVersareServer::validateResult,this,&Client::readyValidate);
 
-    connect(thread_, &QThread::finished, this, &Client::deleteLater );
+    connect(static_cast<QThread*>(thread_), &QThread::finished, this,
+            &Client::deleteLater );
 
-    connect(thread_, &QThread::finished, thread_, &QThread::deleteLater );
+    connect(static_cast<QThread*>(thread_), &QThread::finished,
+            static_cast<QThread*>(thread_), &QThread::deleteLater );
 
-    connect(&socket_, &QTcpSocket::disconnected, thread_, &QThread::quit);
+    connect(&socket_, &QTcpSocket::disconnected, static_cast<QThread*>(thread_),
+            &QThread::quit);
 
 }
 
