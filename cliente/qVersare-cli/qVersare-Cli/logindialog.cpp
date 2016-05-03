@@ -2,6 +2,7 @@
 #include "ui_logindialog.h"
 #include "qmessagebox.h"
 #include "qsettings.h"
+#include "simplecrypt.h"
 
 logindialog::logindialog(QWidget *parent) :
     QDialog(parent),
@@ -10,6 +11,7 @@ logindialog::logindialog(QWidget *parent) :
     ui->setupUi(this);
     QSettings settings;
     ui->userName->setText(settings.value("userName", "").toString());
+    ui->passUser->setEchoMode(QLineEdit::Password);
 }
 
 logindialog::~logindialog()
@@ -30,8 +32,22 @@ void logindialog::done(int r)
             return;
         } else {
             QSettings settings;
+            SimpleCrypt crypto;
+            crypto.setKey(0x02ad4a4acb9f023);
+            QString encrypted = crypto.encryptToString(ui->passUser->text());
+
+            //prueba
+            QMessageBox aux;
+            aux.setText(encrypted);
+            aux.exec();
+            /*QString decrypted = crypto.decryptToString(encrypted);
+            aux.setText(decrypted);
+            aux.exec();*/
+
+
+
             settings.setValue("userName", ui->userName->text());
-            settings.setValue("passUser", ui->passUser->text());
+            settings.setValue("passUser", encrypted);
 
             QDialog::done(r);
             return;

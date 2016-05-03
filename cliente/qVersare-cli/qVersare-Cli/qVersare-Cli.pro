@@ -21,13 +21,15 @@ SOURCES += main.cpp\
     aboutdialog.cpp \
     confdialog.cpp \
     client.cpp \
-    logindialog.cpp
+    logindialog.cpp \
+    simplecrypt.cpp
 
 HEADERS  += mainwindow.h \
     aboutdialog.h \
     confdialog.h \
     client.h \
-    logindialog.h
+    logindialog.h \
+    simplecrypt.h
 
 FORMS    += mainwindow.ui \
     aboutdialog.ui \

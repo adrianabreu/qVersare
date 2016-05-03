@@ -50,7 +50,8 @@ SOURCES       = main.cpp \
 		aboutdialog.cpp \
 		confdialog.cpp \
 		client.cpp \
-		logindialog.cpp moc_mainwindow.cpp \
+		logindialog.cpp \
+		simplecrypt.cpp moc_mainwindow.cpp \
 		moc_aboutdialog.cpp \
 		moc_confdialog.cpp \
 		moc_client.cpp \
@@ -61,6 +62,7 @@ OBJECTS       = main.o \
 		confdialog.o \
 		client.o \
 		logindialog.o \
+		simplecrypt.o \
 		moc_mainwindow.o \
 		moc_aboutdialog.o \
 		moc_confdialog.o \
@@ -290,7 +292,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/qVersare-Cli1.0.0 || mkdir -p .tmp/qVersare-Cli1.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/qVersare-Cli1.0.0/ && $(COPY_FILE) --parents mainwindow.h aboutdialog.h confdialog.h client.h logindialog.h .tmp/qVersare-Cli1.0.0/ && $(COPY_FILE) --parents main.cpp mainwindow.cpp aboutdialog.cpp confdialog.cpp client.cpp logindialog.cpp .tmp/qVersare-Cli1.0.0/ && $(COPY_FILE) --parents mainwindow.ui aboutdialog.ui confdialog.ui logindialog.ui .tmp/qVersare-Cli1.0.0/ && (cd `dirname .tmp/qVersare-Cli1.0.0` && $(TAR) qVersare-Cli1.0.0.tar qVersare-Cli1.0.0 && $(COMPRESS) qVersare-Cli1.0.0.tar) && $(MOVE) `dirname .tmp/qVersare-Cli1.0.0`/qVersare-Cli1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/qVersare-Cli1.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/qVersare-Cli1.0.0/ && $(COPY_FILE) --parents mainwindow.h aboutdialog.h confdialog.h client.h logindialog.h simplecrypt.h .tmp/qVersare-Cli1.0.0/ && $(COPY_FILE) --parents main.cpp mainwindow.cpp aboutdialog.cpp confdialog.cpp client.cpp logindialog.cpp simplecrypt.cpp .tmp/qVersare-Cli1.0.0/ && $(COPY_FILE) --parents mainwindow.ui aboutdialog.ui confdialog.ui logindialog.ui .tmp/qVersare-Cli1.0.0/ && (cd `dirname .tmp/qVersare-Cli1.0.0` && $(TAR) qVersare-Cli1.0.0.tar qVersare-Cli1.0.0 && $(COMPRESS) qVersare-Cli1.0.0.tar) && $(MOVE) `dirname .tmp/qVersare-Cli1.0.0`/qVersare-Cli1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/qVersare-Cli1.0.0
 
 
 clean:compiler_clean 
@@ -1777,6 +1779,95 @@ logindialog.o: logindialog.cpp logindialog.h \
 		/usr/include/qt5/QtWidgets/qmessagebox.h \
 		/usr/include/qt5/QtCore/qsettings.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o logindialog.o logindialog.cpp
+
+simplecrypt.o: simplecrypt.cpp simplecrypt.h \
+		/usr/include/qt5/QtCore/QString \
+		/usr/include/qt5/QtCore/qstring.h \
+		/usr/include/qt5/QtCore/qchar.h \
+		/usr/include/qt5/QtCore/qglobal.h \
+		/usr/include/qt5/QtCore/qconfig.h \
+		/usr/include/qt5/QtCore/qfeatures.h \
+		/usr/include/qt5/QtCore/qsystemdetection.h \
+		/usr/include/qt5/QtCore/qprocessordetection.h \
+		/usr/include/qt5/QtCore/qcompilerdetection.h \
+		/usr/include/qt5/QtCore/qglobalstatic.h \
+		/usr/include/qt5/QtCore/qatomic.h \
+		/usr/include/qt5/QtCore/qbasicatomic.h \
+		/usr/include/qt5/QtCore/qatomic_bootstrap.h \
+		/usr/include/qt5/QtCore/qgenericatomic.h \
+		/usr/include/qt5/QtCore/qatomic_msvc.h \
+		/usr/include/qt5/QtCore/qatomic_integrity.h \
+		/usr/include/qt5/QtCore/qoldbasicatomic.h \
+		/usr/include/qt5/QtCore/qatomic_vxworks.h \
+		/usr/include/qt5/QtCore/qatomic_power.h \
+		/usr/include/qt5/QtCore/qatomic_alpha.h \
+		/usr/include/qt5/QtCore/qatomic_armv7.h \
+		/usr/include/qt5/QtCore/qatomic_armv6.h \
+		/usr/include/qt5/QtCore/qatomic_armv5.h \
+		/usr/include/qt5/QtCore/qatomic_bfin.h \
+		/usr/include/qt5/QtCore/qatomic_ia64.h \
+		/usr/include/qt5/QtCore/qatomic_mips.h \
+		/usr/include/qt5/QtCore/qatomic_s390.h \
+		/usr/include/qt5/QtCore/qatomic_sh4a.h \
+		/usr/include/qt5/QtCore/qatomic_sparc.h \
+		/usr/include/qt5/QtCore/qatomic_gcc.h \
+		/usr/include/qt5/QtCore/qatomic_x86.h \
+		/usr/include/qt5/QtCore/qatomic_cxx11.h \
+		/usr/include/qt5/QtCore/qatomic_unix.h \
+		/usr/include/qt5/QtCore/qmutex.h \
+		/usr/include/qt5/QtCore/qlogging.h \
+		/usr/include/qt5/QtCore/qflags.h \
+		/usr/include/qt5/QtCore/qtypeinfo.h \
+		/usr/include/qt5/QtCore/qtypetraits.h \
+		/usr/include/qt5/QtCore/qsysinfo.h \
+		/usr/include/qt5/QtCore/qbytearray.h \
+		/usr/include/qt5/QtCore/qrefcount.h \
+		/usr/include/qt5/QtCore/qnamespace.h \
+		/usr/include/qt5/QtCore/qarraydata.h \
+		/usr/include/qt5/QtCore/qstringbuilder.h \
+		/usr/include/qt5/QtCore/QVector \
+		/usr/include/qt5/QtCore/qvector.h \
+		/usr/include/qt5/QtCore/qalgorithms.h \
+		/usr/include/qt5/QtCore/qiterator.h \
+		/usr/include/qt5/QtCore/qlist.h \
+		/usr/include/qt5/QtCore/qpoint.h \
+		/usr/include/qt5/QtCore/QFlags \
+		/usr/include/qt5/QtCore/QByteArray \
+		/usr/include/qt5/QtCore/QtDebug \
+		/usr/include/qt5/QtCore/qdebug.h \
+		/usr/include/qt5/QtCore/qhash.h \
+		/usr/include/qt5/QtCore/qpair.h \
+		/usr/include/qt5/QtCore/qmap.h \
+		/usr/include/qt5/QtCore/qtextstream.h \
+		/usr/include/qt5/QtCore/qiodevice.h \
+		/usr/include/qt5/QtCore/qobject.h \
+		/usr/include/qt5/QtCore/qobjectdefs.h \
+		/usr/include/qt5/QtCore/qobjectdefs_impl.h \
+		/usr/include/qt5/QtCore/qcoreevent.h \
+		/usr/include/qt5/QtCore/qscopedpointer.h \
+		/usr/include/qt5/QtCore/qmetatype.h \
+		/usr/include/qt5/QtCore/qvarlengtharray.h \
+		/usr/include/qt5/QtCore/qcontainerfwd.h \
+		/usr/include/qt5/QtCore/qisenum.h \
+		/usr/include/qt5/QtCore/qobject_impl.h \
+		/usr/include/qt5/QtCore/qlocale.h \
+		/usr/include/qt5/QtCore/qvariant.h \
+		/usr/include/qt5/QtCore/qstringlist.h \
+		/usr/include/qt5/QtCore/qdatastream.h \
+		/usr/include/qt5/QtCore/qregexp.h \
+		/usr/include/qt5/QtCore/qstringmatcher.h \
+		/usr/include/qt5/QtCore/qshareddata.h \
+		/usr/include/qt5/QtCore/qset.h \
+		/usr/include/qt5/QtCore/qcontiguouscache.h \
+		/usr/include/qt5/QtCore/QtGlobal \
+		/usr/include/qt5/QtCore/QDateTime \
+		/usr/include/qt5/QtCore/qdatetime.h \
+		/usr/include/qt5/QtCore/qsharedpointer.h \
+		/usr/include/qt5/QtCore/qsharedpointer_impl.h \
+		/usr/include/qt5/QtCore/QCryptographicHash \
+		/usr/include/qt5/QtCore/qcryptographichash.h \
+		/usr/include/qt5/QtCore/QDataStream
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o simplecrypt.o simplecrypt.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
