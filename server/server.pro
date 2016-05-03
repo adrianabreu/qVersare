@@ -25,5 +25,3 @@ DISTFILES += \
     users.db \
     QVERSO.proto
 
-PROTOS = QVERSO.proto
-include (protobuf.pri)

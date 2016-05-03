@@ -3,7 +3,6 @@
 
 #include "client.h"
 #include "qversareserver.h"
-#include "QVERSO.pb.h"
 
 Client::Client(qintptr fd, QObject *parent) : QObject(parent),
     socket_(this),
@@ -31,16 +30,7 @@ void Client::readyRead()
 {
     QString messageToForward(socket_.readAll());
 
-    if (!logged_) {
-        QVERSO my_verso;
-        my_verso.ParseFromString(messageToForward.toStdString() );
-        if (my_verso.has_login() && my_verso.login() == true)
-           if (my_verso.has_username() && my_verso.has_password() )
-               emit validateMe(QString::fromStdString(my_verso.username()),
-                               QString::fromStdString(my_verso.password()) );
-    } else {
        emit forwardMessage(messageToForward, socket_.socketDescriptor());
-    }
 
 }
 
