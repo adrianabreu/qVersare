@@ -25,9 +25,25 @@ int Client::connectTo()
 
     if (socket_.waitForConnected(3000)) {
         result = 5;
+        connect(&socket_, &QTcpSocket::readyRead, this, &Client::recivedFrom);
     } else {
         result = 10;
     }
+
     return result;
 }
 
+void Client::sentTo(QString line)
+{
+    socket_.write(line.toUtf8());
+}
+
+void Client::recivedFrom()
+{
+    QByteArray buffer;
+    buffer.resize(socket_.bytesAvailable());
+    socket_.read(buffer.data(), buffer.size());
+    emit messageRecive(QString(buffer));
+    /*QString aux(socket_.readAll());
+    return aux;*/
+}

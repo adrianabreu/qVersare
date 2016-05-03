@@ -48,12 +48,16 @@ void MainWindow::on_conectButton_clicked()
             isConectedButton_ = false;
             isConectedToServer_ = false;
         } else {
-            QMessageBox::critical(this, "Conectar", "Conectado correctamente");
+            QMessageBox text;
+            text.setText("Conectado correctamente");
+            text.exec();
             ui->conectButton->setText("Desconectar");
             isConectedButton_ = true;
             isConectedToServer_ = true;
         }
     }
+    connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
+
 }
 void MainWindow::on_aboutButton_clicked()
 {
@@ -63,11 +67,17 @@ void MainWindow::on_aboutButton_clicked()
 
 void MainWindow::on_SendTextEdit_returnPressed()
 {
-
+    QString line = ui->SendTextEdit->text() + '\n';
+    client_->sentTo(line);
+    ui->SendTextEdit->clear();
 }
 
 void MainWindow::on_confButton_clicked()
 {
     ConfDialog configure;
     configure.exec();
+}
+
+void MainWindow::readyToRead(QString read){
+    ui->ReciveTextEdit->appendPlainText(read);
 }

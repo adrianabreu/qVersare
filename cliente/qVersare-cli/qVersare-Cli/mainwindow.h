@@ -16,6 +16,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+
 private slots:
     void on_exitButton_clicked();
 
@@ -26,6 +27,8 @@ private slots:
     void on_SendTextEdit_returnPressed();
 
     void on_confButton_clicked();
+
+    void readyToRead(QString aux);
 
 private:
     Ui::MainWindow *ui;
