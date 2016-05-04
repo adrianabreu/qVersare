@@ -35,12 +35,12 @@ void Client::readyRead()
     while(socket_.bytesAvailable() > 0){
         QByteArray algo;
         QDataStream in(&socket_);
-            //Recojiendo en tamaño del paquete
+
          if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
                  (buffer_size == 0) )
          {
              in >> buffer_size;
-             //Teniendo el tamaño de paquete lo leemos del buffer
+
          } if ( (buffer_size != 0) && (socket_.bytesAvailable() >= buffer_size )) {
             algo=socket_.read(buffer_size);
             my_verso.ParseFromString(algo.toStdString());
@@ -52,24 +52,21 @@ void Client::readyRead()
     }
 
     if (!logged_) {
-        qDebug() << "Usuario no logueado, identifiquese";
-        qDebug() << my_verso.has_login();
         if (my_verso.has_login() && my_verso.login() == true)
            if (my_verso.has_username() && my_verso.has_password() ) {
                emit validateMe(QString::fromStdString(my_verso.username()),
                                QString::fromStdString(my_verso.password()) );
            }
     } else {
-
-        //emit forwardMessage(QString(buffer), socket_.socketDescriptor());
+        emit forwardMessage(my_verso, socket_.socketDescriptor());
     }
 
 }
 
-void Client::newMessage(QString message, int fd)
+void Client::newMessage(QVERSO a_verso, int fd)
 {
     if (fd != socket_.socketDescriptor())
-        socket_.write(message.toUtf8());
+        sendVerso(a_verso);
 }
 
 void Client::deleteLater()
@@ -83,20 +80,7 @@ void Client::readyValidate(bool status)
     logged_ = status;
     QVERSO logMessage;
     logMessage.set_login(status);
-    qDebug() << "Message returning";
-    qDebug() << status;
-    std::string buffer;
-    logMessage.SerializeToString(&buffer);
-    quint32 bufferSize = buffer.size();
-
-    QByteArray block;
-    QDataStream out(&block, QIODevice::WriteOnly);
-    out.setVersion(QDataStream::Qt_4_0);
-    out << (quint32)bufferSize;
-
-    socket_.write(block);
-
-    socket_.write(buffer.c_str(), bufferSize);
+    sendVerso(logMessage);
 }
 
 bool Client::getLogged() const
@@ -135,6 +119,22 @@ void Client::makeConnections(QObject *parent)
     connect(&socket_, &QTcpSocket::disconnected, static_cast<QThread*>(thread_),
             &QThread::quit);
 
+}
+
+void Client::sendVerso(QVERSO a_verso)
+{
+    std::string buffer;
+    a_verso.SerializeToString(&buffer);
+    quint32 bufferSize = buffer.size();
+
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+    out << (quint32)bufferSize;
+
+    socket_.write(block);
+
+    socket_.write(buffer.c_str(), bufferSize);
 }
 
 void Client::start()

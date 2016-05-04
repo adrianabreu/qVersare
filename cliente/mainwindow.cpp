@@ -30,6 +30,7 @@ void MainWindow::on_conectButton_clicked()
 {
     if(isConectedButton_) {
         ui->conectButton->setText("Conectar");
+        delete client_;
         isConectedButton_ = false;
         isConectedToServer_ = false;
     } else {
@@ -58,9 +59,9 @@ void MainWindow::on_conectButton_clicked()
                 &MainWindow::send_login);
         login.exec();
 
-
+        connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
     }
-    connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
+
 
 }
 void MainWindow::on_aboutButton_clicked()
@@ -72,7 +73,8 @@ void MainWindow::on_aboutButton_clicked()
 void MainWindow::on_SendTextEdit_returnPressed()
 {
     QString line = ui->SendTextEdit->text() + '\n';
-    client_->sentTo(line);
+    //Construir qVerso y no llamar a sentto directamente
+    //client_->sentTo(line);
     ui->ReciveTextEdit->appendPlainText(line);
     ui->SendTextEdit->clear();
 }

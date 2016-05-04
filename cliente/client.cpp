@@ -38,20 +38,10 @@ int Client::connectTo()
     return result;
 }
 
-void Client::sentTo(QString line)
+void Client::sentTo(QVERSO a_verso)
 {
-    socket_.write(line.toUtf8());
-}
-
-void Client::log_me_in(QString username, QString password)
-{
-    QVERSO logMessage;
-    logMessage.set_login(true);
-    logMessage.set_username(username.toStdString());
-    logMessage.set_password(password.toStdString());
-
     std::string buffer;
-    logMessage.SerializeToString(&buffer);
+    a_verso.SerializeToString(&buffer);
     quint32 bufferSize = buffer.size();
 
     QByteArray block;
@@ -64,6 +54,16 @@ void Client::log_me_in(QString username, QString password)
     socket_.write(buffer.c_str(), bufferSize);
 }
 
+void Client::log_me_in(QString username, QString password)
+{
+    QVERSO logMessage;
+    logMessage.set_login(true);
+    logMessage.set_username(username.toStdString());
+    logMessage.set_password(password.toStdString());
+
+    sentTo(logMessage);
+}
+
 void Client::recivedFrom()
 {
     qint32 buffer_size = 0;
@@ -71,7 +71,7 @@ void Client::recivedFrom()
     while(socket_.bytesAvailable() > 0){
         QByteArray algo;
         QDataStream in(&socket_);
-            //Recojiendo en tamaño del paquete
+            //Recogiendo en tamaño del paquete
          if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
                  (buffer_size == 0) )
          {
@@ -90,6 +90,7 @@ void Client::recivedFrom()
     if (!connected_) {
         if (my_verso.has_login() && my_verso.login() == true) {
             emit messageRecive("YOU ARE IN");
+            connected_ = true;
         } else {
             emit messageRecive("GET OUT");
         }

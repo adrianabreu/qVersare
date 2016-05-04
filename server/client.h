@@ -6,6 +6,7 @@
 #include <QTcpSocket>
 #include <QThread>
 
+#include "QVERSO.pb.h"
 class Client : public QObject
 {
     Q_OBJECT
@@ -20,15 +21,17 @@ public:
 
     void makeConnections(QObject *parent);
 
+    void sendVerso(QVERSO a_verso);
+
 signals:
-    void forwardMessage(QString message, int fd);
+    void forwardMessage(QVERSO a_verso, int fd);
     void disconnectedClient(int fd); //Sends the server with
                                      //object should be destroyed
     void validateMe(QString user, QString password);
 
 public slots:
     void readyRead();
-    void newMessage(QString message, int fd);
+    void newMessage(QVERSO a_verso, int fd);
     void deleteLater();
     void readyValidate(bool status);
 

@@ -63,10 +63,9 @@ void QVersareServer::incomingConnection(qintptr handle)
 
 }
 
-void QVersareServer::newMessageFromClient(QString mymessage,int fd)
+void QVersareServer::newMessageFromClient(QVERSO a_verso,int fd)
 {
-    qDebug() << mymessage;
-    emit forwardedMessage(mymessage,fd);
+    emit forwardedMessage(a_verso,fd);
 }
 
 void QVersareServer::clientDisconnected(int fd)

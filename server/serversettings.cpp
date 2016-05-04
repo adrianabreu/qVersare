@@ -21,7 +21,8 @@ ServerSettings::ServerSettings(QCoreApplication *a)
 
 
     parser.parse(a->arguments());
-    if(!settings.contains("ip") || (!settings.contains("port") || (!settings.contains("db")) ) )
+    if(!settings.contains("ip") || (!settings.contains("port") ||
+                                    (!settings.contains("db")) ) )
         setDefaultSettings(&settings);
 
     if ( parser.isSet("ip") ) {

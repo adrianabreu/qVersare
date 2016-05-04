@@ -6,6 +6,8 @@
 #include <QThread>
 #include <QDebug>
 
+#include <QVERSO.pb.h>
+
 class Client : public QObject
 {
     Q_OBJECT
@@ -19,7 +21,7 @@ public:
 
     void makeConnect(QObject *parent);
 
-    void sentTo(QString line);
+    void sentTo(QVERSO a_verso);
 
     void log_me_in(QString username, QString password);
 

@@ -15,7 +15,9 @@
 
 
 #include "client.h"
+#include "QVERSO.pb.h"
 #include "serversettings.h"
+
 
 class QVersareServer : public QTcpServer
 {
@@ -32,11 +34,11 @@ protected:
     void incomingConnection(qintptr handle);
 
 signals:
-    void forwardedMessage(QString mymessage, int fd);
+    void forwardedMessage(QVERSO a_verso, int fd);
     void validateResult(bool status);
 
 public slots:
-    void newMessageFromClient(QString mymessage, int fd);
+    void newMessageFromClient(QVERSO a_verso, int fd);
     void clientDisconnected(int fd);
     void validateClient(QString user, QString password);
     //void readyRead();
