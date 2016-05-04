@@ -33,8 +33,6 @@ void MainWindow::on_conectButton_clicked()
         isConectedButton_ = false;
         isConectedToServer_ = false;
     } else {
-        logindialog login;
-        login.exec();
         QSettings settings;
         QString userName = settings.value("userName").toString();
         QString ip = settings.value("serverAddress").toString();
@@ -55,6 +53,12 @@ void MainWindow::on_conectButton_clicked()
             isConectedButton_ = true;
             isConectedToServer_ = true;
         }
+        logindialog login;
+        connect(&login, &logindialog::emit_login_data, this,
+                &MainWindow::send_login);
+        login.exec();
+
+
     }
     connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
 
@@ -81,4 +85,9 @@ void MainWindow::on_confButton_clicked()
 
 void MainWindow::readyToRead(QString read){
     ui->ReciveTextEdit->appendPlainText(read);
+}
+
+void MainWindow::send_login(QString username, QString password)
+{
+    client_->log_me_in(username, password);
 }

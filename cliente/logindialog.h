@@ -15,6 +15,9 @@ public:
     explicit logindialog(QWidget *parent = 0);
     ~logindialog();
 
+signals:
+    void emit_login_data(QString username, QString password);
+
 public slots:
     void done(int r);
 

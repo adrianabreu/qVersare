@@ -1,8 +1,10 @@
 #include <QByteArray>
 #include <QDebug>
+#include <QDataStream>
 
 #include "client.h"
 #include "qversareserver.h"
+#include "QVERSO.pb.h"
 
 Client::Client(qintptr fd, QObject *parent) : QObject(parent),
     socket_(this),
@@ -28,9 +30,39 @@ Client::~Client()
 
 void Client::readyRead()
 {
-    QString messageToForward(socket_.readAll());
+    qint32 buffer_size = 0;
+    QVERSO my_verso;
+    while(socket_.bytesAvailable() > 0){
+        QByteArray algo;
+        QDataStream in(&socket_);
+            //Recojiendo en tamaño del paquete
+         if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
+                 (buffer_size == 0) )
+         {
+             in >> buffer_size;
+             //Teniendo el tamaño de paquete lo leemos del buffer
+         } if ( (buffer_size != 0) && (socket_.bytesAvailable() >= buffer_size )) {
+            algo=socket_.read(buffer_size);
+            my_verso.ParseFromString(algo.toStdString());
+            buffer_size = 0;
 
-       emit forwardMessage(messageToForward, socket_.socketDescriptor());
+        } else {
+           socket_.readAll();
+        }
+    }
+
+    if (!logged_) {
+        qDebug() << "Usuario no logueado, identifiquese";
+        qDebug() << my_verso.has_login();
+        if (my_verso.has_login() && my_verso.login() == true)
+           if (my_verso.has_username() && my_verso.has_password() ) {
+               emit validateMe(QString::fromStdString(my_verso.username()),
+                               QString::fromStdString(my_verso.password()) );
+           }
+    } else {
+
+        //emit forwardMessage(QString(buffer), socket_.socketDescriptor());
+    }
 
 }
 
@@ -49,6 +81,22 @@ void Client::deleteLater()
 void Client::readyValidate(bool status)
 {
     logged_ = status;
+    QVERSO logMessage;
+    logMessage.set_login(status);
+    qDebug() << "Message returning";
+    qDebug() << status;
+    std::string buffer;
+    logMessage.SerializeToString(&buffer);
+    quint32 bufferSize = buffer.size();
+
+    QByteArray block;
+    QDataStream out(&block, QIODevice::WriteOnly);
+    out.setVersion(QDataStream::Qt_4_0);
+    out << (quint32)bufferSize;
+
+    socket_.write(block);
+
+    socket_.write(buffer.c_str(), bufferSize);
 }
 
 bool Client::getLogged() const

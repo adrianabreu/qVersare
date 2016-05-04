@@ -8,6 +8,7 @@ QT       += core gui
 QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 CONFIG += c++11
 
 TARGET = qVersare-Cli
@@ -22,14 +23,16 @@ SOURCES += main.cpp\
     confdialog.cpp \
     client.cpp \
     logindialog.cpp \
-    simplecrypt.cpp
+    simplecrypt.cpp \
+    QVERSO.pb.cc
 
 HEADERS  += mainwindow.h \
     aboutdialog.h \
     confdialog.h \
     client.h \
     logindialog.h \
-    simplecrypt.h
+    simplecrypt.h \
+    QVERSO.pb.h
 
 FORMS    += mainwindow.ui \
     aboutdialog.ui \

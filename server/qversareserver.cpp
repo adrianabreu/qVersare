@@ -2,7 +2,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
-
+#include "simplecrypt.h"
 #include "client.h"
 #include "qversareserver.h"
 
@@ -39,15 +39,18 @@ void QVersareServer::startServer()
 bool QVersareServer::goodCredentials(QString user, QString password)
 {
     QSqlQuery query(mydb_);
-    query.prepare("SELECT * FROM users WHERE username=(:USERNAME) AND password=(:PASSWORD)");
+    query.prepare("SELECT * FROM users WHERE username=(:USERNAME)");
     query.bindValue(":USERNAME",user);
-    query.bindValue(":PASSWORD",password);
     query.exec();
-    if (query.next())
-        qDebug() << "LOGGED";
+    if (query.next()) {
+        SimpleCrypt crypto;
+        crypto.setKey(0x02ad4a4acb9f023);
+        QString str_pass = crypto.decryptToString(query.value("password").toString());
+        QString rcv_pass = crypto.decryptToString(password);
+        return (str_pass == rcv_pass);
+    }
     else
-        qDebug()<< "NOT LOGGED";
-    return false;
+        return false;
 }
 
 void QVersareServer::incomingConnection(qintptr handle)

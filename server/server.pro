@@ -14,14 +14,18 @@ TEMPLATE = app
 SOURCES += main.cpp \
     qversareserver.cpp \
     client.cpp \
-    serversettings.cpp
+    serversettings.cpp \
+    simplecrypt.cpp
 
 HEADERS += \
     qversareserver.h \
     client.h \
-    serversettings.h
+    serversettings.h \
+    simplecrypt.h
 
 DISTFILES += \
     users.db \
     QVERSO.proto
 
+PROTOS = QVERSO.proto
+include (protobuf.pri)

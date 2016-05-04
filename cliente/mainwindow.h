@@ -16,7 +16,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-
 private slots:
     void on_exitButton_clicked();
 
@@ -29,6 +28,9 @@ private slots:
     void on_confButton_clicked();
 
     void readyToRead(QString aux);
+
+public slots:
+    void send_login(QString username, QString password);
 
 private:
     Ui::MainWindow *ui;

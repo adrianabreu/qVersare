@@ -35,20 +35,17 @@ void logindialog::done(int r)
             SimpleCrypt crypto;
             crypto.setKey(0x02ad4a4acb9f023);
             QString encrypted = crypto.encryptToString(ui->passUser->text());
-
+            emit emit_login_data(ui->userName->text(),encrypted);
             //prueba
-            QMessageBox aux;
-            aux.setText(encrypted);
-            aux.exec();
+            //QMessageBox aux;
+            //aux.setText(encrypted);
+            //aux.exec();
             /*QString decrypted = crypto.decryptToString(encrypted);
             aux.setText(decrypted);
             aux.exec();*/
 
-
-
             settings.setValue("userName", ui->userName->text());
             settings.setValue("passUser", encrypted);
-
             QDialog::done(r);
             return;
         }
