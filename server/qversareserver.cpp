@@ -15,6 +15,8 @@ QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app) :
     if(!mydb_.open()) {
         qDebug() << "Couldn't open ddbb, not possible authenticate";
     }
+    qRegisterMetaType<QVERSO>("QVERSO");
+
 }
 
 QVersareServer::~QVersareServer()
@@ -38,6 +40,9 @@ void QVersareServer::startServer()
 
 bool QVersareServer::goodCredentials(QString user, QString password)
 {
+    bool aux = false;
+    qDebug() << "User: " << user;
+    qDebug() << "Password: " << password;
     QSqlQuery query(mydb_);
     query.prepare("SELECT * FROM users WHERE username=(:USERNAME)");
     query.bindValue(":USERNAME",user);
@@ -45,12 +50,17 @@ bool QVersareServer::goodCredentials(QString user, QString password)
     if (query.next()) {
         SimpleCrypt crypto;
         crypto.setKey(0x02ad4a4acb9f023);
-        QString str_pass = crypto.decryptToString(query.value("password").toString());
+        QString stored_password(query.value("password").toString());
+        qDebug() << stored_password;
+        QString str_pass = crypto.decryptToString(stored_password);
+        qDebug() << crypto.lastError();
         QString rcv_pass = crypto.decryptToString(password);
-        return (str_pass == rcv_pass);
+        qDebug() << str_pass;
+        qDebug() << rcv_pass;
+        aux = (str_pass == rcv_pass);
     }
-    else
-        return false;
+    qDebug() << "Returning " << aux;
+    return aux;
 }
 
 void QVersareServer::incomingConnection(qintptr handle)

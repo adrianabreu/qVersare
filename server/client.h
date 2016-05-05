@@ -40,6 +40,7 @@ private:
     QTcpSocket socket_;
     QPointer<QThread> thread_;
     bool logged_; //Store the status like a finite machine
+    QString room_; //Store the actual room of the client
 };
 
 #endif // CLIENT_H

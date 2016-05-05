@@ -10,11 +10,11 @@ Client::Client(qintptr fd, QObject *parent) : QObject(parent),
     socket_(this),
     logged_(false)
 {
-    thread_ = new QThread(parent);
+    thread_ = new QThread(this);
     qDebug() << fd;
     socket_.setSocketDescriptor(fd);
     socketFd_ = fd;
-    //TO DO: rename attributes with _
+    room_ = "lobby";
 
     makeConnections(parent);
 
@@ -41,7 +41,8 @@ void Client::readyRead()
          {
              in >> buffer_size;
 
-         } if ( (buffer_size != 0) && (socket_.bytesAvailable() >= buffer_size )) {
+         } if ( (buffer_size != 0) &&
+                (socket_.bytesAvailable() >= buffer_size )) {
             algo=socket_.read(buffer_size);
             my_verso.ParseFromString(algo.toStdString());
             buffer_size = 0;
@@ -50,6 +51,8 @@ void Client::readyRead()
            socket_.readAll();
         }
     }
+    if (my_verso.room() != room_.toStdString())
+        room_ = QString::fromStdString(my_verso.room());
 
     if (!logged_) {
         if (my_verso.has_login() && my_verso.login() == true)
@@ -65,7 +68,8 @@ void Client::readyRead()
 
 void Client::newMessage(QVERSO a_verso, int fd)
 {
-    if (fd != socket_.socketDescriptor())
+    if (fd != socket_.socketDescriptor() &&
+            a_verso.room() == room_.toStdString())
         sendVerso(a_verso);
 }
 
@@ -112,9 +116,6 @@ void Client::makeConnections(QObject *parent)
 
     connect(static_cast<QThread*>(thread_), &QThread::finished, this,
             &Client::deleteLater );
-
-    connect(static_cast<QThread*>(thread_), &QThread::finished,
-            static_cast<QThread*>(thread_), &QThread::deleteLater );
 
     connect(&socket_, &QTcpSocket::disconnected, static_cast<QThread*>(thread_),
             &QThread::quit);
