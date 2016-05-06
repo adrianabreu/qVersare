@@ -14,7 +14,7 @@ ServerSettings::ServerSettings(QCoreApplication *a)
     {
         {"ip","Set ip to listen to", "ip","127.0.0.1"},
         {"port","Set port to listen to","port","9000"},
-        {"db","Set dbname","db","users.db"}
+        {"db","Set dbname","db","qversare.sqlite"}
     });
 
     parser.addOptions(options);
@@ -25,23 +25,14 @@ ServerSettings::ServerSettings(QCoreApplication *a)
                                     (!settings.contains("db")) ) )
         setDefaultSettings(&settings);
 
-    if ( parser.isSet("ip") ) {
-        ipAddress_ = parser.value("ip");
-    } else {
+    ( parser.isSet("ip") ) ? ipAddress_ = parser.value("ip") :
         ipAddress_ = settings.value("ip","127.0.0.1").toString();
-    }
 
-    if (parser.isSet("port") ) {
-        port_ = parser.value("port").toShort();
-    } else {
+    (parser.isSet("port") ) ? port_ = parser.value("port").toShort() :
         port_ = settings.value("port", 8000).toString().toUInt();
-    }
 
-    if (parser.isSet("db") ) {
-        dbName_ = parser.value("db");
-    } else {
-        dbName_ = settings.value("db", "users.db").toString();
-    }
+    (parser.isSet("db") ) ? dbName_ = parser.value("db") :
+            dbName_ = settings.value("db", "qversare.sqlite").toString();
 
 }
 
@@ -64,5 +55,5 @@ void ServerSettings::setDefaultSettings(QSettings *settings)
 {
     settings->setValue("ip", "127.0.0.1");
     settings->setValue("port",8000);
-    settings->setValue("db","users.db");
+    settings->setValue("db","qversare.sqlite");
 }

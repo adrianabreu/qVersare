@@ -41,12 +41,16 @@ public slots:
     void newMessageFromClient(QVERSO a_verso, int fd);
     void clientDisconnected(int fd);
     void validateClient(QString user, QString password);
-    //void readyRead();
 
 private:
     QMap<qintptr,QPointer<Client>> clients_;
     ServerSettings* settings;
     QSqlDatabase mydb_;
+
+    //Create db tables and basic structure
+    void setupDatabase();
+    //Add a message to history table
+    void addMessage(QString room, QString username, QString message);
 
 };
 
