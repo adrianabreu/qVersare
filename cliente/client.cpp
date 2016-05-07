@@ -68,6 +68,7 @@ void Client::recivedFrom()
 {
     qint32 buffer_size = 0;
     QVERSO my_verso;
+
     while(socket_.bytesAvailable() > 0){
         QByteArray algo;
         QDataStream in(&socket_);
@@ -82,21 +83,18 @@ void Client::recivedFrom()
             my_verso.ParseFromString(algo.toStdString());
             buffer_size = 0;
 
-        } else {
-           socket_.readAll();
-        }
-    }
+         }
+         if (!connected_) {
+             if (my_verso.has_login() && my_verso.login() == true) {
+                 emit messageRecive("YOU ARE IN");
+                 connected_ = true;
+             } else {
+                 emit messageRecive("GET OUT");
+             }
 
-    if (!connected_) {
-        if (my_verso.has_login() && my_verso.login() == true) {
-            emit messageRecive("YOU ARE IN");
-            connected_ = true;
-        } else {
-            emit messageRecive("GET OUT");
-        }
-
-    } else {
-        //emit forwardMessage(QString(buffer), socket_.socketDescriptor());
+         } else {
+             //emit forwardMessage(QString(buffer), socket_.socketDescriptor());
+         }
     }
 
 }

@@ -29,11 +29,15 @@ signals:
                                      //object should be destroyed
     void validateMe(QString user, QString password);
 
+    void imNewInTheRoom(QString room, int fd);
+
 public slots:
     void readyRead();
     void newMessage(QVERSO a_verso, int fd);
     void deleteLater();
     void readyValidate(bool status);
+    //This is necessary because the fd must be the same
+    void lastMessages(QVERSO a_verso, int fd);
 
 private:
     int socketFd_; //for remove from qmap

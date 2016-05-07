@@ -58,11 +58,11 @@ bool QVersareServer::goodCredentials(QString user, QString password)
         QString stored_password(query.value("password").toString());
         QString str_pass = crypto.decryptToString(stored_password);
         QString rcv_pass = crypto.decryptToString(password);
-        qDebug() << str_pass;
-        qDebug() << rcv_pass;
+        //qDebug() << str_pass;
+        //qDebug() << rcv_pass;
         aux = (str_pass == rcv_pass);
     }
-    qDebug() << "Returning " << aux;
+    //qDebug() << "Returning " << aux;
     return aux;
 }
 
@@ -99,6 +99,23 @@ void QVersareServer::validateClient(QString user, QString password)
     emit validateResult(goodCredentials(user,password));
 }
 
+void QVersareServer::newInTheRoom(QString room, int fd)
+{
+    //Pense en simplemente emitir los mensajes y hacer los send_to
+    //pero pasar toda esa lista de 10 mensajes cada vez... uff
+    //mejor usar el map
+    QList<QVERSO> lastMessages = lastTenMessages(room);
+    QListIterator<QVERSO> it(lastMessages);
+    //qDebug() << fd;
+    qDebug() << lastMessages.size();
+    while(it.hasNext()) {
+        //To Do: Guardar copia del puntero para no acceder tantas veces
+        emit messageFromHistory(it.next(),fd);
+    }
+
+
+}
+
 void QVersareServer::setupDatabase()
 {
     //Create table for users
@@ -126,4 +143,27 @@ void QVersareServer::addMessage(QString room, QString username, QString message)
     query.bindValue(":username",username);
     query.bindValue(":message",message);
     query.exec();
+}
+
+QList<QVERSO> QVersareServer::lastTenMessages(QString room)
+{
+    QList<QVERSO>aux;
+    //Query for extract the messages from the ddbb
+    //The list comes on desc type!!
+    QSqlQuery query(mydb_);
+    query.prepare("SELECT * FROM messages WHERE room=(:ROOM) ORDER BY id "
+                  "desc limit 10");
+    query.bindValue(":ROOM",room);
+    query.exec();
+
+    while(query.next()) {
+        QVERSO tempVerso;
+        tempVerso.set_username(query.value("username").toString().toStdString());
+        tempVerso.set_room(room.toStdString());
+        tempVerso.set_message(query.value("message").toString().toStdString());
+        aux.push_front(tempVerso);
+    }
+
+    return aux;
+
 }
