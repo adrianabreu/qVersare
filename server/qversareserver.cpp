@@ -17,6 +17,7 @@ QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app) :
         app->exit(3); //Force exit
     }
     setupDatabase();
+    qDebug() << "Am I secure? " << settings->getSecure();
     //Register metatype for queue QVERSOS in the msg loop
     qRegisterMetaType<QVERSO>("QVERSO");
 

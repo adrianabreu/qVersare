@@ -15,10 +15,11 @@ public:
 
     QString getIpAddress() const;
 
-
     quint16 getPort() const;
 
     QString getDbName() const;
+
+    bool getSecure() const;
 
 private:
     void setDefaultSettings(QSettings *settings);
@@ -26,6 +27,7 @@ private:
     QString ipAddress_;
     quint16 port_;
     QString dbName_;
+    bool secure_;
 
 };
 
