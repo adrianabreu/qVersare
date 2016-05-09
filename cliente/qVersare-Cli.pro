@@ -67,6 +67,7 @@ desktop.path = /usr/share/applications
 desktop.files += qVersare.desktop~/.local/share/qVersare
 
 ## Instalar icono de aplicación
+
 icon32.path = /usr/share/icons/hicolor/32x32/apps
 icon32.files += ./data/32x32/qversare-ico.png
 icon32.files += ./data/32x32/qversare-ico.xpm
