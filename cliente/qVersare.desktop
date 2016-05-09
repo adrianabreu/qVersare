@@ -7,3 +7,4 @@ Terminal=false
 Icon=/usr/share/icons/hicolor/32x32/apps/qversare-ico.png
 Exec=qVersare-Cli
 Categories=Utility
+
