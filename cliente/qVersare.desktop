@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=qVersare
+Comment=qVersare aplicacion de mensajeria
+Type=Application
+Terminal=false
+Icon=qversare-ico
+Exec=qVersare-Cli
+Categories=Utility
