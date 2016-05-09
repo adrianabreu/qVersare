@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=QuickPen
+Comment=QuickPen Touchscreen Application
+Type=Application
+Terminal=false
+Icon=qversare-ico
+Exec=qVersare-Cli
+Categories=Utility
