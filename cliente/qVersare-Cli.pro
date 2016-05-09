@@ -57,7 +57,6 @@ INSTALLS += target desktop icon32 avatar
 ## Instalar ejecutable
 target.path = $$BINDIR
 
-
 avatar.path = .
 avatar.extra = mkdir -p ~/.local/share/qVersare && cp qVersareDefaultAvatar.jpg ~/.local/share/qVersare/. && chown $$(USER) ~/.local/share/qVersare && chown $$(USER) ~/.local/share/qVersare/qVersareDefaultAvatar.jpg
 avatar.commands = true
