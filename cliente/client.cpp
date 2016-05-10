@@ -97,7 +97,7 @@ void Client::recivedFrom()
             my_verso.ParseFromString(algo.toStdString());
             buffer_size = 0;
          } else {
-             //socket_.readAll();
+             socket_.readAll();
          }
 
 

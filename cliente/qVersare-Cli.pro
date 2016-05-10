@@ -42,5 +42,28 @@ FORMS    += mainwindow.ui \
 DISTFILES += \
     QVERSO.proto
 
+#Create .Desktop
+
+isEmpty(PREFIX) {
+PREFIX = /usr/local
+}
+BINDIR = $$PREFIX/bin
+DATADIR = $$PREFIX/share
+CONFDIR = /etc
+
+INSTALLS += target desktop icon32
+
+## Instalar ejecutable
+target.path = $$BINDIR
+
+## Instalar acceso directo en el menú del escritorio
+desktop.path = /usr/share/applications
+desktop.files += qVersare.desktop
+
+## Instalar icono de aplicación
+icon32.path = $$DATADIR/icons/hicolor/32×32/apps
+icon32.files += ./data/32×32/qversare-ico.png
+
+
 PROTO = QVERSO.proto
 include (protobuf.pri)
