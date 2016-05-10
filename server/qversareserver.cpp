@@ -2,22 +2,26 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
-#include "simplecrypt.h"
+
 #include "client.h"
 #include "qversareserver.h"
+#include "simplecrypt.h"
+#include "utils.h"
 
-QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app) :
+QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app,
+                               ServerSettings *settings, QSqlDatabase * ddbb) :
     QTcpServer(parent)
 {
-    settings = new ServerSettings(app);
-    mydb_ = QSqlDatabase::addDatabase("QSQLITE");
-    mydb_.setDatabaseName(settings->getDbName());
+    settings_ = settings;
+    mydb_ = QSqlDatabase(*ddbb);
+    mydb_.setDatabaseName(settings_->getDbName());
+    daemonMode_ = settings->getDaemon();
     if(!mydb_.open()) {
-        qDebug() << "Couldn't open ddbb, not possible to authenticate";
+        helperDebug(daemonMode_,
+                    "Couldn't open ddbb, not possible to authenticate");
         app->exit(3); //Force exit
     }
     setupDatabase();
-    qDebug() << "Am I secure? " << settings->getSecure();
     //Register metatype for queue QVERSOS in the msg loop
     qRegisterMetaType<QVERSO>("QVERSO");
 
@@ -29,25 +33,27 @@ QVersareServer::~QVersareServer()
         i != clients_.end(); ++i) {
         i.value()->die();
     }
+    helperDebug(false,"voy a cerrar la database");
     mydb_.close();
 }
 
 void QVersareServer::startServer()
 {
 
-    if(!this->listen( QHostAddress(settings->getIpAddress()),
-                      settings->getPort()) )
-        qDebug() << "Could not start server";
+    if(!this->listen( QHostAddress(settings_->getIpAddress()),
+                      settings_->getPort()) )
+        helperDebug(daemonMode_,"Could not start server");
     else
-        qDebug() << "Listening...";
+        helperDebug(daemonMode_,"Listening...");
 }
 
 bool QVersareServer::goodCredentials(QString user, QString password)
 {
     //Check for db errors?
     bool aux = false;
-    qDebug() << "User: " << user;
-    qDebug() << "Password: " << password;
+    helperDebug(daemonMode_,"User: " + user);
+    helperDebug(daemonMode_,"Password: " + password);
+
     QSqlQuery query(mydb_);
     query.prepare("SELECT * FROM users WHERE username=(:USERNAME)");
     query.bindValue(":USERNAME",user);
@@ -69,7 +75,7 @@ bool QVersareServer::goodCredentials(QString user, QString password)
 
 void QVersareServer::incomingConnection(qintptr handle)
 {
-    QPointer<Client> clientSocket = new Client(handle, this);
+    QPointer<Client> clientSocket = new Client(handle,daemonMode_, this);
     clients_.insert(clients_.end(),handle,clientSocket);
     //threads with parents are not movable
     clientSocket->setParent(0);
@@ -108,12 +114,11 @@ void QVersareServer::newInTheRoom(QString room, int fd)
     QList<QVERSO> lastMessages = lastTenMessages(room);
     QListIterator<QVERSO> it(lastMessages);
     //qDebug() << fd;
-    qDebug() << lastMessages.size();
+    QString parsingforDebug(lastMessages.size());
+    helperDebug(daemonMode_,parsingforDebug);
     while(it.hasNext()) {
-        //To Do: Guardar copia del puntero para no acceder tantas veces
         emit messageFromHistory(it.next(),fd);
     }
-
 
 }
 

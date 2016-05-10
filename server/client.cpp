@@ -5,20 +5,24 @@
 #include "client.h"
 #include "qversareserver.h"
 #include "QVERSO.pb.h"
+#include "utils.h"
 
-Client::Client(qintptr fd, QObject *parent) : QObject(parent),
+Client::Client(qintptr fd, bool daemonMode, QObject *parent) : QObject(parent),
     socket_(this),
     logged_(false)
 {
     thread_ = new QThread(this);
-    qDebug() << fd;
+    daemonMode_ = daemonMode;
+    QString parseFd((quint32)fd);
+    helperDebug(daemonMode_,parseFd);
     socket_.setSocketDescriptor(fd);
     socketFd_ = fd;
     room_ = "";
 
+
     makeConnections(parent);
 
-    qDebug() << "Client connected";
+    helperDebug(daemonMode_,"Client connected");
 }
 
 Client::~Client()
@@ -37,38 +41,39 @@ void Client::readyRead()
         QDataStream in(&socket_);
 
          if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
-                 (buffer_size == 0) )
-         {
+                 (buffer_size == 0) ) {
              in >> buffer_size;
 
-         } if ( (buffer_size != 0) &&
+         }
+         if ( (buffer_size != 0) &&
                 (socket_.bytesAvailable() >= buffer_size )) {
             algo=socket_.read(buffer_size);
             my_verso.ParseFromString(algo.toStdString());
             buffer_size = 0;
 
+        } else {
+             socket_.readAll();
         }
+
         if (!logged_) {
-        if (my_verso.has_login() && my_verso.login() == true)
-            if (my_verso.has_username() && my_verso.has_password() ) {
-                emit validateMe(QString::fromStdString(my_verso.username() ),
-                              QString::fromStdString(my_verso.password()), this);
+            if (my_verso.has_login() && my_verso.login() == true) {
+                if (my_verso.has_username() && my_verso.has_password() ) {
+                    emit validateMe(QString::fromStdString(my_verso.username() ),
+                                  QString::fromStdString(my_verso.password()), this);
+                }
+
             }
-            //To Do: Deberiamos hacer algo para mandar los ultimos mensajes
-            //al loguearse
+        } else {
+            if (my_verso.room() != room_.toStdString()) {
+                room_ = QString::fromStdString(my_verso.room());
+                emit Client::imNewInTheRoom(room_, socketFd_);
             } else {
-                if (my_verso.room() != room_.toStdString()) {
-                    room_ = QString::fromStdString(my_verso.room());
-                    emit Client::imNewInTheRoom(room_, socketFd_);
-            } else {
-                emit forwardMessage(my_verso, socket_.socketDescriptor());
+                emit forwardMessage(my_verso,socketFd_);
             }
         }
     }
-
-
-
 }
+
 
 void Client::newMessage(QVERSO a_verso, int fd)
 {
@@ -79,7 +84,7 @@ void Client::newMessage(QVERSO a_verso, int fd)
 
 void Client::deleteLater()
 {
-    qDebug() << "Disconnected...";
+    helperDebug(daemonMode_,"Disconnected...");
     emit disconnectedClient(socketFd_);
 }
 
@@ -99,8 +104,13 @@ void Client::readyValidate(bool status, Client *whoClient)
 
 void Client::lastMessages(QVERSO a_verso, int fd)
 {
-    if(fd == socketFd_)
+
+    if(fd == socketFd_) {
+        QString parseFd(fd);
+        helperDebug(daemonMode_,
+                    "I will send last 10 messages to this fd " + parseFd);
         sendVerso(a_verso);
+    }
 }
 
 bool Client::getLogged() const
@@ -158,10 +168,10 @@ void Client::sendVerso(QVERSO a_verso)
     //out << buffer;
 
      if (socket_.write(block) == -1)
-         qDebug() << "Error!";
+         helperDebug(daemonMode_,"Error!");
 
     if (socket_.write(buffer.c_str(), bufferSize) == - 1)
-        qDebug() << "Error writing the msg!";
+        helperDebug(daemonMode_,"Error writing the msg!");
 
     while(!socket_.waitForBytesWritten());
 }
