@@ -7,11 +7,12 @@
 #include <QThread>
 
 #include "QVERSO.pb.h"
+
 class Client : public QObject
 {
     Q_OBJECT
 public:
-    explicit Client(qintptr fd, QObject *parent = 0);
+    explicit Client(qintptr fd, bool daemonMode, QObject *parent = 0);
     ~Client();
 
     void start();
@@ -35,7 +36,7 @@ public slots:
     void readyRead();
     void newMessage(QVERSO a_verso, int fd);
     void deleteLater();
-    void readyValidate(bool status, Client *whoClient);
+    void readyValidate(bool status, Client* whoToValide);
     //This is necessary because the fd must be the same
     void lastMessages(QVERSO a_verso, int fd);
 
@@ -45,6 +46,7 @@ private:
     QPointer<QThread> thread_;
     bool logged_; //Store the status like a finite machine
     QString room_; //Store the actual room of the client
+    bool daemonMode_;
 };
 
 #endif // CLIENT_H

@@ -13,7 +13,6 @@
 #include <QTcpServer>
 #include <QThread>
 
-
 #include "client.h"
 #include "QVERSO.pb.h"
 #include "serversettings.h"
@@ -23,7 +22,8 @@ class QVersareServer : public QTcpServer
 {
     Q_OBJECT
 public:
-    explicit QVersareServer(QObject *parent = 0, QCoreApplication* app = 0);
+    explicit QVersareServer(QObject *parent = 0, QCoreApplication *app = 0,
+                            ServerSettings *settings = 0, QSqlDatabase *ddbb = 0);
     ~QVersareServer();
     void startServer();
     bool goodCredentials(QString user, QString password);
@@ -42,14 +42,13 @@ public slots:
     void newMessageFromClient(QVERSO a_verso, int fd);
     void clientDisconnected(int fd);
     void validateClient(QString user, QString password, Client *whoClient);
-
     void newInTheRoom(QString room, int fd);
 
 private:
     QMap<qintptr,QPointer<Client>> clients_;
-    ServerSettings* settings;
+    ServerSettings* settings_;
     QSqlDatabase mydb_;
-
+    bool daemonMode_;
     //Create db tables and basic structure
     void setupDatabase();
     //Add a message to history table
