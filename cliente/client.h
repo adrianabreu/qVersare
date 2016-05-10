@@ -16,6 +16,7 @@ public:
     Client(QString ip, int port, QString name);
     ~Client();
 
+    void sendUpdateRoom(QString room);
     //establecer conexion
     int connectTo();
 

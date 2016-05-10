@@ -74,10 +74,22 @@ void MainWindow::on_aboutButton_clicked()
 void MainWindow::on_SendTextEdit_returnPressed()
 {
     QString line = ui->SendTextEdit->text();
-    //Construir qVerso y no llamar a sentto directamente
-    client_->createMessageText(line);
-    ui->ReciveTextEdit->appendPlainText(line);
-    ui->SendTextEdit->clear();
+
+    QRegExp myExp("(^/\\w+)");
+    if (line.contains(myExp)) {
+        line.remove(0,1);
+        client_->setActualRoom(line);
+        client_->sendUpdateRoom(line);
+        ui->ReciveTextEdit->clear();
+        ui->SendTextEdit->clear();
+
+
+    } else {
+        //Construir qVerso y no llamar a sentto directamente
+        client_->createMessageText(line);
+        ui->ReciveTextEdit->appendPlainText(line);
+        ui->SendTextEdit->clear();
+    }
 }
 
 void MainWindow::on_confButton_clicked()

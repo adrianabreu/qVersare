@@ -27,6 +27,14 @@ Client::~Client(){
 
 }
 
+void Client::sendUpdateRoom(QString room)
+{
+    QVERSO myVerso;
+    myVerso.set_username(userName_.toStdString());
+    myVerso.set_room(room.toStdString());
+    sentTo(myVerso);
+}
+
 int Client::connectTo()
 {
     int result;
