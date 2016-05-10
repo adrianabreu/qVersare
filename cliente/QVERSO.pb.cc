@@ -32,10 +32,12 @@ void protobuf_AssignDesc_QVERSO_2eproto() {
       "QVERSO.proto");
   GOOGLE_CHECK(file != NULL);
   QVERSO_descriptor_ = file->message_type(0);
-  static const int QVERSO_offsets_[3] = {
+  static const int QVERSO_offsets_[5] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, login_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, username_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, password_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, room_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, message_),
   };
   QVERSO_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -78,8 +80,9 @@ void protobuf_AddDesc_QVERSO_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014QVERSO.proto\";\n\006QVERSO\022\r\n\005login\030\001 \001(\010\022"
-    "\020\n\010username\030\002 \001(\t\022\020\n\010password\030\003 \001(\t", 75);
+    "\n\014QVERSO.proto\"Z\n\006QVERSO\022\r\n\005login\030\001 \001(\010\022"
+    "\020\n\010username\030\002 \001(\t\022\020\n\010password\030\003 \001(\t\022\014\n\004r"
+    "oom\030\004 \001(\t\022\017\n\007message\030\005 \001(\t", 106);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "QVERSO.proto", &protobuf_RegisterTypes);
   QVERSO::default_instance_ = new QVERSO();
@@ -100,6 +103,8 @@ struct StaticDescriptorInitializer_QVERSO_2eproto {
 const int QVERSO::kLoginFieldNumber;
 const int QVERSO::kUsernameFieldNumber;
 const int QVERSO::kPasswordFieldNumber;
+const int QVERSO::kRoomFieldNumber;
+const int QVERSO::kMessageFieldNumber;
 #endif  // !_MSC_VER
 
 QVERSO::QVERSO()
@@ -124,6 +129,8 @@ void QVERSO::SharedCtor() {
   login_ = false;
   username_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  room_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -138,6 +145,12 @@ void QVERSO::SharedDtor() {
   }
   if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete password_;
+  }
+  if (room_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete room_;
+  }
+  if (message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete message_;
   }
   if (this != default_instance_) {
   }
@@ -165,7 +178,7 @@ QVERSO* QVERSO::New() const {
 }
 
 void QVERSO::Clear() {
-  if (_has_bits_[0 / 32] & 7) {
+  if (_has_bits_[0 / 32] & 31) {
     login_ = false;
     if (has_username()) {
       if (username_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
@@ -175,6 +188,16 @@ void QVERSO::Clear() {
     if (has_password()) {
       if (password_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         password_->clear();
+      }
+    }
+    if (has_room()) {
+      if (room_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        room_->clear();
+      }
+    }
+    if (has_message()) {
+      if (message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        message_->clear();
       }
     }
   }
@@ -236,6 +259,40 @@ bool QVERSO::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(34)) goto parse_room;
+        break;
+      }
+
+      // optional string room = 4;
+      case 4: {
+        if (tag == 34) {
+         parse_room:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_room()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->room().data(), this->room().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "room");
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(42)) goto parse_message;
+        break;
+      }
+
+      // optional string message = 5;
+      case 5: {
+        if (tag == 42) {
+         parse_message:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_message()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->message().data(), this->message().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "message");
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -290,6 +347,26 @@ void QVERSO::SerializeWithCachedSizes(
       3, this->password(), output);
   }
 
+  // optional string room = 4;
+  if (has_room()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->room().data(), this->room().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "room");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      4, this->room(), output);
+  }
+
+  // optional string message = 5;
+  if (has_message()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->message().data(), this->message().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "message");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      5, this->message(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -327,6 +404,28 @@ void QVERSO::SerializeWithCachedSizes(
         3, this->password(), target);
   }
 
+  // optional string room = 4;
+  if (has_room()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->room().data(), this->room().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "room");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        4, this->room(), target);
+  }
+
+  // optional string message = 5;
+  if (has_message()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->message().data(), this->message().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "message");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        5, this->message(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -356,6 +455,20 @@ int QVERSO::ByteSize() const {
       total_size += 1 +
         ::google::protobuf::internal::WireFormatLite::StringSize(
           this->password());
+    }
+
+    // optional string room = 4;
+    if (has_room()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->room());
+    }
+
+    // optional string message = 5;
+    if (has_message()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->message());
     }
 
   }
@@ -394,6 +507,12 @@ void QVERSO::MergeFrom(const QVERSO& from) {
     if (from.has_password()) {
       set_password(from.password());
     }
+    if (from.has_room()) {
+      set_room(from.room());
+    }
+    if (from.has_message()) {
+      set_message(from.message());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -420,6 +539,8 @@ void QVERSO::Swap(QVERSO* other) {
     std::swap(login_, other->login_);
     std::swap(username_, other->username_);
     std::swap(password_, other->password_);
+    std::swap(room_, other->room_);
+    std::swap(message_, other->message_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);

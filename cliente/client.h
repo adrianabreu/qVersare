@@ -25,6 +25,10 @@ public:
 
     void log_me_in(QString username, QString password);
 
+    void createMessageText(QString textLine);
+
+    void setActualRoom(const QString &actualRoom);
+
 public slots:
     void recivedFrom();
 
@@ -37,6 +41,7 @@ private:
     int portServer_;
     QString userName_;
     bool connected_;
+    QString actualRoom_;
 };
 
 #endif // CLIENT_H

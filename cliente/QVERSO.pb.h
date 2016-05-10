@@ -119,6 +119,30 @@ class QVERSO : public ::google::protobuf::Message {
   inline ::std::string* release_password();
   inline void set_allocated_password(::std::string* password);
 
+  // optional string room = 4;
+  inline bool has_room() const;
+  inline void clear_room();
+  static const int kRoomFieldNumber = 4;
+  inline const ::std::string& room() const;
+  inline void set_room(const ::std::string& value);
+  inline void set_room(const char* value);
+  inline void set_room(const char* value, size_t size);
+  inline ::std::string* mutable_room();
+  inline ::std::string* release_room();
+  inline void set_allocated_room(::std::string* room);
+
+  // optional string message = 5;
+  inline bool has_message() const;
+  inline void clear_message();
+  static const int kMessageFieldNumber = 5;
+  inline const ::std::string& message() const;
+  inline void set_message(const ::std::string& value);
+  inline void set_message(const char* value);
+  inline void set_message(const char* value, size_t size);
+  inline ::std::string* mutable_message();
+  inline ::std::string* release_message();
+  inline void set_allocated_message(::std::string* message);
+
   // @@protoc_insertion_point(class_scope:QVERSO)
  private:
   inline void set_has_login();
@@ -127,6 +151,10 @@ class QVERSO : public ::google::protobuf::Message {
   inline void clear_has_username();
   inline void set_has_password();
   inline void clear_has_password();
+  inline void set_has_room();
+  inline void clear_has_room();
+  inline void set_has_message();
+  inline void clear_has_message();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -134,6 +162,8 @@ class QVERSO : public ::google::protobuf::Message {
   mutable int _cached_size_;
   ::std::string* username_;
   ::std::string* password_;
+  ::std::string* room_;
+  ::std::string* message_;
   bool login_;
   friend void  protobuf_AddDesc_QVERSO_2eproto();
   friend void protobuf_AssignDesc_QVERSO_2eproto();
@@ -323,6 +353,158 @@ inline void QVERSO::set_allocated_password(::std::string* password) {
     password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:QVERSO.password)
+}
+
+// optional string room = 4;
+inline bool QVERSO::has_room() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void QVERSO::set_has_room() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void QVERSO::clear_has_room() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void QVERSO::clear_room() {
+  if (room_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    room_->clear();
+  }
+  clear_has_room();
+}
+inline const ::std::string& QVERSO::room() const {
+  // @@protoc_insertion_point(field_get:QVERSO.room)
+  return *room_;
+}
+inline void QVERSO::set_room(const ::std::string& value) {
+  set_has_room();
+  if (room_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    room_ = new ::std::string;
+  }
+  room_->assign(value);
+  // @@protoc_insertion_point(field_set:QVERSO.room)
+}
+inline void QVERSO::set_room(const char* value) {
+  set_has_room();
+  if (room_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    room_ = new ::std::string;
+  }
+  room_->assign(value);
+  // @@protoc_insertion_point(field_set_char:QVERSO.room)
+}
+inline void QVERSO::set_room(const char* value, size_t size) {
+  set_has_room();
+  if (room_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    room_ = new ::std::string;
+  }
+  room_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:QVERSO.room)
+}
+inline ::std::string* QVERSO::mutable_room() {
+  set_has_room();
+  if (room_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    room_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:QVERSO.room)
+  return room_;
+}
+inline ::std::string* QVERSO::release_room() {
+  clear_has_room();
+  if (room_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = room_;
+    room_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void QVERSO::set_allocated_room(::std::string* room) {
+  if (room_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete room_;
+  }
+  if (room) {
+    set_has_room();
+    room_ = room;
+  } else {
+    clear_has_room();
+    room_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:QVERSO.room)
+}
+
+// optional string message = 5;
+inline bool QVERSO::has_message() const {
+  return (_has_bits_[0] & 0x00000010u) != 0;
+}
+inline void QVERSO::set_has_message() {
+  _has_bits_[0] |= 0x00000010u;
+}
+inline void QVERSO::clear_has_message() {
+  _has_bits_[0] &= ~0x00000010u;
+}
+inline void QVERSO::clear_message() {
+  if (message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    message_->clear();
+  }
+  clear_has_message();
+}
+inline const ::std::string& QVERSO::message() const {
+  // @@protoc_insertion_point(field_get:QVERSO.message)
+  return *message_;
+}
+inline void QVERSO::set_message(const ::std::string& value) {
+  set_has_message();
+  if (message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    message_ = new ::std::string;
+  }
+  message_->assign(value);
+  // @@protoc_insertion_point(field_set:QVERSO.message)
+}
+inline void QVERSO::set_message(const char* value) {
+  set_has_message();
+  if (message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    message_ = new ::std::string;
+  }
+  message_->assign(value);
+  // @@protoc_insertion_point(field_set_char:QVERSO.message)
+}
+inline void QVERSO::set_message(const char* value, size_t size) {
+  set_has_message();
+  if (message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    message_ = new ::std::string;
+  }
+  message_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:QVERSO.message)
+}
+inline ::std::string* QVERSO::mutable_message() {
+  set_has_message();
+  if (message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    message_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:QVERSO.message)
+  return message_;
+}
+inline ::std::string* QVERSO::release_message() {
+  clear_has_message();
+  if (message_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = message_;
+    message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void QVERSO::set_allocated_message(::std::string* message) {
+  if (message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete message_;
+  }
+  if (message) {
+    set_has_message();
+    message_ = message;
+  } else {
+    clear_has_message();
+    message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:QVERSO.message)
 }
 
 

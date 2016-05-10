@@ -30,6 +30,7 @@ void MainWindow::on_conectButton_clicked()
 {
     if(isConectedButton_) {
         ui->conectButton->setText("Conectar");
+        ui->ReciveTextEdit->clear();
         delete client_;
         isConectedButton_ = false;
         isConectedToServer_ = false;
@@ -52,13 +53,13 @@ void MainWindow::on_conectButton_clicked()
             text.exec();
             ui->conectButton->setText("Desconectar");
             isConectedButton_ = true;
+            logindialog login;
+            connect(&login, &logindialog::emit_login_data, this,
+                    &MainWindow::send_login);
+            login.exec();
+            client_->setActualRoom("lobby");
             isConectedToServer_ = true;
         }
-        logindialog login;
-        connect(&login, &logindialog::emit_login_data, this,
-                &MainWindow::send_login);
-        login.exec();
-
         connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
     }
 
@@ -72,9 +73,9 @@ void MainWindow::on_aboutButton_clicked()
 
 void MainWindow::on_SendTextEdit_returnPressed()
 {
-    QString line = ui->SendTextEdit->text() + '\n';
+    QString line = ui->SendTextEdit->text();
     //Construir qVerso y no llamar a sentto directamente
-    //client_->sentTo(line);
+    client_->createMessageText(line);
     ui->ReciveTextEdit->appendPlainText(line);
     ui->SendTextEdit->clear();
 }
