@@ -35,13 +35,13 @@ protected:
 
 signals:
     void forwardedMessage(QVERSO a_verso, int fd);
-    void validateResult(bool status);
+    void validateResult(bool status, Client *whoClient);
     void messageFromHistory(QVERSO a_verso, int fd);
 
 public slots:
     void newMessageFromClient(QVERSO a_verso, int fd);
     void clientDisconnected(int fd);
-    void validateClient(QString user, QString password);
+    void validateClient(QString user, QString password, Client *whoClient);
 
     void newInTheRoom(QString room, int fd);
 

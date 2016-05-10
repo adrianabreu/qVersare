@@ -27,7 +27,7 @@ signals:
     void forwardMessage(QVERSO a_verso, int fd);
     void disconnectedClient(int fd); //Sends the server with
                                      //object should be destroyed
-    void validateMe(QString user, QString password);
+    void validateMe(QString user, QString password, Client *whoClient);
 
     void imNewInTheRoom(QString room, int fd);
 
@@ -35,7 +35,7 @@ public slots:
     void readyRead();
     void newMessage(QVERSO a_verso, int fd);
     void deleteLater();
-    void readyValidate(bool status);
+    void readyValidate(bool status, Client *whoClient);
     //This is necessary because the fd must be the same
     void lastMessages(QVERSO a_verso, int fd);
 

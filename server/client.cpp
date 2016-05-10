@@ -52,7 +52,7 @@ void Client::readyRead()
         if (my_verso.has_login() && my_verso.login() == true)
             if (my_verso.has_username() && my_verso.has_password() ) {
                 emit validateMe(QString::fromStdString(my_verso.username() ),
-                              QString::fromStdString(my_verso.password()) );
+                              QString::fromStdString(my_verso.password()), this);
             }
             //To Do: Deberiamos hacer algo para mandar los ultimos mensajes
             //al loguearse
@@ -83,15 +83,17 @@ void Client::deleteLater()
     emit disconnectedClient(socketFd_);
 }
 
-void Client::readyValidate(bool status)
+void Client::readyValidate(bool status, Client *whoClient)
 {
-    logged_ = status;
-    QVERSO logMessage;
-    logMessage.set_login(status);
-    sendVerso(logMessage);
-    if(status == true) {
-       room_ = "lobby";
-       emit Client::imNewInTheRoom("lobby", socketFd_);
+    if(whoClient == this) {
+        logged_ = status;
+        QVERSO logMessage;
+        logMessage.set_login(status);
+        sendVerso(logMessage);
+        if(status == true) {
+           room_ = "lobby";
+           emit Client::imNewInTheRoom("lobby", socketFd_);
+        }
     }
 }
 
