@@ -65,12 +65,20 @@ int main(int argc, char *argv[])
         }
 
         // Cambiar el usuario efectivo del proceso a 'midemonio'
-        passwd* user = getpwnam("aabreu");
-        seteuid(user->pw_uid);
-
+        passwd* user = getpwnam("qversaredaemon");
+        if (user != NULL) {
+            seteuid(user->pw_uid);
+        } else {
+            syslog(LOG_ERR, "No existe el user qversaredaemon");
+            exit(12);
+        }
         // Cambiar el grupo efectivo del proceso a 'midemonio'
-        //group* group = getgrnam("qversaredemon");
-        //setegid(group->gr_gid);*/
+        group* group = getgrnam("qversaredaemon");
+        if (user != NULL) {
+            setegid(group->gr_gid);
+        } else {
+            syslog(LOG_ERR, "No existe el grupo qversaredaemon");
+        }
     }
 
     QVersareDaemon myDaemon(mySettings, &a);
