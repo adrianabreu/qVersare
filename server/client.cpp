@@ -104,13 +104,10 @@ void Client::readyValidate(bool status, Client *whoClient)
 
 void Client::lastMessages(QVERSO a_verso, int fd)
 {
-
-    if(fd == socketFd_) {
-        QString parseFd(fd);
-        helperDebug(daemonMode_,
-                    "I will send last 10 messages to this fd " + parseFd);
+    //While to the forwarding we just want to send to the anothers fd
+    //here we sant to send to the same client
+    if(fd == socketFd_)
         sendVerso(a_verso);
-    }
 }
 
 bool Client::getLogged() const

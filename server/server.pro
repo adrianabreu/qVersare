@@ -15,7 +15,6 @@ SOURCES += main.cpp \
     qversareserver.cpp \
     client.cpp \
     serversettings.cpp \
-    simplecrypt.cpp \
     utils.cpp \
     qversaredaemon.cpp
 
@@ -23,7 +22,6 @@ HEADERS += \
     qversareserver.h \
     client.h \
     serversettings.h \
-    simplecrypt.h \
     utils.h \
     qversaredaemon.h
 
