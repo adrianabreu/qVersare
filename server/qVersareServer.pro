@@ -5,7 +5,7 @@ QT += sql
 
 CONFIG += c++11
 
-TARGET = server
+TARGET = qVersareServer
 CONFIG += console
 CONFIG -= app_bundle
 

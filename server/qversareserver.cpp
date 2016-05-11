@@ -96,7 +96,8 @@ void QVersareServer::clientDisconnected(int fd)
     delete temp;
 }
 
-void QVersareServer::validateClient(QString user, QString password, Client *whoClient)
+void QVersareServer::validateClient(QString user, QString password,
+                                    Client *whoClient)
 {
     emit validateResult(goodCredentials(user,password),whoClient);
 }

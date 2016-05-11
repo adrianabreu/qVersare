@@ -1,4 +1,5 @@
 #include <QCoreApplication>
+#include <QFile>
 
 #include <signal.h>
 #include <syslog.h>
@@ -64,6 +65,19 @@ int main(int argc, char *argv[])
             exit(11);
         }
 
+        //Antes de cambiar los permisos, vamos a guardar nuestro pid para
+        //el script
+        QFile file("/var/run/qVersareServer.pid");
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream out(&file);
+            //out << sid;
+            out << getpid();
+            file.close();
+        } else {
+            syslog(LOG_ERR, "No se pudo guardar el pid en /var/run, root?");
+            exit(17);
+        }
+
         // Cambiar el usuario efectivo del proceso a 'midemonio'
         passwd* user = getpwnam("qversaredaemon");
         if (user != NULL) {
@@ -73,9 +87,9 @@ int main(int argc, char *argv[])
             exit(12);
         }
         // Cambiar el grupo efectivo del proceso a 'midemonio'
-        group* group = getgrnam("qversaredaemon");
-        if (user != NULL) {
-            setegid(group->gr_gid);
+        group* daemonGroup = getgrnam("qversaredaemon");
+        if (daemonGroup != NULL) {
+            setegid(daemonGroup->gr_gid);
         } else {
             syslog(LOG_ERR, "No existe el grupo qversaredaemon");
         }
