@@ -13,8 +13,6 @@ Client::Client(qintptr fd, bool daemonMode, QObject *parent) : QObject(parent),
 {
     thread_ = new QThread(this);
     daemonMode_ = daemonMode;
-    QString parseFd((quint32)fd);
-    helperDebug(daemonMode_,parseFd);
     socket_.setSocketDescriptor(fd);
     socketFd_ = fd;
     room_ = "";
@@ -56,12 +54,9 @@ void Client::readyRead()
         }
 
         if (!logged_) {
-            if (my_verso.has_login() && my_verso.login() == true) {
-                if (my_verso.has_username() && my_verso.has_password() ) {
-                    emit validateMe(QString::fromStdString(my_verso.username() ),
-                                  QString::fromStdString(my_verso.password()), this);
-                }
-
+            if (my_verso.login()) {
+                emit validateMe(QString::fromStdString(my_verso.username() ),
+                             QString::fromStdString(my_verso.password()), this);
             }
         } else {
             if (my_verso.room() != room_.toStdString()) {
@@ -75,11 +70,10 @@ void Client::readyRead()
 }
 
 
-void Client::newMessage(QVERSO a_verso, int fd)
+void Client::newMessage(QVERSO aVerso, int fd)
 {
-    if (fd != socketFd_ &&
-            a_verso.room() == room_.toStdString())
-        sendVerso(a_verso);
+    if (fd != socketFd_ && aVerso.room() == room_.toStdString())
+        sendVerso(aVerso);
 }
 
 void Client::deleteLater()
@@ -102,12 +96,12 @@ void Client::readyValidate(bool status, Client *whoClient)
     }
 }
 
-void Client::lastMessages(QVERSO a_verso, int fd)
+void Client::lastMessages(QVERSO aVerso, int fd)
 {
     //While to the forwarding we just want to send to the anothers fd
     //here we sant to send to the same client
     if(fd == socketFd_)
-        sendVerso(a_verso);
+        sendVerso(aVerso);
 }
 
 bool Client::getLogged() const
@@ -151,18 +145,17 @@ void Client::makeConnections(QObject *parent)
             this, &Client::lastMessages);
 }
 
-void Client::sendVerso(QVERSO a_verso)
+void Client::sendVerso(QVERSO aVerso)
 {
     //qDebug() << "Sending a verso";
     std::string buffer;
-    a_verso.SerializeToString(&buffer);
+    aVerso.SerializeToString(&buffer);
     quint32 bufferSize = buffer.size();
 
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(QDataStream::Qt_4_0);
     out << (quint32)bufferSize;
-    //out << buffer;
 
      if (socket_.write(block) == -1)
          helperDebug(daemonMode_,"Error!");
