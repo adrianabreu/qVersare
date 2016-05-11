@@ -1,4 +1,4 @@
-n# qVersare
+# qVersare
 
 Podemos decir que la grandeza humana deriva de la capacidad de comunicarnos entre nosotros mismos.
 La herencia histórica y pasada queda guardada gracias a la escritura.
