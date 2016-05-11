@@ -146,19 +146,19 @@ void QVersareServer::setupDatabase()
                "TIMESTAMP VARCHAR(13))");
 
     //Insert basic users
-    query.prepare("INSERT INTO users (username,password)"
+    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","pepito");
     query.bindValue(":password","50648aff18d36a6b89cb7dcda2e4e8c5");
     query.exec();
 
-    query.prepare("INSERT INTO users (username,password)"
+    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","tiger");
     query.bindValue(":password","9e95f6d797987b7da0fb293a760fe57e");
     query.exec();
 
-    query.prepare("INSERT INTO users (username,password)"
+    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","qversare");
     query.bindValue(":password","3b867c3941a04ab062bba35d8a69a1d9");
