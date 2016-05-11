@@ -12,10 +12,10 @@ ServerSettings::ServerSettings(QCoreApplication *a)
 
     QList<QCommandLineOption> options(
     {
-        {"ip","Set ip to listen to", "ip","127.0.0.1"},
-        {"port","Set port to listen to","port","9000"},
-        {"db","Set dbname","db","qversare.sqlite"},
-        {"daemon","Set daemon mode" }
+        {{"ip","i"},"Set ip to listen to", "ip","127.0.0.1"},
+        {{"port","p"},"Set port to listen to","port","9000"},
+        {"database","Set dbname","db","qversare.sqlite"},
+        {{"daemon","d"},"Set daemon mode" }
     });
 
     parser.addOptions(options);
@@ -32,8 +32,8 @@ ServerSettings::ServerSettings(QCoreApplication *a)
     (parser.isSet("port") ) ? port_ = parser.value("port").toShort() :
         port_ = settings.value("port", 8000).toString().toUInt();
 
-    (parser.isSet("db") ) ? dbName_ = parser.value("db") :
-            dbName_ = settings.value("db", "qversare.sqlite").toString();
+    (parser.isSet("database") ) ? dbName_ = parser.value("database") :
+            dbName_ = settings.value("database", "qversare.sqlite").toString();
 
     (parser.isSet("daemon") ) ? daemon_ = true :
             daemon_ = settings.value("daemon", false).toBool();
