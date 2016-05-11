@@ -22,31 +22,36 @@ public:
 
     void makeConnections(QObject *parent);
 
-    void sendVerso(QVERSO a_verso);
+    void sendVerso(QVERSO aVerso);
 
 signals:
-    void forwardMessage(QVERSO a_verso, int fd);
+    void forwardMessage(QVERSO aVerso, int fd);
+
     void disconnectedClient(int fd); //Sends the server with
                                      //object should be destroyed
-    void validateMe(QString user, QString password, Client *whoClient);
-
     void imNewInTheRoom(QString room, int fd);
 
+    void validateMe(QString user, QString password, Client *whoClient);
+
+
 public slots:
-    void readyRead();
-    void newMessage(QVERSO a_verso, int fd);
     void deleteLater();
-    void readyValidate(bool status, Client* whoToValide);
     //This is necessary because the fd must be the same
-    void lastMessages(QVERSO a_verso, int fd);
+    void lastMessages(QVERSO aVerso, int fd);
+    //This is for forwarded messages
+    void newMessage(QVERSO aVerso, int fd);
+
+    void readyRead();
+    void readyValidate(bool status, Client* whoToValide);
 
 private:
     int socketFd_; //for remove from qmap
+    bool daemonMode_;
     QTcpSocket socket_;
     QPointer<QThread> thread_;
     bool logged_; //Store the status like a finite machine
     QString room_; //Store the actual room of the client
-    bool daemonMode_;
+
 };
 
 #endif // CLIENT_H
