@@ -16,7 +16,7 @@ QVersareDaemon::QVersareDaemon(ServerSettings *settings,
 {
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sigTermSd))
-        qFatal("Couldn't create TERM socketpair");
+        helperDebug(settings->getDaemon(),"Couldn't create TERM socketpair");
 
     sigTermNotifier = new QSocketNotifier(sigTermSd[1],
             QSocketNotifier::Read, this);
@@ -25,7 +25,7 @@ QVersareDaemon::QVersareDaemon(ServerSettings *settings,
             &QVersareDaemon::handleSigTerm);
 
     if (socketpair(AF_UNIX, SOCK_STREAM, 0, sigHupSd))
-        qFatal("Couldn't create TERM socketpair");
+        helperDebug(settings->getDaemon(),"Couldn't create TERM socketpair");
 
     sigHupNotifier = new QSocketNotifier(sigHupSd[1],
             QSocketNotifier::Read, this);
