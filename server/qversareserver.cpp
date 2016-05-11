@@ -1,11 +1,12 @@
+#include <QCryptographicHash>
 #include <QHostAddress>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVariant>
 
+
 #include "client.h"
 #include "qversareserver.h"
-#include "simplecrypt.h"
 #include "utils.h"
 
 QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app,
@@ -59,15 +60,9 @@ bool QVersareServer::goodCredentials(QString user, QString password)
     query.bindValue(":USERNAME",user);
     query.exec();
     if (query.next()) {
-        //Should change this for just a comparison
-        SimpleCrypt crypto;
-        crypto.setKey(0x02ad4a4acb9f023);
+        //Compare md5
         QString stored_password(query.value("password").toString());
-        QString str_pass = crypto.decryptToString(stored_password);
-        QString rcv_pass = crypto.decryptToString(password);
-        //qDebug() << str_pass;
-        //qDebug() << rcv_pass;
-        aux = (str_pass == rcv_pass);
+        aux = (password == stored_password);
     }
     //qDebug() << "Returning " << aux;
     return aux;
@@ -126,18 +121,34 @@ void QVersareServer::setupDatabase()
 {
     //Create table for users
     QSqlQuery query(mydb_);
-    query.exec("CREATE TABLE IF NOT EXISTS users"
-                  "USERNAME VARCHAR(60),"
-                  "PASSWORD VARCHAR(60)"
-                  "PRIMARY KEY (USERNAME)");
-    //Add default user ?
-
+    query.exec("CREATE TABLE IF NOT EXISTS users ("
+                  "USERNAME VARCHAR(60) PRIMARY KEY,"
+                  "PASSWORD VARCHAR(100))");
     //Create table for msgs
     query.exec("CREATE TABLE IF NOT EXISTS messages ("
                "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                "ROOM VARCHAR(60),"
                "USERNAME VARCHAR(60),"
                "MESSAGE VARCHAR(2000))");
+
+    //Insert basic users
+    query.prepare("INSERT INTO users (username,password)"
+                  "VALUES (:username, :password)");
+    query.bindValue(":username","pepito");
+    query.bindValue(":password","23445068ba62bb308734368e7d1ec989");
+    query.exec();
+
+    query.prepare("INSERT INTO users (username,password)"
+                  "VALUES (:username, :password)");
+    query.bindValue(":username","tiger");
+    query.bindValue(":password","e8096e76722eca5b2df0acfe386c0db3");
+    query.exec();
+
+    query.prepare("INSERT INTO users (username,password)"
+                  "VALUES (:username, :password)");
+    query.bindValue(":username","qversare");
+    query.bindValue(":password","cf251e7b43955ab0895437dc0e80b22d");
+    query.exec();
 }
 
 void QVersareServer::addMessage(QString room, QString username, QString message)
