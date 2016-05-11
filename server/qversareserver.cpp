@@ -162,6 +162,7 @@ void QVersareServer::setupDatabase()
                   "VALUES (:username, :password)");
     query.bindValue(":username","qversare");
     query.bindValue(":password","3b867c3941a04ab062bba35d8a69a1d9");
+
     query.exec();
 }
 
