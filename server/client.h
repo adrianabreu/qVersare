@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QPointer>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QThread>
 
 #include "QVERSO.pb.h"
@@ -12,7 +12,8 @@ class Client : public QObject
 {
     Q_OBJECT
 public:
-    explicit Client(qintptr fd, bool daemonMode, QObject *parent = 0);
+    explicit Client(qintptr fd, bool daemonMode, QString keyPath,
+                    QString certPath, QObject *parent = 0);
     ~Client();
 
     void start();
@@ -23,6 +24,8 @@ public:
     void makeConnections(QObject *parent);
 
     void sendVerso(QVERSO aVerso);
+
+    bool waitForEncryption();
 
 signals:
     void forwardMessage(QVERSO aVerso, int fd);
@@ -44,10 +47,12 @@ public slots:
     void readyRead();
     void readyValidate(bool status, Client* whoToValide);
 
+    void errorPaso(QAbstractSocket::SocketError aError);
+
 private:
     int socketFd_; //for remove from qmap
     bool daemonMode_;
-    QTcpSocket socket_;
+    QSslSocket socket_;
     QPointer<QThread> thread_;
     bool logged_; //Store the status like a finite machine
     QString room_; //Store the actual room of the client

@@ -1,4 +1,4 @@
-#include <QCryptographicHash>
+#include <QDir>
 #include <QHostAddress>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -34,7 +34,7 @@ QVersareServer::~QVersareServer()
         i != clients_.end(); ++i) {
         i.value()->die();
     }
-    helperDebug(false,"voy a cerrar la database");
+    helperDebug(false,"Closing database");
     mydb_.close();
 }
 
@@ -70,11 +70,28 @@ bool QVersareServer::goodCredentials(QString user, QString password)
 
 void QVersareServer::incomingConnection(qintptr handle)
 {
-    QPointer<Client> clientSocket = new Client(handle,daemonMode_, this);
-    clients_.insert(clients_.end(),handle,clientSocket);
-    //threads with parents are not movable
-    clientSocket->setParent(0);
-    clientSocket->start();
+    //Comprobar que no se han eliminado los ficheros de clave y cert
+    QDir filesDir;
+
+    if(filesDir.exists("qversare.key") && filesDir.exists("qversare.crt")) {
+        QPointer<Client> clientSocket = new Client(handle,daemonMode_,
+                                                   "cert.pem",
+                                                   "cert.pem",
+                                                   this);
+        clients_.insert(clients_.end(),handle,clientSocket);
+        //threads with parents are not movable
+
+        if (!clientSocket->waitForEncryption()){
+            helperDebug(daemonMode_, "No se pudo hacer el handhsake");
+            clientSocket->die();
+        } else {
+            clientSocket->makeConnections(this);
+            clientSocket->setParent(0);
+            clientSocket->start();
+        }
+    } else {
+        helperDebug(daemonMode_, "Verificar ficheros .key y .crt");
+    }
 
 }
 
@@ -124,7 +141,7 @@ void QVersareServer::setupDatabase()
     QSqlQuery query(mydb_);
     query.exec("CREATE TABLE IF NOT EXISTS users ("
                   "USERNAME VARCHAR(60) PRIMARY KEY,"
-                  "PASSWORD VARCHAR(100))");
+                  "PASSWORD VARCHAR(40))");
     //Create table for msgs
     query.exec("CREATE TABLE IF NOT EXISTS messages ("
                "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -133,19 +150,19 @@ void QVersareServer::setupDatabase()
                "MESSAGE VARCHAR(2000))");
 
     //Insert basic users
-    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
+    query.prepare("INSERT INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","pepito");
-    query.bindValue(":password","23445068ba62bb308734368e7d1ec989");
+    query.bindValue(":password","50648aff18d36a6b89cb7dcda2e4e8c5");
     query.exec();
 
-    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
+    query.prepare("INSERT INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","tiger");
     query.bindValue(":password","e8096e76722eca5b2df0acfe386c0db3");
     query.exec();
 
-    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
+    query.prepare("INSERT INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","qversare");
     query.bindValue(":password","cf251e7b43955ab0895437dc0e80b22d");

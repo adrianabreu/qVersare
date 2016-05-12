@@ -1,26 +1,54 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QDataStream>
-
+#include <QSslCertificate>
+#include <QSsl>
+#include <QFile>
+#include <QSslKey>
+#include <QTextStream>
+#include <QList>
 #include "client.h"
 #include "qversareserver.h"
 #include "QVERSO.pb.h"
 #include "utils.h"
 
-Client::Client(qintptr fd, bool daemonMode, QObject *parent) : QObject(parent),
+Client::Client(qintptr fd, bool daemonMode, QString keyPath,
+               QString certPath, QObject *parent) : QObject(parent),
     socket_(this),
     logged_(false)
 {
     thread_ = new QThread(this);
     daemonMode_ = daemonMode;
-    socket_.setSocketDescriptor(fd);
     socketFd_ = fd;
     room_ = "";
 
+    socket_.setPrivateKey(keyPath);
+    QFile myCert("./" + certPath);
 
-    makeConnections(parent);
+    if(myCert.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QSslCertificate serverCert(myCert.readAll());
+        QList<QSslCertificate> caCert;
+        caCert.push_back(serverCert);
+        socket_.setCaCertificates(caCert);
+        myCert.close();
+        QSslError error(QSslError::SelfSignedCertificate, caCert.at(0));
+        QList<QSslError>  expectedSslErrors;
+        expectedSslErrors.append(error);
+        expectedSslErrors.append(QSslError::CertificateUntrusted);
 
-    helperDebug(daemonMode_,"Client connected");
+        socket_.ignoreSslErrors(expectedSslErrors);
+        socket_.setLocalCertificate(serverCert);
+
+        socket_.setSocketDescriptor(fd);
+        connect(&socket_,SIGNAL(error(QAbstractSocket::SocketError)),
+                this,SLOT(errorPaso(QAbstractSocket::SocketError)));
+        socket_.startServerEncryption();
+        helperDebug(daemonMode_,"Client connected");
+
+    } else {
+        helperDebug(daemonMode_, "Fallo al abrir el cert");
+
+    }
 }
 
 Client::~Client()
@@ -166,6 +194,11 @@ void Client::sendVerso(QVERSO aVerso)
     while(!socket_.waitForBytesWritten());
 }
 
+bool Client::waitForEncryption()
+{
+    return socket_.waitForEncrypted(60000);
+}
+
 void Client::start()
 {
     this->moveToThread(thread_);
@@ -175,4 +208,10 @@ void Client::start()
 void Client::die()
 {
     socket_.disconnectFromHost();
+    thread_->quit();
+}
+
+void Client::errorPaso(QAbstractSocket::SocketError aError)
+{
+    qDebug() << aError;
 }
