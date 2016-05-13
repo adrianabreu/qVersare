@@ -52,8 +52,6 @@ bool QVersareServer::goodCredentials(QString user, QString password)
 {
     //Check for db errors?
     bool aux = false;
-    helperDebug(daemonMode_,"User: " + user);
-    helperDebug(daemonMode_,"Password: " + password);
 
     QSqlQuery query(mydb_);
     query.prepare("SELECT * FROM users WHERE username=(:USERNAME)");
@@ -121,14 +119,9 @@ void QVersareServer::validateClient(QString user, QString password,
 
 void QVersareServer::newInTheRoom(QString room, int fd)
 {
-    //Pense en simplemente emitir los mensajes y hacer los send_to
-    //pero pasar toda esa lista de 10 mensajes cada vez... uff
-    //mejor usar el map
+    //Emitimos los 10 ultimos mensajess para el usuario conectado
     QList<QVERSO> lastMessages = lastTenMessages(room);
     QListIterator<QVERSO> it(lastMessages);
-    //qDebug() << fd;
-    QString parsingforDebug(lastMessages.size());
-    helperDebug(daemonMode_,parsingforDebug);
     while(it.hasNext()) {
         emit messageFromHistory(it.next(),fd);
     }
