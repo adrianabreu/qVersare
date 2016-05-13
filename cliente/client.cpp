@@ -2,6 +2,9 @@
 #include <QDataStream>
 #include <QMessageBox>
 
+#include <QAbstractSocket>
+#include <QNetworkSession>
+
 #include "client.h"
 #include "QVERSO.pb.h"
 
@@ -14,13 +17,16 @@ Client::Client()
     connected_ = false;
 }
 
-Client::Client(QString ip, int port, QString name)
+Client::Client(QString ip, int port)
 {
+    socket_.setPeerVerifyMode(QSslSocket::VerifyPeer);
     ipServer_ = ip;
     portServer_ = port;
-    userName_ = name;
+    userName_ = "";
     actualRoom_ = "";
     connected_ = false;
+    connect(&socket_, SIGNAL(sslErrors(QList<QSslError>)), this,
+            SLOT(procesarErroresSsl(QList<QSslError>)));
 }
 
 Client::~Client(){
@@ -38,11 +44,11 @@ void Client::sendUpdateRoom(QString room)
 int Client::connectTo()
 {
     int result;
-    socket_.connectToHost(ipServer_, portServer_);
+    socket_.connectToHostEncrypted(ipServer_, portServer_);
 
-    if (socket_.waitForConnected(3000)) {
+    if (socket_.waitForConnected(50000)) {
         result = 5;
-        connect(&socket_, &QTcpSocket::readyRead, this, &Client::recivedFrom);
+        connect(&socket_, &QSslSocket::readyRead, this, &Client::recivedFrom);
     } else {
         result = 10;
     }
@@ -126,7 +132,25 @@ void Client::recivedFrom()
     }
 }
 
+void Client::procesarErroresSsl(QList<QSslError> myList)
+{
+    bool aux = true;
+    for(auto it = myList.begin(); it != myList.end(); ++it) {
+        if (it->error() != QSslError::HostNameMismatch &&
+                it->error() != QSslError::SelfSignedCertificate) {
+            aux = false;
+        }
+    }
+    if (aux)
+        socket_.ignoreSslErrors(myList);
+}
+
 void Client::setActualRoom(const QString &actualRoom)
 {
     actualRoom_ = actualRoom;
+}
+
+void Client::setName(const QString &name)
+{
+    userName_ = name;
 }

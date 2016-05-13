@@ -33,7 +33,6 @@ void logindialog::done(int r)
         } else {
             QSettings settings;
             QCryptographicHash crypto(QCryptographicHash::Md5);
-            //crypto.hash(ui->passUser->text().toUtf8(), QCryptographicHash::Md5);
             crypto.addData(ui->passUser->text().toUtf8());
             QString encrypted(crypto.result().toHex());
             emit emit_login_data(ui->userName->text(),encrypted);
@@ -46,7 +45,6 @@ void logindialog::done(int r)
             aux.exec();*/
 
             settings.setValue("userName", ui->userName->text());
-            settings.setValue("passUser", encrypted);
             QDialog::done(r);
             return;
         }

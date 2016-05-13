@@ -2,7 +2,7 @@
 #define CLIENT_H
 
 #include <QObject>
-#include <QTcpSocket>
+#include <QSslSocket>
 #include <QThread>
 #include <QDebug>
 
@@ -13,7 +13,7 @@ class Client : public QObject
     Q_OBJECT
 public:
     Client();
-    Client(QString ip, int port, QString name);
+    Client(QString ip, int port);
     ~Client();
 
     void sendUpdateRoom(QString room);
@@ -30,14 +30,18 @@ public:
 
     void setActualRoom(const QString &actualRoom);
 
+    void setName(const QString &name);
+
 public slots:
     void recivedFrom();
+
+    void procesarErroresSsl(QList<QSslError> myList);
 
 signals:
     void messageRecive(QString message);
 
 private:
-    QTcpSocket socket_;
+    QSslSocket socket_;
     QString ipServer_;
     int portServer_;
     QString userName_;

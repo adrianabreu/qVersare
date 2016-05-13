@@ -36,10 +36,9 @@ void MainWindow::on_conectButton_clicked()
         isConectedToServer_ = false;
     } else {
         QSettings settings;
-        QString userName = settings.value("userName").toString();
         QString ip = settings.value("serverAddress").toString();
         int port = settings.value("serverPort").toInt();
-        client_ = new Client (ip, port, userName);
+        client_ = new Client (ip, port);
         int result = client_->connectTo();
         if (result == 10) {
             QMessageBox::critical(this, "Conectar", "Host inacesible o datos "
@@ -105,4 +104,5 @@ void MainWindow::readyToRead(QString read){
 void MainWindow::send_login(QString username, QString password)
 {
     client_->log_me_in(username, password);
+    client_->setName(username);
 }
