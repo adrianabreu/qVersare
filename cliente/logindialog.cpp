@@ -2,7 +2,7 @@
 #include "ui_logindialog.h"
 #include "qmessagebox.h"
 #include "qsettings.h"
-#include "simplecrypt.h"
+#include <QCryptographicHash>
 
 logindialog::logindialog(QWidget *parent) :
     QDialog(parent),
@@ -32,9 +32,10 @@ void logindialog::done(int r)
             return;
         } else {
             QSettings settings;
-            SimpleCrypt crypto;
-            crypto.setKey(0x02ad4a4acb9f023);
-            QString encrypted = crypto.encryptToString(ui->passUser->text());
+            QCryptographicHash crypto(QCryptographicHash::Md5);
+            //crypto.hash(ui->passUser->text().toUtf8(), QCryptographicHash::Md5);
+            crypto.addData(ui->passUser->text().toUtf8());
+            QString encrypted(crypto.result().toHex());
             emit emit_login_data(ui->userName->text(),encrypted);
             //prueba
             //QMessageBox aux;

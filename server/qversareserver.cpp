@@ -152,13 +152,13 @@ void QVersareServer::setupDatabase()
     query.prepare("INSERT INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","tiger");
-    query.bindValue(":password","e8096e76722eca5b2df0acfe386c0db3");
+    query.bindValue(":password","9e95f6d797987b7da0fb293a760fe57e");
     query.exec();
 
     query.prepare("INSERT INTO users (username,password)"
                   "VALUES (:username, :password)");
     query.bindValue(":username","qversare");
-    query.bindValue(":password","cf251e7b43955ab0895437dc0e80b22d");
+    query.bindValue(":password","3b867c3941a04ab062bba35d8a69a1d9");
     query.exec();
 }
 
