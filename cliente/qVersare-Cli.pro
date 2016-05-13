@@ -23,7 +23,6 @@ SOURCES += main.cpp\
     confdialog.cpp \
     client.cpp \
     logindialog.cpp \
-    simplecrypt.cpp \
     QVERSO.pb.cc
 
 HEADERS  += mainwindow.h \
@@ -31,7 +30,6 @@ HEADERS  += mainwindow.h \
     confdialog.h \
     client.h \
     logindialog.h \
-    simplecrypt.h \
     QVERSO.pb.h
 
 FORMS    += mainwindow.ui \
