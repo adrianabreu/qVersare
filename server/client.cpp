@@ -22,78 +22,39 @@ Client::Client(qintptr fd, bool daemonMode, QString keyPath,
     socketFd_ = fd;
     room_ = "";
 
-    socket_.setPrivateKey(keyPath);
-    QFile myCert("./" + certPath);
-
-    if(myCert.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        QSslCertificate serverCert(myCert.readAll());
-        QList<QSslCertificate> caCert;
-        caCert.push_back(serverCert);
-        socket_.setCaCertificates(caCert);
-        myCert.close();
-        QSslError error(QSslError::SelfSignedCertificate, caCert.at(0));
-        QList<QSslError>  expectedSslErrors;
-        expectedSslErrors.append(error);
-        expectedSslErrors.append(QSslError::CertificateUntrusted);
-
-        socket_.ignoreSslErrors(expectedSslErrors);
-        socket_.setLocalCertificate(serverCert);
-
-        socket_.setSocketDescriptor(fd);
-        connect(&socket_,SIGNAL(error(QAbstractSocket::SocketError)),
-                this,SLOT(errorPaso(QAbstractSocket::SocketError)));
-        socket_.startServerEncryption();
-        helperDebug(daemonMode_,"Client connected");
-
-    } else {
-        helperDebug(daemonMode_, "Fallo al abrir el cert");
-
-    }
+    setupSecureMode(keyPath, certPath);
 }
 
 Client::~Client()
 {
     socket_.close();
-
 }
 
 
 void Client::readyRead()
 {
-    qint32 buffer_size = 0;
-    QVERSO my_verso;
+    qint32 bufferSize = 0;
+    QVERSO aVerso;
     while(socket_.bytesAvailable() > 0){
-        QByteArray algo;
+        QByteArray tmp;
         QDataStream in(&socket_);
 
          if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
-                 (buffer_size == 0) ) {
-             in >> buffer_size;
+                 (bufferSize == 0) ) {
+             in >> bufferSize;
 
          }
-         if ( (buffer_size != 0) &&
-                (socket_.bytesAvailable() >= buffer_size )) {
-            algo=socket_.read(buffer_size);
-            my_verso.ParseFromString(algo.toStdString());
-            buffer_size = 0;
+         if ( (bufferSize != 0) &&
+                (socket_.bytesAvailable() >= bufferSize )) {
+            tmp=socket_.read(bufferSize);
+            aVerso.ParseFromString(tmp.toStdString());
+            bufferSize = 0;
 
         } else {
              socket_.readAll();
         }
 
-        if (!logged_) {
-            if (my_verso.login()) {
-                emit validateMe(QString::fromStdString(my_verso.username() ),
-                             QString::fromStdString(my_verso.password()), this);
-            }
-        } else {
-            if (my_verso.room() != room_.toStdString()) {
-                room_ = QString::fromStdString(my_verso.room());
-                emit Client::imNewInTheRoom(room_, socketFd_);
-            } else {
-                emit forwardMessage(my_verso,socketFd_);
-            }
-        }
+        parseVerso(aVerso);
     }
 }
 
@@ -196,7 +157,24 @@ void Client::sendVerso(QVERSO aVerso)
 
 bool Client::waitForEncryption()
 {
-    return socket_.waitForEncrypted(60000);
+    return socket_.waitForEncrypted();
+}
+
+void Client::parseVerso(QVERSO aVerso)
+{
+    if (!logged_) {
+        if (aVerso.login()) {
+            emit validateMe(QString::fromStdString(aVerso.username() ),
+                         QString::fromStdString(aVerso.password()), this);
+        }
+    } else {
+        if (aVerso.room() != room_.toStdString()) {
+            room_ = QString::fromStdString(aVerso.room());
+            emit Client::imNewInTheRoom(room_, socketFd_);
+        } else {
+            emit forwardMessage(aVerso,socketFd_);
+        }
+    }
 }
 
 void Client::start()
@@ -211,7 +189,42 @@ void Client::die()
     thread_->quit();
 }
 
-void Client::errorPaso(QAbstractSocket::SocketError aError)
+void Client::readySslErrors(QList<QSslError> errors)
 {
-    qDebug() << aError;
+    for (auto error = errors.begin(); error != errors.end(); ++error)
+        helperDebug(daemonMode_, error->errorString());
+}
+
+void Client::setupSecureMode(QString keyPath, QString certPath)
+{
+    //Seteamos la clave privada
+    socket_.setPrivateKey(keyPath);
+
+    QFile myCert("./" + certPath);
+    if(myCert.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QSslCertificate serverCert(myCert.readAll());
+        QList<QSslCertificate> caCert;
+        caCert.push_back(serverCert);
+        socket_.setCaCertificates(caCert);
+        myCert.close();
+
+        //Preparamos una lista de errores por ser selfsigned
+        QSslError error(QSslError::SelfSignedCertificate, caCert.at(0));
+        QList<QSslError>  expectedSslErrors;
+        expectedSslErrors.append(error);
+        expectedSslErrors.append(QSslError::HostNameMismatch);
+        socket_.ignoreSslErrors(expectedSslErrors);
+
+        socket_.setLocalCertificate(serverCert);
+        socket_.setSocketDescriptor(socketFd_);
+
+        connect(&socket_,SIGNAL(sslErrors(QList<QSslError>)),this,
+                SLOT(readySslErrors(QList<QSslError>)));
+
+        socket_.startServerEncryption();
+
+        helperDebug(daemonMode_,"Client connected");
+    } else {
+        helperDebug(daemonMode_, "Fallo al abrir el cert");
+    }
 }

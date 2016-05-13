@@ -27,6 +27,8 @@ public:
 
     bool waitForEncryption();
 
+    void parseVerso(QVERSO aVerso);
+
 signals:
     void forwardMessage(QVERSO aVerso, int fd);
 
@@ -47,7 +49,7 @@ public slots:
     void readyRead();
     void readyValidate(bool status, Client* whoToValide);
 
-    void errorPaso(QAbstractSocket::SocketError aError);
+    void readySslErrors(QList<QSslError> errors);
 
 private:
     int socketFd_; //for remove from qmap
@@ -57,6 +59,7 @@ private:
     bool logged_; //Store the status like a finite machine
     QString room_; //Store the actual room of the client
 
+    void setupSecureMode(QString keyPath, QString certPath);
 };
 
 #endif // CLIENT_H
