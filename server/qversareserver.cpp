@@ -134,13 +134,16 @@ void QVersareServer::setupDatabase()
     QSqlQuery query(mydb_);
     query.exec("CREATE TABLE IF NOT EXISTS users ("
                   "USERNAME VARCHAR(60) PRIMARY KEY,"
-                  "PASSWORD VARCHAR(40))");
+                  "PASSWORD VARCHAR(40),"
+                  "AVATAR BLOB,"
+                  "AVTIMESTAMP VARCHAR(13))");
     //Create table for msgs
     query.exec("CREATE TABLE IF NOT EXISTS messages ("
                "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                "ROOM VARCHAR(60),"
                "USERNAME VARCHAR(60),"
-               "MESSAGE VARCHAR(2000))");
+               "MESSAGE VARCHAR(2000),"
+               "TIMESTAMP VARCHAR(13))");
 
     //Insert basic users
     query.prepare("INSERT INTO users (username,password)"
