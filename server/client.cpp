@@ -200,7 +200,7 @@ void Client::setupSecureMode(QString keyPath, QString certPath)
     //Seteamos la clave privada
     socket_.setPrivateKey(keyPath);
 
-    QFile myCert("./" + certPath);
+    QFile myCert(certPath);
     if(myCert.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QSslCertificate serverCert(myCert.readAll());
         QList<QSslCertificate> caCert;

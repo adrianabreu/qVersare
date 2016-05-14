@@ -15,7 +15,7 @@ QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app,
 {
     settings_ = settings;
     mydb_ = QSqlDatabase(*ddbb);
-    mydb_.setDatabaseName(settings_->getDbName());
+    mydb_.setDatabaseName("/var/lib/qVersareServer/" + settings_->getDbName());
     daemonMode_ = settings->getDaemon();
     if(!mydb_.open()) {
         helperDebug(daemonMode_,
@@ -70,11 +70,11 @@ void QVersareServer::incomingConnection(qintptr handle)
 {
     //Comprobar que no se han eliminado los ficheros de clave y cert
     QDir filesDir;
-
-    if(filesDir.exists("qversare.key") && filesDir.exists("qversare.crt")) {
+    QString rutaPem = "/etc/qVersareServer/qVersareServer.pem";
+    if(filesDir.exists(rutaPem)) {
         QPointer<Client> clientSocket = new Client(handle,daemonMode_,
-                                                   "cert.pem",
-                                                   "cert.pem",
+                                                   rutaPem,
+                                                   rutaPem,
                                                    this);
         clients_.insert(clients_.end(),handle,clientSocket);
         //threads with parents are not movable
