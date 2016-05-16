@@ -118,10 +118,10 @@ void Client::recivedFrom()
          //You Are Loggin
          if (!connected_) {
              if (my_verso.has_login() && my_verso.login() == true) {
-                 emit messageRecive("Welcome");
+                 emit messageRecive("Welcome " + userName_);
                  connected_ = true;
              } else {
-                 emit messageRecive("GET OUT");
+                 emit messageRecive("Login Incorrecto");
              }
 
          } else {
