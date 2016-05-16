@@ -3,6 +3,7 @@
 #include "logindialog.h"
 #include "qsettings.h"
 #include "qmessagebox.h"
+#include "loaddialog.h"
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -13,7 +14,14 @@ MainWindow::MainWindow(QWidget *parent) :
     isConectedButton_(false),
     isConectedToServer_(false)
 {
+    QPixmap pixmap;
+    pixmap.load("qVersareDefaultAvatar.jpg");
+    QIcon icon(pixmap);
+
     ui->setupUi(this);
+
+    ui->imageButton->setIcon(icon);
+    ui->imageButton->setIconSize(pixmap.size());
 }
 
 MainWindow::~MainWindow()
@@ -47,9 +55,6 @@ void MainWindow::on_conectButton_clicked()
             isConectedButton_ = false;
             isConectedToServer_ = false;
         } else {
-            QMessageBox text;
-            text.setText("Conectado correctamente");
-            text.exec();
             ui->conectButton->setText("Desconectar");
             isConectedButton_ = true;
             logindialog login;
@@ -105,4 +110,10 @@ void MainWindow::send_login(QString username, QString password)
 {
     client_->log_me_in(username, password);
     client_->setName(username);
+}
+
+void MainWindow::on_imageButton_clicked()
+{
+    loadDialog fotoCargada;
+    fotoCargada.exec();
 }

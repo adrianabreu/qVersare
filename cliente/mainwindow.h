@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QRegExp>
 #include <QDebug>
+#include <QPixmap>
 #include "client.h"
 
 namespace Ui {
@@ -31,6 +32,8 @@ private slots:
     void on_confButton_clicked();
 
     void readyToRead(QString aux);
+
+    void on_imageButton_clicked();
 
 public slots:
     void send_login(QString username, QString password);

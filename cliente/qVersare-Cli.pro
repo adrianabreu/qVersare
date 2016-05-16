@@ -23,19 +23,22 @@ SOURCES += main.cpp\
     confdialog.cpp \
     client.cpp \
     logindialog.cpp \
-    QVERSO.pb.cc
+    QVERSO.pb.cc \
+    loaddialog.cpp
 
 HEADERS  += mainwindow.h \
     aboutdialog.h \
     confdialog.h \
     client.h \
     logindialog.h \
-    QVERSO.pb.h
+    QVERSO.pb.h \
+    loaddialog.h
 
 FORMS    += mainwindow.ui \
     aboutdialog.ui \
     confdialog.ui \
-    logindialog.ui
+    logindialog.ui \
+    loaddialog.ui
 
 DISTFILES += \
     QVERSO.proto
@@ -49,14 +52,20 @@ BINDIR = $$PREFIX/bin
 DATADIR = $$PREFIX/share
 CONFDIR = /etc
 
-INSTALLS += target desktop icon32
+INSTALLS += target desktop icon32 avatar
 
 ## Instalar ejecutable
 target.path = $$BINDIR
 
+
+avatar.path = .
+avatar.extra = mkdir -p ~/.local/share/qVersare && cp qVersareDefaultAvatar.jpg ~/.local/share/qVersare/. && chown $$(USER) ~/.local/share/qVersare && chown $$(USER) ~/.local/share/qVersare/qVersareDefaultAvatar.jpg
+avatar.commands = true
+#avatar.files += qVersareDefaultAvatar.jpg
+
 ## Instalar acceso directo en el menú del escritorio
 desktop.path = /usr/share/applications
-desktop.files += qVersare.desktop
+desktop.files += qVersare.desktop~/.local/share/qVersare
 
 ## Instalar icono de aplicación
 icon32.path = /usr/share/icons/hicolor/32x32/apps
