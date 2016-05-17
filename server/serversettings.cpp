@@ -8,7 +8,7 @@
 ServerSettings::ServerSettings(QCoreApplication *a)
 {
     QCommandLineParser parser;
-    QSettings settings;
+    QSettings settings("/etc/qVersareServer/qVersareServer.conf",QSettings::IniFormat);
 
     QList<QCommandLineOption> options(
     {

@@ -32,25 +32,25 @@ DISTFILES += \
 PROTOS = QVERSO.proto
 include (protobuf.pri)
 
-BINDIR = /usr/local
+BINDIR = /usr/sbin
 DATADIR = /var/lib/$$TARGET
 CONFDIR = /etc/$$TARGET
 DAEMONDIR = /etc/init.d
 
-INSTALLS += target config data daemonper
+INSTALLS += target data config daemonper
 
 target.path = $$BINDIR
 
 config.path = $$CONFDIR
-config.files += $${TARGET}.pem
-config.extra = chmod 666 $$CONFDIR/$${TARGET}.pem
+config.files += $${TARGET}.pem $${TARGET}.conf
+config.extra = chown root:qversaredaemon $$CONFDIR/$${TARGET}.* && chmod 664 $$CONFDIR/$${TARGET}.*
 config.commands = true
 
 data.path = $$DATADIR
-data.extra = useradd qversaredaemon && mkdir -p -m 775 $$DATADIR && chown root:qversaredaemon $$DATADIR
+data.extra = if [ `getent passwd | grep -c '^qversaredaemon:'` -eq 0 ]; then groupadd qversaredaemon; useradd -r qversaredaemon -g qversaredaemon; fi && mkdir -p -m 775 $$DATADIR && chown root:qversaredaemon $$DATADIR && mkdir -p -m 775 $$DATADIR/avatares
 data.commands = true
 
 daemonper.path = $$DAEMONDIR
-daemonper.extra += cp $${TARGET}.sh $$DAEMONDIR/$${TARGET} && chmod +x $$DAEMONDIR/$${TARGET}d.sh
+daemonper.extra += cp $${TARGET}.sh $$DAEMONDIR/$${TARGET}d && chmod +x $$DAEMONDIR/$${TARGET}d
 daemonper.commands = true
 
