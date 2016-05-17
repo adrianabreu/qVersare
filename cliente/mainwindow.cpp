@@ -122,7 +122,6 @@ void MainWindow::refreshAvatar(QString filename)
         QString userName = client_->getName();
         QString finalPath;
         finalPath += path_ + userName + ".jpg";
-        qDebug() << finalPath;
         QPixmap pixmap;
         if ( !pixmap.load(filename) ) {
             QMessageBox::critical(this, "Avatar", "Error Cargando el Avatar");
@@ -143,7 +142,9 @@ void MainWindow::setAvatar(QString username)
 {
     QString finalPath = path_ + username + ".jpg";
     QPixmap pixmap;
-    pixmap.load(finalPath);
+    if (!pixmap.load(finalPath)) {
+        pixmap.load(path_ + "qVersareDefaultAvatar.jpg");
+    }
 
     QIcon icon(pixmap);
     ui->imageButton->setIcon(icon);

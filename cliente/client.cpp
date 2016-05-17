@@ -30,7 +30,7 @@ Client::Client(QString ip, int port)
 }
 
 Client::~Client(){
-
+    emit avatar("qVersareDefaultAvatar");
 }
 
 void Client::sendUpdateRoom(QString room)
