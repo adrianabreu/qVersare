@@ -119,6 +119,7 @@ void Client::recivedFrom()
          if (!connected_) {
              if (my_verso.has_login() && my_verso.login() == true) {
                  emit messageRecive("Welcome " + userName_);
+                 emit avatar(userName_);
                  connected_ = true;
              } else {
                  emit messageRecive("Login Incorrecto");
@@ -153,4 +154,9 @@ void Client::setActualRoom(const QString &actualRoom)
 void Client::setName(const QString &name)
 {
     userName_ = name;
+}
+
+QString Client::getName()
+{
+    return userName_;
 }
