@@ -43,11 +43,11 @@ target.path = $$BINDIR
 
 config.path = $$CONFDIR
 config.files += $${TARGET}.pem $${TARGET}.conf
-config.extra = chown root:qversaredaemon $$CONFDIR/$${TARGET}.* && chmod 664 $$CONFDIR/$${TARGET}.*
+config.extra = mkdir -p $$CONFDIR #&& chown root:qversaredaemon $$CONFDIR/$${TARGET}.* && chmod 664 $$CONFDIR/$${TARGET}.*
 config.commands = true
 
 data.path = $$DATADIR
-data.extra = if [ `getent passwd | grep -c '^qversaredaemon:'` -eq 0 ]; then groupadd qversaredaemon; useradd -r qversaredaemon -g qversaredaemon; fi && mkdir -p -m 775 $$DATADIR && chown root:qversaredaemon $$DATADIR && mkdir -p -m 775 $$DATADIR/avatares
+data.extra = mkdir -p $$DATADIR && if [ `getent passwd | grep -c '^qversaredaemon:'` -eq 0 ]; then groupadd qversaredaemon; useradd -r qversaredaemon -g qversaredaemon; fi && mkdir -p -m 775 $$DATADIR && chown root:qversaredaemon $$DATADIR && mkdir -p -m 775 $$DATADIR/avatares
 data.commands = true
 
 daemonper.path = $$DAEMONDIR
