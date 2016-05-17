@@ -35,14 +35,20 @@ private slots:
 
     void on_imageButton_clicked();
 
+
 public slots:
     void send_login(QString username, QString password);
+
+    void refreshAvatar(QString filename);
+
+    void setAvatar(QString username);
 
 private:
     Ui::MainWindow *ui;
     bool isConectedButton_;
     bool isConectedToServer_;
     Client *client_;
+    QString path_;
 };
 
 #endif // MAINWINDOW_H

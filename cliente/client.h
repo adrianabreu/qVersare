@@ -32,6 +32,8 @@ public:
 
     void setName(const QString &name);
 
+    QString getName();
+
 public slots:
     void recivedFrom();
 
@@ -39,6 +41,8 @@ public slots:
 
 signals:
     void messageRecive(QString message);
+
+    void avatar(QString username);
 
 private:
     QSslSocket socket_;

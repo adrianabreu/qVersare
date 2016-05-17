@@ -14,14 +14,17 @@ MainWindow::MainWindow(QWidget *parent) :
     isConectedButton_(false),
     isConectedToServer_(false)
 {
+    path_ = QString::fromUtf8(getenv("HOME"));
+    path_ += "/.local/share/qVersare/";
     QPixmap pixmap;
-    pixmap.load("qVersareDefaultAvatar.jpg");
+    pixmap.load(path_ + "qVersareDefaultAvatar.jpg");
     QIcon icon(pixmap);
 
     ui->setupUi(this);
 
     ui->imageButton->setIcon(icon);
     ui->imageButton->setIconSize(pixmap.size());
+    client_ = nullptr;
 }
 
 MainWindow::~MainWindow()
@@ -47,6 +50,7 @@ void MainWindow::on_conectButton_clicked()
         QString ip = settings.value("serverAddress").toString();
         int port = settings.value("serverPort").toInt();
         client_ = new Client (ip, port);
+        connect(client_, &Client::avatar, this, &MainWindow::setAvatar);
         int result = client_->connectTo();
         if (result == 10) {
             QMessageBox::critical(this, "Conectar", "Host inacesible o datos "
@@ -112,8 +116,45 @@ void MainWindow::send_login(QString username, QString password)
     client_->setName(username);
 }
 
+void MainWindow::refreshAvatar(QString filename)
+{
+    if (client_ != nullptr) {
+        QString userName = client_->getName();
+        QString finalPath;
+        finalPath += path_ + userName + ".jpg";
+        QPixmap pixmap;
+        if ( !pixmap.load(filename) ) {
+            QMessageBox::critical(this, "Avatar", "Error Cargando el Avatar");
+        } else {
+            pixmap = pixmap.scaled(100,100,Qt::KeepAspectRatio);
+            if ( !pixmap.save(finalPath) )
+                qDebug() << "no se guarda";
+        }
+        QIcon icon(pixmap);
+
+        ui->imageButton->setIcon(icon);
+    } else {
+        QMessageBox::critical(this, "Avatar", "Conectate al Servidor Primero");
+    }
+}
+
+void MainWindow::setAvatar(QString username)
+{
+    QString finalPath = path_ + username + ".jpg";
+    QPixmap pixmap;
+    if (!pixmap.load(finalPath)) {
+        pixmap.load(path_ + "qVersareDefaultAvatar.jpg");
+    }
+
+    QIcon icon(pixmap);
+    ui->imageButton->setIcon(icon);
+}
+
+
 void MainWindow::on_imageButton_clicked()
 {
     loadDialog fotoCargada;
+    connect(&fotoCargada, &loadDialog::emit_load_data, this,
+            &MainWindow::refreshAvatar);
     fotoCargada.exec();
 }
