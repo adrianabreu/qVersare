@@ -47,7 +47,7 @@ public slots:
     void newMessage(QVERSO aVerso, int fd);
 
     void readyRead();
-    void readyValidate(bool status, Client* whoToValide);
+    void readyValidate(bool status, Client *whoToValide);
 
     void readySslErrors(QList<QSslError> errors);
 

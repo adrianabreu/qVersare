@@ -93,16 +93,16 @@ void QVersareServer::incomingConnection(qintptr handle)
 
 }
 
-void QVersareServer::newMessageFromClient(QVERSO a_verso,int fd)
+void QVersareServer::newMessageFromClient(QVERSO aVerso,int fd)
 {
     //Good moment for store the message in the database
-    QString room = QString::fromStdString(a_verso.room());
-    QString username = QString::fromStdString(a_verso.username());
-    QString message = QString::fromStdString(a_verso.message());
+    QString room = QString::fromStdString(aVerso.room());
+    QString username = QString::fromStdString(aVerso.username());
+    QString message = QString::fromStdString(aVerso.message());
 
     addMessage(room,username, message);
 
-    emit forwardedMessage(a_verso,fd);
+    emit forwardedMessage(aVerso,fd);
 }
 
 void QVersareServer::clientDisconnected(int fd)
