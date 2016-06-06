@@ -143,6 +143,37 @@ class QVERSO : public ::google::protobuf::Message {
   inline ::std::string* release_message();
   inline void set_allocated_message(::std::string* message);
 
+  // optional bool requestAvatar = 6;
+  inline bool has_requestavatar() const;
+  inline void clear_requestavatar();
+  static const int kRequestAvatarFieldNumber = 6;
+  inline bool requestavatar() const;
+  inline void set_requestavatar(bool value);
+
+  // optional bytes avatar = 7;
+  inline bool has_avatar() const;
+  inline void clear_avatar();
+  static const int kAvatarFieldNumber = 7;
+  inline const ::std::string& avatar() const;
+  inline void set_avatar(const ::std::string& value);
+  inline void set_avatar(const char* value);
+  inline void set_avatar(const void* value, size_t size);
+  inline ::std::string* mutable_avatar();
+  inline ::std::string* release_avatar();
+  inline void set_allocated_avatar(::std::string* avatar);
+
+  // optional string timestamp = 8;
+  inline bool has_timestamp() const;
+  inline void clear_timestamp();
+  static const int kTimestampFieldNumber = 8;
+  inline const ::std::string& timestamp() const;
+  inline void set_timestamp(const ::std::string& value);
+  inline void set_timestamp(const char* value);
+  inline void set_timestamp(const char* value, size_t size);
+  inline ::std::string* mutable_timestamp();
+  inline ::std::string* release_timestamp();
+  inline void set_allocated_timestamp(::std::string* timestamp);
+
   // @@protoc_insertion_point(class_scope:QVERSO)
  private:
   inline void set_has_login();
@@ -155,6 +186,12 @@ class QVERSO : public ::google::protobuf::Message {
   inline void clear_has_room();
   inline void set_has_message();
   inline void clear_has_message();
+  inline void set_has_requestavatar();
+  inline void clear_has_requestavatar();
+  inline void set_has_avatar();
+  inline void clear_has_avatar();
+  inline void set_has_timestamp();
+  inline void clear_has_timestamp();
 
   ::google::protobuf::UnknownFieldSet _unknown_fields_;
 
@@ -164,7 +201,10 @@ class QVERSO : public ::google::protobuf::Message {
   ::std::string* password_;
   ::std::string* room_;
   ::std::string* message_;
+  ::std::string* avatar_;
+  ::std::string* timestamp_;
   bool login_;
+  bool requestavatar_;
   friend void  protobuf_AddDesc_QVERSO_2eproto();
   friend void protobuf_AssignDesc_QVERSO_2eproto();
   friend void protobuf_ShutdownFile_QVERSO_2eproto();
@@ -505,6 +545,182 @@ inline void QVERSO::set_allocated_message(::std::string* message) {
     message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   }
   // @@protoc_insertion_point(field_set_allocated:QVERSO.message)
+}
+
+// optional bool requestAvatar = 6;
+inline bool QVERSO::has_requestavatar() const {
+  return (_has_bits_[0] & 0x00000020u) != 0;
+}
+inline void QVERSO::set_has_requestavatar() {
+  _has_bits_[0] |= 0x00000020u;
+}
+inline void QVERSO::clear_has_requestavatar() {
+  _has_bits_[0] &= ~0x00000020u;
+}
+inline void QVERSO::clear_requestavatar() {
+  requestavatar_ = false;
+  clear_has_requestavatar();
+}
+inline bool QVERSO::requestavatar() const {
+  // @@protoc_insertion_point(field_get:QVERSO.requestAvatar)
+  return requestavatar_;
+}
+inline void QVERSO::set_requestavatar(bool value) {
+  set_has_requestavatar();
+  requestavatar_ = value;
+  // @@protoc_insertion_point(field_set:QVERSO.requestAvatar)
+}
+
+// optional bytes avatar = 7;
+inline bool QVERSO::has_avatar() const {
+  return (_has_bits_[0] & 0x00000040u) != 0;
+}
+inline void QVERSO::set_has_avatar() {
+  _has_bits_[0] |= 0x00000040u;
+}
+inline void QVERSO::clear_has_avatar() {
+  _has_bits_[0] &= ~0x00000040u;
+}
+inline void QVERSO::clear_avatar() {
+  if (avatar_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    avatar_->clear();
+  }
+  clear_has_avatar();
+}
+inline const ::std::string& QVERSO::avatar() const {
+  // @@protoc_insertion_point(field_get:QVERSO.avatar)
+  return *avatar_;
+}
+inline void QVERSO::set_avatar(const ::std::string& value) {
+  set_has_avatar();
+  if (avatar_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    avatar_ = new ::std::string;
+  }
+  avatar_->assign(value);
+  // @@protoc_insertion_point(field_set:QVERSO.avatar)
+}
+inline void QVERSO::set_avatar(const char* value) {
+  set_has_avatar();
+  if (avatar_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    avatar_ = new ::std::string;
+  }
+  avatar_->assign(value);
+  // @@protoc_insertion_point(field_set_char:QVERSO.avatar)
+}
+inline void QVERSO::set_avatar(const void* value, size_t size) {
+  set_has_avatar();
+  if (avatar_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    avatar_ = new ::std::string;
+  }
+  avatar_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:QVERSO.avatar)
+}
+inline ::std::string* QVERSO::mutable_avatar() {
+  set_has_avatar();
+  if (avatar_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    avatar_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:QVERSO.avatar)
+  return avatar_;
+}
+inline ::std::string* QVERSO::release_avatar() {
+  clear_has_avatar();
+  if (avatar_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = avatar_;
+    avatar_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void QVERSO::set_allocated_avatar(::std::string* avatar) {
+  if (avatar_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete avatar_;
+  }
+  if (avatar) {
+    set_has_avatar();
+    avatar_ = avatar;
+  } else {
+    clear_has_avatar();
+    avatar_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:QVERSO.avatar)
+}
+
+// optional string timestamp = 8;
+inline bool QVERSO::has_timestamp() const {
+  return (_has_bits_[0] & 0x00000080u) != 0;
+}
+inline void QVERSO::set_has_timestamp() {
+  _has_bits_[0] |= 0x00000080u;
+}
+inline void QVERSO::clear_has_timestamp() {
+  _has_bits_[0] &= ~0x00000080u;
+}
+inline void QVERSO::clear_timestamp() {
+  if (timestamp_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timestamp_->clear();
+  }
+  clear_has_timestamp();
+}
+inline const ::std::string& QVERSO::timestamp() const {
+  // @@protoc_insertion_point(field_get:QVERSO.timestamp)
+  return *timestamp_;
+}
+inline void QVERSO::set_timestamp(const ::std::string& value) {
+  set_has_timestamp();
+  if (timestamp_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timestamp_ = new ::std::string;
+  }
+  timestamp_->assign(value);
+  // @@protoc_insertion_point(field_set:QVERSO.timestamp)
+}
+inline void QVERSO::set_timestamp(const char* value) {
+  set_has_timestamp();
+  if (timestamp_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timestamp_ = new ::std::string;
+  }
+  timestamp_->assign(value);
+  // @@protoc_insertion_point(field_set_char:QVERSO.timestamp)
+}
+inline void QVERSO::set_timestamp(const char* value, size_t size) {
+  set_has_timestamp();
+  if (timestamp_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timestamp_ = new ::std::string;
+  }
+  timestamp_->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:QVERSO.timestamp)
+}
+inline ::std::string* QVERSO::mutable_timestamp() {
+  set_has_timestamp();
+  if (timestamp_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    timestamp_ = new ::std::string;
+  }
+  // @@protoc_insertion_point(field_mutable:QVERSO.timestamp)
+  return timestamp_;
+}
+inline ::std::string* QVERSO::release_timestamp() {
+  clear_has_timestamp();
+  if (timestamp_ == &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    return NULL;
+  } else {
+    ::std::string* temp = timestamp_;
+    timestamp_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+    return temp;
+  }
+}
+inline void QVERSO::set_allocated_timestamp(::std::string* timestamp) {
+  if (timestamp_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timestamp_;
+  }
+  if (timestamp) {
+    set_has_timestamp();
+    timestamp_ = timestamp;
+  } else {
+    clear_has_timestamp();
+    timestamp_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  }
+  // @@protoc_insertion_point(field_set_allocated:QVERSO.timestamp)
 }
 
 

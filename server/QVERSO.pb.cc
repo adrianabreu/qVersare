@@ -32,12 +32,15 @@ void protobuf_AssignDesc_QVERSO_2eproto() {
       "QVERSO.proto");
   GOOGLE_CHECK(file != NULL);
   QVERSO_descriptor_ = file->message_type(0);
-  static const int QVERSO_offsets_[5] = {
+  static const int QVERSO_offsets_[8] = {
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, login_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, username_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, password_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, room_),
     GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, message_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, requestavatar_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, avatar_),
+    GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(QVERSO, timestamp_),
   };
   QVERSO_reflection_ =
     new ::google::protobuf::internal::GeneratedMessageReflection(
@@ -80,9 +83,11 @@ void protobuf_AddDesc_QVERSO_2eproto() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-    "\n\014QVERSO.proto\"Z\n\006QVERSO\022\r\n\005login\030\001 \001(\010\022"
-    "\020\n\010username\030\002 \001(\t\022\020\n\010password\030\003 \001(\t\022\014\n\004r"
-    "oom\030\004 \001(\t\022\017\n\007message\030\005 \001(\t", 106);
+    "\n\014QVERSO.proto\"\224\001\n\006QVERSO\022\r\n\005login\030\001 \001(\010"
+    "\022\020\n\010username\030\002 \001(\t\022\020\n\010password\030\003 \001(\t\022\014\n\004"
+    "room\030\004 \001(\t\022\017\n\007message\030\005 \001(\t\022\025\n\rrequestAv"
+    "atar\030\006 \001(\010\022\016\n\006avatar\030\007 \001(\014\022\021\n\ttimestamp\030"
+    "\010 \001(\t", 165);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "QVERSO.proto", &protobuf_RegisterTypes);
   QVERSO::default_instance_ = new QVERSO();
@@ -105,6 +110,9 @@ const int QVERSO::kUsernameFieldNumber;
 const int QVERSO::kPasswordFieldNumber;
 const int QVERSO::kRoomFieldNumber;
 const int QVERSO::kMessageFieldNumber;
+const int QVERSO::kRequestAvatarFieldNumber;
+const int QVERSO::kAvatarFieldNumber;
+const int QVERSO::kTimestampFieldNumber;
 #endif  // !_MSC_VER
 
 QVERSO::QVERSO()
@@ -131,6 +139,9 @@ void QVERSO::SharedCtor() {
   password_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   room_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   message_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  requestavatar_ = false;
+  avatar_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  timestamp_ = const_cast< ::std::string*>(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -151,6 +162,12 @@ void QVERSO::SharedDtor() {
   }
   if (message_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
     delete message_;
+  }
+  if (avatar_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete avatar_;
+  }
+  if (timestamp_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+    delete timestamp_;
   }
   if (this != default_instance_) {
   }
@@ -178,8 +195,18 @@ QVERSO* QVERSO::New() const {
 }
 
 void QVERSO::Clear() {
-  if (_has_bits_[0 / 32] & 31) {
-    login_ = false;
+#define OFFSET_OF_FIELD_(f) (reinterpret_cast<char*>(      \
+  &reinterpret_cast<QVERSO*>(16)->f) - \
+   reinterpret_cast<char*>(16))
+
+#define ZR_(first, last) do {                              \
+    size_t f = OFFSET_OF_FIELD_(first);                    \
+    size_t n = OFFSET_OF_FIELD_(last) - f + sizeof(last);  \
+    ::memset(&first, 0, n);                                \
+  } while (0)
+
+  if (_has_bits_[0 / 32] & 255) {
+    ZR_(login_, requestavatar_);
     if (has_username()) {
       if (username_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
         username_->clear();
@@ -200,7 +227,21 @@ void QVERSO::Clear() {
         message_->clear();
       }
     }
+    if (has_avatar()) {
+      if (avatar_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        avatar_->clear();
+      }
+    }
+    if (has_timestamp()) {
+      if (timestamp_ != &::google::protobuf::internal::GetEmptyStringAlreadyInited()) {
+        timestamp_->clear();
+      }
+    }
   }
+
+#undef OFFSET_OF_FIELD_
+#undef ZR_
+
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();
 }
@@ -293,6 +334,51 @@ bool QVERSO::MergePartialFromCodedStream(
         } else {
           goto handle_unusual;
         }
+        if (input->ExpectTag(48)) goto parse_requestAvatar;
+        break;
+      }
+
+      // optional bool requestAvatar = 6;
+      case 6: {
+        if (tag == 48) {
+         parse_requestAvatar:
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   bool, ::google::protobuf::internal::WireFormatLite::TYPE_BOOL>(
+                 input, &requestavatar_)));
+          set_has_requestavatar();
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(58)) goto parse_avatar;
+        break;
+      }
+
+      // optional bytes avatar = 7;
+      case 7: {
+        if (tag == 58) {
+         parse_avatar:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadBytes(
+                input, this->mutable_avatar()));
+        } else {
+          goto handle_unusual;
+        }
+        if (input->ExpectTag(66)) goto parse_timestamp;
+        break;
+      }
+
+      // optional string timestamp = 8;
+      case 8: {
+        if (tag == 66) {
+         parse_timestamp:
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_timestamp()));
+          ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+            this->timestamp().data(), this->timestamp().length(),
+            ::google::protobuf::internal::WireFormat::PARSE,
+            "timestamp");
+        } else {
+          goto handle_unusual;
+        }
         if (input->ExpectAtEnd()) goto success;
         break;
       }
@@ -367,6 +453,27 @@ void QVERSO::SerializeWithCachedSizes(
       5, this->message(), output);
   }
 
+  // optional bool requestAvatar = 6;
+  if (has_requestavatar()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBool(6, this->requestavatar(), output);
+  }
+
+  // optional bytes avatar = 7;
+  if (has_avatar()) {
+    ::google::protobuf::internal::WireFormatLite::WriteBytesMaybeAliased(
+      7, this->avatar(), output);
+  }
+
+  // optional string timestamp = 8;
+  if (has_timestamp()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->timestamp().data(), this->timestamp().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "timestamp");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      8, this->timestamp(), output);
+  }
+
   if (!unknown_fields().empty()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         unknown_fields(), output);
@@ -426,6 +533,29 @@ void QVERSO::SerializeWithCachedSizes(
         5, this->message(), target);
   }
 
+  // optional bool requestAvatar = 6;
+  if (has_requestavatar()) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteBoolToArray(6, this->requestavatar(), target);
+  }
+
+  // optional bytes avatar = 7;
+  if (has_avatar()) {
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteBytesToArray(
+        7, this->avatar(), target);
+  }
+
+  // optional string timestamp = 8;
+  if (has_timestamp()) {
+    ::google::protobuf::internal::WireFormat::VerifyUTF8StringNamedField(
+      this->timestamp().data(), this->timestamp().length(),
+      ::google::protobuf::internal::WireFormat::SERIALIZE,
+      "timestamp");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        8, this->timestamp(), target);
+  }
+
   if (!unknown_fields().empty()) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
         unknown_fields(), target);
@@ -471,6 +601,25 @@ int QVERSO::ByteSize() const {
           this->message());
     }
 
+    // optional bool requestAvatar = 6;
+    if (has_requestavatar()) {
+      total_size += 1 + 1;
+    }
+
+    // optional bytes avatar = 7;
+    if (has_avatar()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::BytesSize(
+          this->avatar());
+    }
+
+    // optional string timestamp = 8;
+    if (has_timestamp()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::StringSize(
+          this->timestamp());
+    }
+
   }
   if (!unknown_fields().empty()) {
     total_size +=
@@ -513,6 +662,15 @@ void QVERSO::MergeFrom(const QVERSO& from) {
     if (from.has_message()) {
       set_message(from.message());
     }
+    if (from.has_requestavatar()) {
+      set_requestavatar(from.requestavatar());
+    }
+    if (from.has_avatar()) {
+      set_avatar(from.avatar());
+    }
+    if (from.has_timestamp()) {
+      set_timestamp(from.timestamp());
+    }
   }
   mutable_unknown_fields()->MergeFrom(from.unknown_fields());
 }
@@ -541,6 +699,9 @@ void QVERSO::Swap(QVERSO* other) {
     std::swap(password_, other->password_);
     std::swap(room_, other->room_);
     std::swap(message_, other->message_);
+    std::swap(requestavatar_, other->requestavatar_);
+    std::swap(avatar_, other->avatar_);
+    std::swap(timestamp_, other->timestamp_);
     std::swap(_has_bits_[0], other->_has_bits_[0]);
     _unknown_fields_.Swap(&other->_unknown_fields_);
     std::swap(_cached_size_, other->_cached_size_);
