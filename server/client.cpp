@@ -59,9 +59,15 @@ void Client::readyRead()
 }
 
 
-void Client::newMessage(QVERSO aVerso, int fd)
+void Client::onMessageToOthers(QVERSO aVerso, Client *fd)
 {
-    if (fd != socketFd_ && aVerso.room() == room_.toStdString())
+    if (fd != this && aVerso.room() == room_.toStdString())
+        sendVerso(aVerso);
+}
+
+void Client::onMessageToSame(QVERSO aVerso, Client *fd)
+{
+    if(fd == this)
         sendVerso(aVerso);
 }
 
@@ -80,17 +86,10 @@ void Client::readyValidate(bool status, Client *whoClient)
         sendVerso(logMessage);
         if(status == true) {
            room_ = "lobby";
-           emit Client::imNewInTheRoom("lobby", socketFd_);
+           emit imNewInTheRoom("lobby", this);
+           emit requestThatAvatar(name_, this);
         }
     }
-}
-
-void Client::lastMessages(QVERSO aVerso, int fd)
-{
-    //While to the forwarding we just want to send to the anothers fd
-    //here we sant to send to the same client
-    if(fd == socketFd_)
-        sendVerso(aVerso);
 }
 
 bool Client::getLogged() const
@@ -102,23 +101,9 @@ void Client::makeConnections(QObject *parent)
 {
     connect(&socket_, &QTcpSocket::readyRead, this, &Client::readyRead );
 
-    connect(this, &Client::forwardMessage,
-            static_cast<QVersareServer*>(parent),
-            &QVersareServer::newMessageFromClient );
-
-    connect(static_cast<QVersareServer*>(parent),
-            &QVersareServer::forwardedMessage,
-            this, &Client::newMessage);
-
     connect(this, &Client::disconnectedClient,
             static_cast<QVersareServer*>(parent),
             &QVersareServer::clientDisconnected);
-
-    connect(this, &Client::validateMe,static_cast<QVersareServer*>(parent),
-            &QVersareServer::validateClient);
-
-    connect(static_cast<QVersareServer*>(parent),
-            &QVersareServer::validateResult,this,&Client::readyValidate);
 
     connect(static_cast<QThread*>(thread_), &QThread::finished, this,
             &Client::deleteLater );
@@ -129,9 +114,50 @@ void Client::makeConnections(QObject *parent)
     connect(this, &Client::imNewInTheRoom, static_cast<QVersareServer*>(parent),
             &QVersareServer::newInTheRoom);
 
+    connect(this, &Client::deleteMeFromThisRoom,
+            static_cast<QVersareServer*>(parent),
+            &QVersareServer::removeMeFromRoom);
+
+    makeMessageConnections(parent);
+    makeLoginConnections(parent);
+    makeAvatarConnections(parent);
+}
+
+void Client::makeMessageConnections(QObject *parent)
+{
+    connect(this, &Client::forwardMessage,
+            static_cast<QVersareServer*>(parent),
+            &QVersareServer::newMessageFromClient );
+
+    connect(static_cast<QVersareServer*>(parent),
+            &QVersareServer::forwardedMessage,
+            this, &Client::onMessageToOthers);
+
     connect(static_cast<QVersareServer*>(parent),
             &QVersareServer::messageFromHistory,
-            this, &Client::lastMessages);
+            this, &Client::onMessageToSame);
+}
+
+void Client::makeLoginConnections(QObject *parent)
+{
+    connect(this, &Client::validateMe,static_cast<QVersareServer*>(parent),
+            &QVersareServer::validateClient);
+
+    connect(static_cast<QVersareServer*>(parent),
+            &QVersareServer::validateResult,this,&Client::readyValidate);
+}
+
+void Client::makeAvatarConnections(QObject *parent)
+{
+    //Update my avatar to server
+    connect(this, &Client::updateMyAvatar, static_cast<QVersareServer*>(parent),
+            &QVersareServer::updateClientAvatar);
+
+    connect(static_cast<QVersareServer*>(parent), &QVersareServer::userAvatar,
+            this, &Client::onMessageToSame);
+
+    connect(static_cast<QVersareServer*>(parent), &QVersareServer::userTimeStamp,
+            this, &Client::onMessageToSame);
 }
 
 void Client::sendVerso(QVERSO aVerso)
@@ -164,15 +190,34 @@ void Client::parseVerso(QVERSO aVerso)
 {
     if (!logged_) {
         if (aVerso.login()) {
-            emit validateMe(QString::fromStdString(aVerso.username() ),
+            name_ = QString::fromStdString(aVerso.username());
+            emit validateMe(name_,
                          QString::fromStdString(aVerso.password()), this);
         }
     } else {
+        if (aVerso.requestavatar()) {
+            if(aVerso.username() != name_.toStdString()) {
+                //Ask for that user avatar
+            } else {
+                //It may be requesting my avatar or updating it
+                if(!QString::fromStdString(aVerso.avatar()).isNull()) {
+                    emit updateMyAvatar(name_,QString::fromStdString(aVerso.avatar()),
+                                        QDateTime::fromString(
+                                            QString::fromStdString(aVerso.timestamp())),
+                                        this);
+                    emit forwardMessage(aVerso, this);
+                } else {
+                    emit requestThatAvatar(name_, this);
+                }
+
+            }
+        }
         if (aVerso.room() != room_.toStdString()) {
+            emit Client::deleteMeFromThisRoom(room_, this);
             room_ = QString::fromStdString(aVerso.room());
-            emit Client::imNewInTheRoom(room_, socketFd_);
+            emit Client::imNewInTheRoom(room_, this);
         } else {
-            emit forwardMessage(aVerso,socketFd_);
+            emit forwardMessage(aVerso,this);
         }
     }
 }
@@ -185,6 +230,7 @@ void Client::start()
 
 void Client::die()
 {
+    emit Client::deleteMeFromThisRoom(room_, this);
     socket_.disconnectFromHost();
     thread_->quit();
 }
@@ -193,6 +239,12 @@ void Client::readySslErrors(QList<QSslError> errors)
 {
     for (auto error = errors.begin(); error != errors.end(); ++error)
         helperDebug(daemonMode_, error->errorString());
+}
+
+
+QString Client::getName()
+{
+    return name_;
 }
 
 void Client::setupSecureMode(QString keyPath, QString certPath)

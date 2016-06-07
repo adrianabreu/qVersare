@@ -3,9 +3,11 @@
 
 #include <QAbstractSocket>
 #include <QCoreApplication>
+#include <QDateTime>
 #include <QDebug>
 #include <QMap>
 #include <QObject>
+#include <QPair>
 #include <QPointer>
 #include <QSettings>
 #include <QSqlDatabase>
@@ -34,15 +36,32 @@ protected:
     void incomingConnection(qintptr handle);
 
 signals:
-    void forwardedMessage(QVERSO aVerso, int fd);
+    void forwardedMessage(QVERSO aVerso, Client *fd);
     void validateResult(bool status, Client *whoClient);
-    void messageFromHistory(QVERSO aVerso, int fd);
+    void messageFromHistory(QVERSO aVerso, Client *fd);
+
+    //Avatar section
+    void userTimeStamp(QVERSO aVerso, Client *fd);
+
+    void userAvatar(QVERSO aVerso, Client *fd);
 
 public slots:
-    void newMessageFromClient(QVERSO aVerso, int fd);
+    void newMessageFromClient(QVERSO aVerso, Client *fd);
     void clientDisconnected(int fd);
+
     void validateClient(QString user, QString password, Client *whoClient);
-    void newInTheRoom(QString room, int fd);
+
+    void newInTheRoom(QString room, Client *fd);
+
+    void removeMeFromRoom(QString room, Client *fd);
+
+    //Avatar Section
+    void updateClientAvatar(QString user, QString avatar, QDateTime timestamp);
+
+    void onRequestedAvatar(QString user, Client *fd);
+
+    void onRequestedTimestamp(QString user, Client *fd);
+
 
 private:
     QMap<qintptr,QPointer<Client>> clients_;
@@ -53,7 +72,19 @@ private:
     void setupDatabase();
     //Add a message to history table
     void addMessage(QString room, QString username, QString message);
-    QList<QVERSO> lastTenMessages(QString room);
+    QList<QVERSO> getLastTenMessages(QString room);
+
+    //Avatar section
+    QList<QVERSO> getOthersUsersTimestamps(QString room);
+    QVERSO getThisUserAvatar(QString user);
+    QVERSO getThisUserTimeStamp(QString user);
+
+    void addClientToList(QString room, Client *client);
+    void removeClientFromList(QString room, Client *client);
+
+    void sendThisAvatarToOthesUsers(QString user);
+
+    QMap<QString, QList<Client*>> clientsPerRoom_;
 
 };
 
