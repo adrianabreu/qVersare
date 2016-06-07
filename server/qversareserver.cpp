@@ -136,32 +136,38 @@ void QVersareServer::setupDatabase()
                   "USERNAME VARCHAR(60) PRIMARY KEY,"
                   "PASSWORD VARCHAR(40),"
                   "AVATAR BLOB,"
-                  "AVTIMESTAMP VARCHAR(13))");
+                  "AVTIMESTAMP INTEGER)");
     //Create table for msgs
     query.exec("CREATE TABLE IF NOT EXISTS messages ("
                "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                "ROOM VARCHAR(60),"
                "USERNAME VARCHAR(60),"
                "MESSAGE VARCHAR(2000),"
-               "TIMESTAMP VARCHAR(13))");
+               "TIMESTAMP INTEGER)");
 
     //Insert basic users
-    query.prepare("INSERT INTO users (username,password)"
-                  "VALUES (:username, :password)");
+    query.prepare("INSERT INTO users (username,password,avatar,avtimestamp)"
+                  "VALUES (:username, :password,:avatar,:avtimestamp)");
     query.bindValue(":username","pepito");
     query.bindValue(":password","50648aff18d36a6b89cb7dcda2e4e8c5");
+    query.bindValue(":avatar","null");
+    query.bindValue(":avtimestamp",0);
     query.exec();
 
-    query.prepare("INSERT INTO users (username,password)"
-                  "VALUES (:username, :password)");
+    query.prepare("INSERT INTO users (username,password,avatar,avtimestamp)"
+                  "VALUES (:username, :password,:avatar,:avtimestamp)");
     query.bindValue(":username","tiger");
     query.bindValue(":password","9e95f6d797987b7da0fb293a760fe57e");
+    query.bindValue(":avatar","null");
+    query.bindValue(":avtimestamp",0);
     query.exec();
 
-    query.prepare("INSERT INTO users (username,password)"
-                  "VALUES (:username, :password)");
+    query.prepare("INSERT INTO users (username,password,avatar,avtimestamp)"
+                  "VALUES (:username, :password,:avatar,:avtimestamp)");
     query.bindValue(":username","qversare");
     query.bindValue(":password","3b867c3941a04ab062bba35d8a69a1d9");
+    query.bindValue(":avatar","null");
+    query.bindValue(":avtimestamp",0);
 
     query.exec();
 }
