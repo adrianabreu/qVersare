@@ -1,3 +1,4 @@
+#include <QDateTime>
 #include <QDir>
 #include <QHostAddress>
 #include <QSqlError>
@@ -93,7 +94,7 @@ void QVersareServer::incomingConnection(qintptr handle)
 
 }
 
-void QVersareServer::newMessageFromClient(QVERSO aVerso,int fd)
+void QVersareServer::newMessageFromClient(QVERSO aVerso,Client *fd)
 {
     //Good moment for store the message in the database
     QString room = QString::fromStdString(aVerso.room());
@@ -117,15 +118,53 @@ void QVersareServer::validateClient(QString user, QString password,
     emit validateResult(goodCredentials(user,password),whoClient);
 }
 
-void QVersareServer::newInTheRoom(QString room, int fd)
+void QVersareServer::newInTheRoom(QString room, Client *fd)
 {
     //Emitimos los 10 ultimos mensajess para el usuario conectado
-    QList<QVERSO> lastMessages = lastTenMessages(room);
+    QList<QVERSO> lastMessages = getLastTenMessages(room);
     QListIterator<QVERSO> it(lastMessages);
     while(it.hasNext()) {
         emit messageFromHistory(it.next(),fd);
     }
 
+    //Emitimos los timestamps de los avatares de los demás al usuario
+    QList<QVERSO> otherUsersTimeStamp = getOthersUsersTimestamps(room);
+    QListIterator<QVERSO> it2(otherUsersTimeStamp);
+    while(it2.hasNext()) {
+        emit userTimeStamp(it.next(), fd);
+    }
+    //Añadimos al usuario a la lista
+    addClientToList(room, fd);
+}
+
+void QVersareServer::removeMeFromRoom(QString room, Client *fd)
+{
+    removeClientFromList(room, fd);
+}
+
+void QVersareServer::updateClientAvatar(QString user,
+                                        QString avatar,
+                                        QDateTime timestamp)
+{
+    //Prepare query for update
+    QSqlQuery query(mydb_);
+    query.prepare("UPDATE users SET"
+                  "AVATAR=:username,AVTIMESTAMP=:timestamp "
+                  "WHERE USERNAME=:username");
+    query.bindValue(":username", user);
+    query.bindValue(":avatar", avatar);
+    query.bindValue(":timestamp", timestamp.toMSecsSinceEpoch());
+    query.exec();
+}
+
+void QVersareServer::onRequestedAvatar(QString user, Client *fd)
+{
+    emit userAvatar(getThisUserAvatar(user), fd);
+}
+
+void QVersareServer::onRequestedTimestamp(QString user, Client *fd)
+{
+    emit userTimeStamp(getThisUserTimeStamp(user), fd);
 }
 
 void QVersareServer::setupDatabase()
@@ -183,7 +222,7 @@ void QVersareServer::addMessage(QString room, QString username, QString message)
     query.exec();
 }
 
-QList<QVERSO> QVersareServer::lastTenMessages(QString room)
+QList<QVERSO> QVersareServer::getLastTenMessages(QString room)
 {
     QList<QVERSO>aux;
     //Query for extract the messages from the ddbb
@@ -204,4 +243,90 @@ QList<QVERSO> QVersareServer::lastTenMessages(QString room)
 
     return aux;
 
+}
+
+QList<QVERSO> QVersareServer::getOthersUsersTimestamps(QString room)
+{
+    QList<QVERSO> aux;
+    QVERSO auxVerso;
+    //Hacer consulta
+    QListIterator<Client*> i(clientsPerRoom_.value(room));
+    while(i.hasNext()) {
+        QSqlQuery query(mydb_);
+        query.prepare("SELECT AVTIMESTAMP FROM users"
+                      " WHERE USERNAME=:username");
+        query.bindValue(":username",i.next()->getName());
+        query.exec();
+        auxVerso.set_username(i.next()->getName().toStdString());
+        auxVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(query.value(0)
+                                                              .toInt())
+                               .toString()
+                               .toStdString());
+        aux.push_back(auxVerso);
+    }
+    return aux;
+}
+
+QVERSO QVersareServer::getThisUserAvatar(QString user)
+{
+    QVERSO tempVerso;
+    //Do the query, create a verso
+    QSqlQuery query(mydb_);
+    query.prepare("SELECT * FROM users WHERE "
+                  "username=:username");
+    query.bindValue(":username",user);
+    query.exec();
+    if(query.next()) {
+        tempVerso.set_username(query.value("username").toString().toStdString());
+        tempVerso.set_requestavatar(true);
+        tempVerso.set_avatar(query.value("avatar").toString().toStdString());
+        tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
+                                    query.value("avtimestamp").toInt())
+                                .toString()
+                                .toStdString());
+
+    }
+    return tempVerso;
+}
+
+QVERSO QVersareServer::getThisUserTimeStamp(QString user)
+{
+    QVERSO tempVerso;
+    //Do the query, create a verso
+    QSqlQuery query(mydb_);
+    query.prepare("SELECT * FROM users WHERE "
+                  "username=:username");
+    query.bindValue(":username",user);
+    query.exec();
+    if(query.next()) {
+        tempVerso.set_username(query.value("username").toString().toStdString());
+        tempVerso.set_requestavatar(true);
+        tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
+                                    query.value("avtimestamp").toInt())
+                                .toString()
+                                .toStdString());
+
+    }
+    return tempVerso;
+}
+
+void QVersareServer::addClientToList(QString room, Client *client)
+{
+    QList<Client*> aux;
+    if(clientsPerRoom_.contains(room)) {
+        aux = clientsPerRoom_.take(room);
+        aux.append(client);
+        clientsPerRoom_.insert(room, aux);
+    } else {
+        aux.append(client);
+        clientsPerRoom_.insert(room, aux);
+    }
+}
+
+void QVersareServer::removeClientFromList(QString room, Client *client)
+{
+    QList<Client*> aux;
+    aux = clientsPerRoom_.take(room);
+    aux.removeOne(client);
+    clientsPerRoom_.insert(room, aux);
 }

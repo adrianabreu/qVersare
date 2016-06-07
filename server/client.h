@@ -1,6 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <QDateTime>
 #include <QObject>
 #include <QPointer>
 #include <QSslSocket>
@@ -20,36 +21,52 @@ public:
     void die();
 
     bool getLogged() const;
+    QString getName();
 
+    //Connecting signal  & slots
     void makeConnections(QObject *parent);
+    void makeMessageConnections(QObject *parent);
+    void makeLoginConnections(QObject *parent);
+    void makeAvatarConnections(QObject *parent);
+
 
     void sendVerso(QVERSO aVerso);
+    void parseVerso(QVERSO aVerso);
 
     bool waitForEncryption();
 
-    void parseVerso(QVERSO aVerso);
-
 signals:
-    void forwardMessage(QVERSO aVerso, int fd);
+    void forwardMessage(QVERSO aVerso, Client *fd);
 
     void disconnectedClient(int fd); //Sends the server with
                                      //object should be destroyed
-    void imNewInTheRoom(QString room, int fd);
+    void imNewInTheRoom(QString room, Client *fd);
 
     void validateMe(QString user, QString password, Client *whoClient);
+
+    void updateMyAvatar(QString user, QString avatar, QDateTime avtimestamp,
+                        Client *whoClient);
+
+    void requestThatAvatar(QString user, Client *fd);
+
+    void deleteMeFromThisRoom(QString room, Client *fd);
 
 
 public slots:
     void deleteLater();
-    //This is necessary because the fd must be the same
-    void lastMessages(QVERSO aVerso, int fd);
-    //This is for forwarded messages
-    void newMessage(QVERSO aVerso, int fd);
-
     void readyRead();
+    void readySslErrors(QList<QSslError> errors);
+
+    //Messages
+    //This is for forwarded messages
+    void onMessageToOthers(QVERSO aVerso, Client *fd);
+    //This is for answering request
+    void onMessageToSame(QVERSO aVerso, Client *fd);
+
+    //Login
     void readyValidate(bool status, Client *whoToValide);
 
-    void readySslErrors(QList<QSslError> errors);
+    //Avatar section
 
 private:
     int socketFd_; //for remove from qmap
@@ -58,7 +75,7 @@ private:
     QPointer<QThread> thread_;
     bool logged_; //Store the status like a finite machine
     QString room_; //Store the actual room of the client
-
+    QString name_; //Store the name of the client
     void setupSecureMode(QString keyPath, QString certPath);
 };
 
