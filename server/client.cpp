@@ -188,6 +188,8 @@ bool Client::waitForEncryption()
 
 void Client::parseVerso(QVERSO aVerso)
 {
+    helperDebug(daemonMode_,"Parsing message");
+    qDebug() << "Jopetas";
     if (!logged_) {
         if (aVerso.login()) {
             name_ = QString::fromStdString(aVerso.username());
@@ -196,14 +198,17 @@ void Client::parseVerso(QVERSO aVerso)
         }
     } else {
         if (aVerso.requestavatar()) {
+            helperDebug(daemonMode_, "Avatar message received");
             if(aVerso.username() != name_.toStdString()) {
                 //Ask for that user avatar
             } else {
                 //It may be requesting my avatar or updating it
                 if(!QString::fromStdString(aVerso.avatar()).isNull()) {
+                    helperDebug(daemonMode_, "Updating " + name_ + " avatar");
                     emit updateMyAvatar(name_,QString::fromStdString(aVerso.avatar()),
                                         QDateTime::fromString(
-                                            QString::fromStdString(aVerso.timestamp())),
+                                        QString::fromStdString(aVerso.timestamp()),
+                                        "yyyy-MM-ddTHH:mm:ss"),
                                         this);
                     emit forwardMessage(aVerso, this);
                 } else {

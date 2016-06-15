@@ -134,6 +134,7 @@ void QVersareServer::newInTheRoom(QString room, Client *fd)
         emit userTimeStamp(it.next(), fd);
     }
     //Añadimos al usuario a la lista
+    helperDebug(daemonMode_, "User added to room: " + room);
     addClientToList(room, fd);
 }
 
@@ -148,13 +149,16 @@ void QVersareServer::updateClientAvatar(QString user,
 {
     //Prepare query for update
     QSqlQuery query(mydb_);
-    query.prepare("UPDATE users SET"
-                  "AVATAR=:username,AVTIMESTAMP=:timestamp "
-                  "WHERE USERNAME=:username");
+    query.prepare("UPDATE users SET AVATAR = :avatar,"
+                  "AVTIMESTAMP = :timestamp "
+                  "WHERE USERNAME = :username");
     query.bindValue(":username", user);
     query.bindValue(":avatar", avatar);
-    query.bindValue(":timestamp", timestamp.toMSecsSinceEpoch());
-    query.exec();
+    query.bindValue(":timestamp",timestamp.toMSecsSinceEpoch());
+    qDebug() << timestamp.toString("yyyy-MM-ddTHH:mm:ss");
+    qDebug() << query.exec();
+    qDebug() << query.lastError();
+
 }
 
 void QVersareServer::onRequestedAvatar(QString user, Client *fd)
