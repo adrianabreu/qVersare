@@ -29,6 +29,7 @@ Client::Client(qintptr fd, bool daemonMode, QString keyPath,
 
 Client::~Client()
 {
+    emit Client::deleteMeFromThisRoom(room_, this);
     socket_.close();
 }
 

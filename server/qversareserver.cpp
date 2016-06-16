@@ -156,7 +156,11 @@ void QVersareServer::addClientToList(QString room, Client *client)
 void QVersareServer::removeClientFromList(QString room, Client *client)
 {
     QList<Client*> aux;
-    aux = clientsPerRoom_.take(room);
-    aux.removeOne(client);
-    clientsPerRoom_.insert(room, aux);
+    if(clientsPerRoom_.contains(room)) {
+        aux = clientsPerRoom_.take(room);
+        if(aux.contains(client))
+            aux.removeOne(client);
+    }
+    if(!aux.empty())
+        clientsPerRoom_.insert(room, aux);
 }
