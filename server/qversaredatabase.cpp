@@ -15,9 +15,9 @@ QVersareDataBase::QVersareDataBase(QSqlDatabase *ddbb,QCoreApplication *app,
 {
     mydb_ = QSqlDatabase(*ddbb);
     mydb_.setDatabaseName("/var/lib/qVersareServer/" + dbName);
-
+    daemonMode_ = daemonMode;
     if(!mydb_.open()) {
-        helperDebug(daemonMode,
+        helperDebug(daemonMode_,
                     "Couldn't open ddbb, not possible to authenticate");
         app->exit(3); //Force exit
     }
@@ -32,7 +32,9 @@ void QVersareDataBase::addMessage(QString room, QString username, QString messag
     query.bindValue(":room", room);
     query.bindValue(":username",username);
     query.bindValue(":message",message);
-    query.exec();
+
+    if (!query.exec())
+        helperDebug(daemonMode_,query.lastError().text());
 }
 
 QList<QVERSO> QVersareDataBase::getLastTenMessages(QString room)
@@ -44,18 +46,20 @@ QList<QVERSO> QVersareDataBase::getLastTenMessages(QString room)
     query.prepare("SELECT * FROM messages WHERE room=(:ROOM) ORDER BY id "
                   "desc limit 10");
     query.bindValue(":ROOM",room);
-    query.exec();
-
-    while(query.next()) {
-        QVERSO tempVerso;
-        tempVerso.set_username(query.value("username").toString().toStdString());
-        tempVerso.set_room(room.toStdString());
-        tempVerso.set_message(query.value("message").toString().toStdString());
-        aux.push_front(tempVerso);
+    if (!query.exec()) {
+        helperDebug(daemonMode_,query.lastError().text());
+    } else {
+        while(query.next()) {
+            QVERSO tempVerso;
+            tempVerso.set_username(query.value("username").toString()
+                                   .toStdString());
+            tempVerso.set_room(room.toStdString());
+            tempVerso.set_message(query.value("message").toString()
+                                  .toStdString());
+            aux.push_front(tempVerso);
+        }
     }
-
     return aux;
-
 }
 
 QList<QVERSO> QVersareDataBase::getOthersUsersTimestamps(QList<QString> users)
@@ -64,18 +68,21 @@ QList<QVERSO> QVersareDataBase::getOthersUsersTimestamps(QList<QString> users)
     QVERSO auxVerso;
     //Hacer consulta
     QListIterator<QString> i(users);
-    while(i.hasNext()) {
+    while (i.hasNext()) {
         QSqlQuery query(mydb_);
         query.prepare("SELECT AVTIMESTAMP FROM users"
                       " WHERE USERNAME=:username");
         query.bindValue(":username",i.next());
-        query.exec();
-        auxVerso.set_username(i.next().toStdString());
-        auxVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(query.value(0)
-                                                              .toInt())
-                               .toString()
-                               .toStdString());
-        aux.push_back(auxVerso);
+        if (!query.exec()) {
+            helperDebug(daemonMode_,query.lastError().text());
+        } else {
+            auxVerso.set_username(i.next().toStdString());
+            QDateTime auxTime = QDateTime::fromMSecsSinceEpoch(query.value(0)
+                                                            .toInt());
+            auxVerso.set_timestamp(auxTime.toString().toStdString());
+            aux.push_back(auxVerso);
+        }
+
     }
     return aux;
 }
@@ -88,16 +95,21 @@ QVERSO QVersareDataBase::getThisUserAvatar(QString user)
     query.prepare("SELECT * FROM users WHERE "
                   "username=:username");
     query.bindValue(":username",user);
-    query.exec();
-    if(query.next()) {
-        tempVerso.set_username(query.value("username").toString().toStdString());
-        tempVerso.set_requestavatar(true);
-        tempVerso.set_avatar(query.value("avatar").toString().toStdString());
-        tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
-                                    query.value("avtimestamp").toInt())
-                                .toString()
-                                .toStdString());
+    if (!query.exec()) {
+        helperDebug(daemonMode_, "No se ha podido hacer un select del tstamp" +
+                    query.lastError().text());
+    } else {
+        if (query.next()) {
+            tempVerso.set_username(query.value("username").toString()
+                                   .toStdString());
+            tempVerso.set_requestavatar(true);
+            tempVerso.set_avatar(query.value("avatar").toString().toStdString());
+            tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
+                                        query.value("avtimestamp").toInt())
+                                    .toString()
+                                    .toStdString());
 
+        }
     }
     return tempVerso;
 }
@@ -110,15 +122,20 @@ QVERSO QVersareDataBase::getThisUserTimeStamp(QString user)
     query.prepare("SELECT * FROM users WHERE "
                   "username=:username");
     query.bindValue(":username",user);
-    query.exec();
-    if(query.next()) {
-        tempVerso.set_username(query.value("username").toString().toStdString());
-        tempVerso.set_requestavatar(true);
-        tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
-                                    query.value("avtimestamp").toInt())
-                                .toString()
-                                .toStdString());
-
+    if (!query.exec()) {
+        helperDebug(daemonMode_, "No se ha podido hacer un select del tstamp" +
+                    query.lastError().text());
+    } else {
+        if(query.next()) {
+            tempVerso.set_username(query.value("username").toString().toStdString());
+            tempVerso.set_requestavatar(true);
+            QDateTime auxTime = QDateTime::fromMSecsSinceEpoch(query
+                                                            .value("avtimestamp")
+                                                            .toInt());
+            tempVerso.set_timestamp(auxTime.toString().toStdString());
+        } else {
+            helperDebug(daemonMode_, "El usuario no tiene avatar registrado");
+        }
     }
     return tempVerso;
 }
@@ -180,7 +197,8 @@ void QVersareDataBase::updateClientAvatar(QString user,
     query.bindValue(":avatar", avatar);
     query.bindValue(":timestamp",timestamp.toMSecsSinceEpoch());
     if(!query.exec())
-        qDebug() << query.lastError();
+        helperDebug(daemonMode_, "Error updating avatar " +
+                    query.lastError().text());
 }
 
 bool QVersareDataBase::goodCredentials(QString user, QString password)
@@ -191,12 +209,18 @@ bool QVersareDataBase::goodCredentials(QString user, QString password)
     QSqlQuery query(mydb_);
     query.prepare("SELECT * FROM users WHERE username=(:USERNAME)");
     query.bindValue(":USERNAME",user);
-    query.exec();
-    if (query.next()) {
-        //Compare md5
-        QString stored_password(query.value("password").toString());
-        aux = (password == stored_password);
+    if (!query.exec()) {
+        helperDebug(daemonMode_, "Error selecting avatar " +
+                    query.lastError().text());
+    } else {
+        if (query.next()) {
+            //Compare md5
+            QString stored_password(query.value("password").toString());
+            aux = (password == stored_password);
+        }
     }
+
+
     //qDebug() << "Returning " << aux;
     return aux;
 }

@@ -34,6 +34,7 @@ public:
     void updateClientAvatar(QString user,QString avatar, QDateTime timestamp);
 private:
     QSqlDatabase mydb_;
+    bool daemonMode_;
 
 };
 
