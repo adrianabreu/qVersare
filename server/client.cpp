@@ -15,7 +15,9 @@
 Client::Client(qintptr fd, bool daemonMode, QString keyPath,
                QString certPath, QObject *parent) : QObject(parent),
     socket_(this),
-    logged_(false)
+    logged_(false),
+    largeChunkSize_(0),
+    buffer_()
 {
     thread_ = new QThread(this);
     daemonMode_ = daemonMode;
@@ -35,27 +37,48 @@ void Client::readyRead()
 {
     qint32 bufferSize = 0;
     QVERSO aVerso;
-    while(socket_.bytesAvailable() > 0){
-        QByteArray tmp;
-        QDataStream in(&socket_);
+    //First we should check if we are reading something from and older chunk
+    QByteArray tmp;
+    QDataStream in(&socket_);
+    bool something;
+    if (largeChunkSize_ > 0) {
+       if(socket_.bytesAvailable() >= largeChunkSize_) {
+          buffer_ += socket_.read(largeChunkSize_);
+          largeChunkSize_ = 0;
+          aVerso.ParseFromString(buffer_.toStdString());
+          parseVerso(aVerso);
+          buffer_.clear();
+       } else {
+          largeChunkSize_ -= socket_.bytesAvailable();
+          buffer_ += socket_.readAll();
+       }
+    } else {
+        while (socket_.bytesAvailable() > 0){
+            if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
+            (bufferSize == 0) ) {
+                in >> bufferSize;
+            }
 
-         if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
-                 (bufferSize == 0) ) {
-             in >> bufferSize;
+            if ( (bufferSize != 0) &&
+                 (socket_.bytesAvailable() >= bufferSize )) {
+                tmp = socket_.read(bufferSize);
+                something = true;
+                bufferSize = 0;
+            } else if (bufferSize > socket_.bytesAvailable()){
+                largeChunkSize_ = bufferSize - socket_.bytesAvailable();
+                buffer_ += socket_.readAll();
 
-         }
-         if ( (bufferSize != 0) &&
-                (socket_.bytesAvailable() >= bufferSize )) {
-            tmp=socket_.read(bufferSize);
-            aVerso.ParseFromString(tmp.toStdString());
-            bufferSize = 0;
-
-        } else {
-             socket_.readAll();
+            } else {
+               socket_.readAll();
+            }
+            if(something) {
+                something = false;
+                aVerso.ParseFromString(tmp.toStdString());
+                parseVerso(aVerso);
+            }
         }
-
-        parseVerso(aVerso);
     }
+
 }
 
 
@@ -189,7 +212,6 @@ bool Client::waitForEncryption()
 void Client::parseVerso(QVERSO aVerso)
 {
     helperDebug(daemonMode_,"Parsing message");
-    qDebug() << "Jopetas";
     if (!logged_) {
         if (aVerso.login()) {
             name_ = QString::fromStdString(aVerso.username());
@@ -201,6 +223,8 @@ void Client::parseVerso(QVERSO aVerso)
             helperDebug(daemonMode_, "Avatar message received");
             if(aVerso.username() != name_.toStdString()) {
                 //Ask for that user avatar
+                emit requestThatAvatar(QString::fromStdString(aVerso.username()),
+                                             this);
             } else {
                 //It may be requesting my avatar or updating it
                 if(!QString::fromStdString(aVerso.avatar()).isNull()) {

@@ -16,14 +16,16 @@ SOURCES += main.cpp \
     client.cpp \
     serversettings.cpp \
     utils.cpp \
-    qversaredaemon.cpp
+    qversaredaemon.cpp \
+    qversaredatabase.cpp
 
 HEADERS += \
     qversareserver.h \
     client.h \
     serversettings.h \
     utils.h \
-    qversaredaemon.h
+    qversaredaemon.h \
+    qversaredatabase.h
 
 DISTFILES += \
     users.db \
