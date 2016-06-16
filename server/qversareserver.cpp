@@ -11,21 +11,13 @@
 #include "utils.h"
 
 QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app,
-                               ServerSettings *settings, QSqlDatabase * ddbb) :
-    QTcpServer(parent)
+                               ServerSettings *settings, QSqlDatabase *ddbb) :
+    QTcpServer(parent),mydb_(ddbb,app,settings->getDbName(),settings->getDaemon())
 {
     settings_ = settings;
-    mydb_ = QSqlDatabase(*ddbb);
-    mydb_.setDatabaseName("/var/lib/qVersareServer/" + settings_->getDbName());
-    daemonMode_ = settings->getDaemon();
-    if(!mydb_.open()) {
-        helperDebug(daemonMode_,
-                    "Couldn't open ddbb, not possible to authenticate");
-        app->exit(3); //Force exit
-    }
-    setupDatabase();
     //Register metatype for queue QVERSOS in the msg loop
     qRegisterMetaType<QVERSO>("QVERSO");
+    daemonMode_ = settings->getDaemon();
 
 }
 
@@ -35,8 +27,6 @@ QVersareServer::~QVersareServer()
         i != clients_.end(); ++i) {
         i.value()->die();
     }
-    helperDebug(false,"Closing database");
-    mydb_.close();
 }
 
 void QVersareServer::startServer()
@@ -49,23 +39,6 @@ void QVersareServer::startServer()
         helperDebug(daemonMode_,"Listening...");
 }
 
-bool QVersareServer::goodCredentials(QString user, QString password)
-{
-    //Check for db errors?
-    bool aux = false;
-
-    QSqlQuery query(mydb_);
-    query.prepare("SELECT * FROM users WHERE username=(:USERNAME)");
-    query.bindValue(":USERNAME",user);
-    query.exec();
-    if (query.next()) {
-        //Compare md5
-        QString stored_password(query.value("password").toString());
-        aux = (password == stored_password);
-    }
-    //qDebug() << "Returning " << aux;
-    return aux;
-}
 
 void QVersareServer::incomingConnection(qintptr handle)
 {
@@ -101,7 +74,7 @@ void QVersareServer::newMessageFromClient(QVERSO aVerso,Client *fd)
     QString username = QString::fromStdString(aVerso.username());
     QString message = QString::fromStdString(aVerso.message());
 
-    addMessage(room,username, message);
+    mydb_.addMessage(room,username, message);
 
     emit forwardedMessage(aVerso,fd);
 }
@@ -115,20 +88,26 @@ void QVersareServer::clientDisconnected(int fd)
 void QVersareServer::validateClient(QString user, QString password,
                                     Client *whoClient)
 {
-    emit validateResult(goodCredentials(user,password),whoClient);
+    emit validateResult(mydb_.goodCredentials(user,password),whoClient);
 }
 
 void QVersareServer::newInTheRoom(QString room, Client *fd)
 {
     //Emitimos los 10 ultimos mensajess para el usuario conectado
-    QList<QVERSO> lastMessages = getLastTenMessages(room);
+    QList<QVERSO> lastMessages = mydb_.getLastTenMessages(room);
     QListIterator<QVERSO> it(lastMessages);
     while(it.hasNext()) {
         emit messageFromHistory(it.next(),fd);
     }
 
     //Emitimos los timestamps de los avatares de los demás al usuario
-    QList<QVERSO> otherUsersTimeStamp = getOthersUsersTimestamps(room);
+    QListIterator<Client*> i(clientsPerRoom_.value(room));
+    QList<QString> clientsNames;
+    while(i.hasNext())
+        clientsNames.append(i.next()->getName());
+    QList<QVERSO> otherUsersTimeStamp = mydb_.getOthersUsersTimestamps(clientsNames);
+
+
     QListIterator<QVERSO> it2(otherUsersTimeStamp);
     while(it2.hasNext()) {
         emit userTimeStamp(it.next(), fd);
@@ -143,33 +122,13 @@ void QVersareServer::removeMeFromRoom(QString room, Client *fd)
     removeClientFromList(room, fd);
 }
 
-void QVersareServer::updateClientAvatar(QString user,
-                                        QString avatar,
+void QVersareServer::updateClientAvatar(QString user, QString avatar,
                                         QDateTime timestamp)
 {
-    //Prepare query for update
-    QSqlQuery query(mydb_);
-    query.prepare("UPDATE users SET AVATAR = :avatar,"
-                  "AVTIMESTAMP = :timestamp "
-                  "WHERE USERNAME = :username");
-    query.bindValue(":username", user);
-    query.bindValue(":avatar", avatar);
-    query.bindValue(":timestamp",timestamp.toMSecsSinceEpoch());
-    qDebug() << timestamp.toString("yyyy-MM-ddTHH:mm:ss");
-    qDebug() << query.exec();
-    qDebug() << query.lastError();
-
+    mydb_.updateClientAvatar(user, avatar, timestamp);
 }
 
-void QVersareServer::onRequestedAvatar(QString user, Client *fd)
-{
-    emit userAvatar(getThisUserAvatar(user), fd);
-}
 
-void QVersareServer::onRequestedTimestamp(QString user, Client *fd)
-{
-    emit userTimeStamp(getThisUserTimeStamp(user), fd);
-}
 
 void QVersareServer::setupDatabase()
 {
@@ -251,67 +210,12 @@ QList<QVERSO> QVersareServer::getLastTenMessages(QString room)
 
 QList<QVERSO> QVersareServer::getOthersUsersTimestamps(QString room)
 {
-    QList<QVERSO> aux;
-    QVERSO auxVerso;
-    //Hacer consulta
-    QListIterator<Client*> i(clientsPerRoom_.value(room));
-    while(i.hasNext()) {
-        QSqlQuery query(mydb_);
-        query.prepare("SELECT AVTIMESTAMP FROM users"
-                      " WHERE USERNAME=:username");
-        query.bindValue(":username",i.next()->getName());
-        query.exec();
-        auxVerso.set_username(i.next()->getName().toStdString());
-        auxVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(query.value(0)
-                                                              .toInt())
-                               .toString()
-                               .toStdString());
-        aux.push_back(auxVerso);
-    }
-    return aux;
+    emit userAvatar(mydb_.getThisUserAvatar(user), fd);
 }
 
-QVERSO QVersareServer::getThisUserAvatar(QString user)
+void QVersareServer::onRequestedTimestamp(QString user, Client *fd)
 {
-    QVERSO tempVerso;
-    //Do the query, create a verso
-    QSqlQuery query(mydb_);
-    query.prepare("SELECT * FROM users WHERE "
-                  "username=:username");
-    query.bindValue(":username",user);
-    query.exec();
-    if(query.next()) {
-        tempVerso.set_username(query.value("username").toString().toStdString());
-        tempVerso.set_requestavatar(true);
-        tempVerso.set_avatar(query.value("avatar").toString().toStdString());
-        tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
-                                    query.value("avtimestamp").toInt())
-                                .toString()
-                                .toStdString());
-
-    }
-    return tempVerso;
-}
-
-QVERSO QVersareServer::getThisUserTimeStamp(QString user)
-{
-    QVERSO tempVerso;
-    //Do the query, create a verso
-    QSqlQuery query(mydb_);
-    query.prepare("SELECT * FROM users WHERE "
-                  "username=:username");
-    query.bindValue(":username",user);
-    query.exec();
-    if(query.next()) {
-        tempVerso.set_username(query.value("username").toString().toStdString());
-        tempVerso.set_requestavatar(true);
-        tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
-                                    query.value("avtimestamp").toInt())
-                                .toString()
-                                .toStdString());
-
-    }
-    return tempVerso;
+    emit userTimeStamp(mydb_.getThisUserTimeStamp(user), fd);
 }
 
 void QVersareServer::addClientToList(QString room, Client *client)

@@ -77,6 +77,9 @@ private:
     QString room_; //Store the actual room of the client
     QString name_; //Store the name of the client
     void setupSecureMode(QString keyPath, QString certPath);
+
+    qint32 largeChunkSize_;
+    QByteArray buffer_;
 };
 
 #endif // CLIENT_H
