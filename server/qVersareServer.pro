@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     serversettings.cpp \
     utils.cpp \
     qversaredaemon.cpp \
-    qversaredatabase.cpp
+    qversaredatabase.cpp \
+    qversarestatistics.cpp
 
 HEADERS += \
     qversareserver.h \
@@ -25,7 +26,8 @@ HEADERS += \
     serversettings.h \
     utils.h \
     qversaredaemon.h \
-    qversaredatabase.h
+    qversaredatabase.h \
+    qversarestatistics.h
 
 DISTFILES += \
     users.db \
