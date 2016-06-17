@@ -15,9 +15,10 @@
 #include <QThread>
 
 #include "client.h"
+#include "qversaredatabase.h"
+#include "qversarestatistics.h"
 #include "QVERSO.pb.h"
 #include "serversettings.h"
-#include "qversaredatabase.h"
 
 class QVersareServer : public QTcpServer
 {
@@ -62,6 +63,7 @@ private:
     ServerSettings* settings_;
     QVersareDataBase mydb_;
     bool daemonMode_;
+    QVersareStatistics mystats_;
 
     void addClientToList(QString room, Client *client);
     void removeClientFromList(QString room, Client *client);

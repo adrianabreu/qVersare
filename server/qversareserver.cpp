@@ -12,7 +12,9 @@
 
 QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app,
                                ServerSettings *settings, QSqlDatabase *ddbb) :
-    QTcpServer(parent),mydb_(ddbb,app,settings->getDbName(),settings->getDaemon())
+    QTcpServer(parent),
+    mydb_(ddbb,app,settings->getDbName(),settings->getDaemon()),
+    mystats_(settings->getDaemon())
 {
     settings_ = settings;
     //Register metatype for queue QVERSOS in the msg loop
