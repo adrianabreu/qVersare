@@ -31,7 +31,7 @@ public:
 
 
     void sendVerso(QVERSO aVerso);
-    void parseVerso(QVERSO aVerso);
+    void parseVerso(std::string aVerso);
 
     bool waitForEncryption();
 
@@ -50,6 +50,8 @@ signals:
     void requestThatAvatar(QString user, Client *fd);
 
     void deleteMeFromThisRoom(QString room, Client *fd);
+
+    void timersResult(QString type, int elapsedTime);
 
 
 public slots:
@@ -78,8 +80,13 @@ private:
     QString name_; //Store the name of the client
     void setupSecureMode(QString keyPath, QString certPath);
 
+    //For long packets that need to be delivers in multiple calls
     qint32 largeChunkSize_;
     QByteArray buffer_;
+
+    //Timers
+    QTime loginTimer_;
+    QTime forwardTimer_;
 };
 
 #endif // CLIENT_H

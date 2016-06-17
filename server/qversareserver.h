@@ -57,6 +57,8 @@ public slots:
     void onRequestedAvatar(QString user, Client *fd);
     void onRequestedTimestamp(QString user, Client *fd);
 
+    //Stats Section
+    void onTimeFromClient(QString type, int elapsedTime);
 
 private:
     QMap<qintptr,QPointer<Client>> clients_;

@@ -46,8 +46,7 @@ void Client::readyRead()
        if(socket_.bytesAvailable() >= largeChunkSize_) {
           buffer_ += socket_.read(largeChunkSize_);
           largeChunkSize_ = 0;
-          aVerso.ParseFromString(buffer_.toStdString());
-          parseVerso(aVerso);
+          parseVerso(buffer_.toStdString());
           buffer_.clear();
        } else {
           largeChunkSize_ -= socket_.bytesAvailable();
@@ -73,9 +72,8 @@ void Client::readyRead()
                socket_.readAll();
             }
             if(something) {
-                something = false;
-                aVerso.ParseFromString(tmp.toStdString());
-                parseVerso(aVerso);
+                something = false;;
+                parseVerso(tmp.toStdString());
             }
         }
     }
@@ -85,8 +83,12 @@ void Client::readyRead()
 
 void Client::onMessageToOthers(QVERSO aVerso, Client *fd)
 {
-    if (fd != this && aVerso.room() == room_.toStdString())
+    if (fd != this && aVerso.room() == room_.toStdString()) {
         sendVerso(aVerso);
+    } else if (fd == this) {
+        //If we are the owners, the message has been forwarded
+        emit timersResult("forward", forwardTimer_.elapsed());
+    }
 }
 
 void Client::onMessageToSame(QVERSO aVerso, Client *fd)
@@ -103,11 +105,15 @@ void Client::deleteLater()
 
 void Client::readyValidate(bool status, Client *whoClient)
 {
+
     if(whoClient == this) {
         logged_ = status;
         QVERSO logMessage;
         logMessage.set_login(status);
         sendVerso(logMessage);
+        //Now that we have sent the message
+        emit timersResult("login", loginTimer_.elapsed());
+
         if(status == true) {
            room_ = "lobby";
            emit imNewInTheRoom("lobby", this);
@@ -160,6 +166,10 @@ void Client::makeMessageConnections(QObject *parent)
     connect(static_cast<QVersareServer*>(parent),
             &QVersareServer::messageFromHistory,
             this, &Client::onMessageToSame);
+
+    connect(this, &Client::timersResult,
+            static_cast<QVersareServer*>(parent),
+            &QVersareServer::onTimeFromClient);
 }
 
 void Client::makeLoginConnections(QObject *parent)
@@ -210,11 +220,17 @@ bool Client::waitForEncryption()
     return socket_.waitForEncrypted();
 }
 
-void Client::parseVerso(QVERSO aVerso)
+void Client::parseVerso(std::string verso)
 {
-    helperDebug(daemonMode_,"Parsing message");
+    QTime timer;
+    timer.start();
+    helperDebug(false, "Pruebita");
+    QVERSO aVerso;
+    aVerso.ParseFromString(verso);
+
     if (!logged_) {
         if (aVerso.login()) {
+            loginTimer_.start();
             name_ = QString::fromStdString(aVerso.username());
             emit validateMe(name_,
                          QString::fromStdString(aVerso.password()), this);
@@ -241,15 +257,18 @@ void Client::parseVerso(QVERSO aVerso)
                 }
 
             }
-        }
-        if (aVerso.room() != room_.toStdString()) {
+        } else if (aVerso.room() != room_.toStdString()) {
             emit Client::deleteMeFromThisRoom(room_, this);
             room_ = QString::fromStdString(aVerso.room());
             emit Client::imNewInTheRoom(room_, this);
         } else {
+            forwardTimer_.start();
             emit forwardMessage(aVerso,this);
         }
     }
+    //Really low results, unexpected!
+    if(timer.elapsed() > 0)
+        emit timersResult("parsing", timer.elapsed());
 }
 
 void Client::start()

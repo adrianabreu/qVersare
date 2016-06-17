@@ -3,6 +3,7 @@
 #include <QHostAddress>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QTime>
 #include <QVariant>
 
 
@@ -71,13 +72,17 @@ void QVersareServer::incomingConnection(qintptr handle)
 
 void QVersareServer::newMessageFromClient(QVERSO aVerso,Client *fd)
 {
+
     //Good moment for store the message in the database
     QString room = QString::fromStdString(aVerso.room());
     QString username = QString::fromStdString(aVerso.username());
     QString message = QString::fromStdString(aVerso.message());
-
+    QTime timer;
+    timer.start();
     mydb_.addMessage(room,username, message);
 
+    if(timer.elapsed() > 1)
+        mystats_.recordMessageAdded(timer.elapsed());
     emit forwardedMessage(aVerso,fd);
 }
 
@@ -90,32 +95,50 @@ void QVersareServer::clientDisconnected(int fd)
 void QVersareServer::validateClient(QString user, QString password,
                                     Client *whoClient)
 {
+    QTime loginTimer;
+    loginTimer.start();
+
     emit validateResult(mydb_.goodCredentials(user,password),whoClient);
+
+    if(loginTimer.elapsed() > 1)
+        mystats_.recordLogin(loginTimer.elapsed());
 }
 
 void QVersareServer::newInTheRoom(QString room, Client *fd)
 {
     //Emitimos los 10 ultimos mensajess para el usuario conectado
+    QTime messagesTimer;
+    messagesTimer.start();
     QList<QVERSO> lastMessages = mydb_.getLastTenMessages(room);
     QListIterator<QVERSO> it(lastMessages);
     while(it.hasNext()) {
         emit messageFromHistory(it.next(),fd);
     }
 
+    if(messagesTimer.elapsed() > 1)
+        mystats_.recordLastTenMessages(messagesTimer.elapsed());
+
     //Emitimos los timestamps de los avatares de los demás al usuario
+    QTime timestampTimer;
+    timestampTimer.start();
+
     QListIterator<Client*> i(clientsPerRoom_.value(room));
     QList<QString> clientsNames;
     while(i.hasNext())
         clientsNames.append(i.next()->getName());
     QList<QVERSO> otherUsersTimeStamp = mydb_.getOthersUsersTimestamps(clientsNames);
 
-
     QListIterator<QVERSO> it2(otherUsersTimeStamp);
     while(it2.hasNext()) {
-        emit userTimeStamp(it.next(), fd);
+        emit userTimeStamp(it2.next(), fd);
     }
+    //Let's avoid 9.27554e-39ms
+    qDebug() << timestampTimer.elapsed();
+    if(timestampTimer.elapsed() > 1)
+        mystats_.recordTimeStamps(timestampTimer.elapsed());
+
     //Añadimos al usuario a la lista
-    helperDebug(daemonMode_, "User added to room: " + room);
+    //helperDebug(daemonMode_, "User added to room: " + room);
     addClientToList(room, fd);
 }
 
@@ -127,7 +150,11 @@ void QVersareServer::removeMeFromRoom(QString room, Client *fd)
 void QVersareServer::updateClientAvatar(QString user, QString avatar,
                                         QDateTime timestamp)
 {
+    QTime updateAvatarTimer;
+    updateAvatarTimer.start();
     mydb_.updateClientAvatar(user, avatar, timestamp);
+    if (updateAvatarTimer.elapsed() > 1)
+        mystats_.avatarUpdated(updateAvatarTimer.elapsed());
 }
 
 
@@ -218,6 +245,16 @@ QList<QVERSO> QVersareServer::getOthersUsersTimestamps(QString room)
 void QVersareServer::onRequestedTimestamp(QString user, Client *fd)
 {
     emit userTimeStamp(mydb_.getThisUserTimeStamp(user), fd);
+}
+
+void QVersareServer::onTimeFromClient(QString type, int elapsedTime)
+{
+    if (type == "parsing")
+        mystats_.recordParseTime(elapsedTime);
+    else if (type == "login")
+        mystats_.recordLogin(elapsedTime);
+    else if (type == "forward")
+        mystats_.recordForward(elapsedTime);
 }
 
 void QVersareServer::addClientToList(QString room, Client *client)
