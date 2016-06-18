@@ -17,7 +17,7 @@ public:
     QVersareStatistics(bool daemonMode_, qint32 interval);
     ~QVersareStatistics();
 
-    void prepareMediasTitles();
+    void prepareMediasStrings();
 
     QList<float> calculateMedias();
     void storeMedias(QList<float> medias);
@@ -52,7 +52,7 @@ private:
     QVector<QString> mediasTitles_;
 
     //First is sum of value, second is times measured for media
-    QVector<QPair<qint32,qint32>> timesAndCounters;
+    QVector<QPair<qint32,qint32>> collectorAndCounter;
 };
 
 #endif // QVERSARESTATISTICS_H

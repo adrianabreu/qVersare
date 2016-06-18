@@ -22,20 +22,23 @@ public:
 
     //Create db tables and basic structure
     void setupDatabase();
+
+    bool goodCredentials(QString user, QString password);
+
     //Add a message to history table
-    void addMessage(QString room, QString username, QString message);
+    void addMessage(QString room, QString username, QString message,
+                    int datetime);
     QList<QVERSO> getLastTenMessages(QString room);
 
     //Avatar section
     QList<QVERSO> getOthersUsersTimestamps(QList<QString> usernames);
     QVERSO getThisUserAvatar(QString user);
     QVERSO getThisUserTimeStamp(QString user);
-    bool goodCredentials(QString user, QString password);
     void updateClientAvatar(QString user,QString avatar, QDateTime timestamp);
+
 private:
     QSqlDatabase mydb_;
     bool daemonMode_;
-
 };
 
 #endif // QVERSAREDATABASE_H

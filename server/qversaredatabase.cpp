@@ -24,14 +24,16 @@ QVersareDataBase::QVersareDataBase(QSqlDatabase *ddbb,QCoreApplication *app,
     setupDatabase();
 }
 
-void QVersareDataBase::addMessage(QString room, QString username, QString message)
+void QVersareDataBase::addMessage(QString room, QString username,
+                                  QString message, int datetime)
 {
     QSqlQuery query(mydb_);
-    query.prepare("INSERT INTO messages (room,username,message)"
+    query.prepare("INSERT INTO messages (room,username,message,timestamp)"
                   "VALUES (:room, :username, :message)");
     query.bindValue(":room", room);
     query.bindValue(":username",username);
     query.bindValue(":message",message);
+    query.bindValue(":timestamp",datetime);
 
     if (!query.exec())
         helperDebug(daemonMode_,query.lastError().text());
@@ -56,6 +58,11 @@ QList<QVERSO> QVersareDataBase::getLastTenMessages(QString room)
             tempVerso.set_room(room.toStdString());
             tempVerso.set_message(query.value("message").toString()
                                   .toStdString());
+            QDateTime timestamp;
+            timestamp = QDateTime::fromMSecsSinceEpoch(query
+                                                       .value("timestamp")
+                                                       .toInt());
+            tempVerso.set_timestamp(timestamp.toString().toStdString());
             aux.push_front(tempVerso);
         }
     }
@@ -76,7 +83,8 @@ QList<QVERSO> QVersareDataBase::getOthersUsersTimestamps(QList<QString> users)
                       " WHERE USERNAME = :username");
         query.bindValue(":username",auxName);
         if (!query.exec()) {
-            helperDebug(daemonMode_,"Error getting other users tsamps" + query.lastError().text());
+            helperDebug(daemonMode_,"Error getting other users tstamps" +
+                        query.lastError().text());
         } else {
             if(query.next()) {
                 auxVerso.set_username(auxName.toStdString());
