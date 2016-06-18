@@ -2,15 +2,17 @@
 #define QVERSARESTATISTICS_H
 
 #include <QFile>
-#include <QList>
 #include <QObject>
 #include <QPair>
 #include <QTimer>
+#include <QVector>
 
 #include "utils.h"
 
 class QVersareStatistics : public QObject
 {
+    Q_ENUMS(statsTypes)
+
 public:
     QVersareStatistics(bool daemonMode_);
     ~QVersareStatistics();
@@ -29,6 +31,17 @@ public:
     void recordTimeStamps(qint32 timeElapsed);
     void avatarUpdated(qint32 timeElapsed);
 
+    enum statsTypes
+    {
+        login,
+        parse,
+        addMessage,
+        avatarUpdates,
+        forward,
+        lastTen,
+        timeStamps
+    };
+
 public slots:
     void onTimerTimeout();
 
@@ -36,30 +49,10 @@ private:
     QFile statsFile_;
     QTimer myTimer_;
     bool daemonMode_;
-    QList<QString> mediasTitles_;
+    QVector<QString> mediasTitles_;
 
-    QList<QPair<qint32,qint32>> timesAndCounters;
-    //Counter for add time there and times for the numbers of times
-    qint32 loginTimes;
-    qint32 loginCounter;
-
-    qint32 forwardTimes;
-    qint32 forwardCounter;
-
-    qint32 avatarUpdateTimes;
-    qint32 avatarCounter;
-
-    qint32 addMessageTimes;
-    qint32 addMessageCounter;
-
-    qint32 parseTimes;
-    qint32 parseCounter;
-
-    qint32 lastTenMessagesTimes;
-    qint32 lastTenMessageCounter;
-
-    qint32 retrieveTimeStampTimes;
-    qint32 retrieveTimeStampCounter;
+    //First is sum of value, second is times measured for media
+    QVector<QPair<qint32,qint32>> timesAndCounters;
 };
 
 #endif // QVERSARESTATISTICS_H

@@ -224,7 +224,6 @@ void Client::parseVerso(std::string verso)
 {
     QTime timer;
     timer.start();
-    helperDebug(false, "Pruebita");
     QVERSO aVerso;
     aVerso.ParseFromString(verso);
 
