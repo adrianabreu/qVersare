@@ -4,7 +4,7 @@
 
 #include "qversarestatistics.h"
 
-QVersareStatistics::QVersareStatistics(bool daemonMode) :
+QVersareStatistics::QVersareStatistics(bool daemonMode, qint32 interval) :
     statsFile_("/var/lib/qVersareServer/stats.txt")
 {
     daemonMode_ = daemonMode;
@@ -17,7 +17,7 @@ QVersareStatistics::QVersareStatistics(bool daemonMode) :
     prepareMediasTitles();
     clearCounters();
 
-    myTimer_.setInterval(60000);
+    myTimer_.setInterval(interval);
     myTimer_.start();
 
     connect(&myTimer_,&QTimer::timeout,this,

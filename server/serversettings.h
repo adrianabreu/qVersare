@@ -23,6 +23,8 @@ public:
 
     bool getSecure() const;
 
+    quint32 getInterval() const;
+
 private:
     void setDefaultSettings(QSettings *settings);
 
@@ -30,6 +32,7 @@ private:
     QString dbName_;
     QString ipAddress_;
     quint16 port_;
+    quint32 interval_;
 
 };
 

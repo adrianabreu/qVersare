@@ -15,7 +15,8 @@ ServerSettings::ServerSettings(QCoreApplication *a)
         {{"ip","i"},"Set ip to listen to", "ip","127.0.0.1"},
         {{"port","p"},"Set port to listen to","port","9000"},
         {"database","Set dbname","db","qversare.sqlite"},
-        {{"daemon","d"},"Set daemon mode" }
+        {{"daemon","d"},"Set daemon mode"},
+        {{"stats","s"}, "Set interval time", "interval", "900000"}
     });
 
     parser.addOptions(options);
@@ -23,8 +24,9 @@ ServerSettings::ServerSettings(QCoreApplication *a)
 
     parser.parse(a->arguments());
     if( !settings.contains("ip") || !settings.contains("port") ||
-        !settings.contains("db") || !settings.contains("daemon") )
-        setDefaultSettings(&settings);
+        !settings.contains("db") || !settings.contains("daemon") ||
+        !settings.contains("stats"))
+            setDefaultSettings(&settings);
 
     ( parser.isSet("ip") ) ? ipAddress_ = parser.value("ip") :
         ipAddress_ = settings.value("ip","127.0.0.1").toString();
@@ -37,6 +39,9 @@ ServerSettings::ServerSettings(QCoreApplication *a)
 
     (parser.isSet("daemon") ) ? daemon_ = true :
             daemon_ = settings.value("daemon", false).toBool();
+
+    (parser.isSet("stats") ) ? interval_ = parser.value("stats").toInt() :
+            interval_ = settings.value("stats", 900000).toInt();
 }
 
 bool ServerSettings::getDaemon() const
@@ -65,4 +70,10 @@ void ServerSettings::setDefaultSettings(QSettings *settings)
     settings->setValue("port",8000);
     settings->setValue("db","qversare.sqlite");
     settings->setValue("daemon",false);
+    settings->setValue("stats",900000);
+}
+
+quint32 ServerSettings::getInterval() const
+{
+    return interval_;
 }

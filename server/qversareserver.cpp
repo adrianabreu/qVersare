@@ -15,7 +15,7 @@ QVersareServer::QVersareServer(QObject *parent, QCoreApplication *app,
                                ServerSettings *settings, QSqlDatabase *ddbb) :
     QTcpServer(parent),
     mydb_(ddbb,app,settings->getDbName(),settings->getDaemon()),
-    mystats_(settings->getDaemon())
+    mystats_(settings->getDaemon(),settings->getInterval())
 {
     settings_ = settings;
     //Register metatype for queue QVERSOS in the msg loop
@@ -132,9 +132,8 @@ void QVersareServer::newInTheRoom(QString room, Client *fd)
     while(it2.hasNext()) {
         emit userTimeStamp(it2.next(), fd);
     }
-    //Let's avoid 9.27554e-39ms
-    qDebug() << timestampTimer.elapsed();
-    if(timestampTimer.elapsed() > 1)
+
+    if(timestampTimer.elapsed() > 0)
         mystats_.recordTimeStamps(timestampTimer.elapsed());
 
     //Añadimos al usuario a la lista
@@ -195,6 +194,7 @@ void QVersareServer::addClientToList(QString room, Client *client)
 void QVersareServer::removeClientFromList(QString room, Client *client)
 {
     QList<Client*> aux;
+
     if(clientsPerRoom_.contains(room)) {
         aux = clientsPerRoom_.take(room);
         if(aux.contains(client))
