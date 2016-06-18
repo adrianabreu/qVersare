@@ -14,7 +14,7 @@ QVersareStatistics::QVersareStatistics(bool daemonMode, qint32 interval) :
     statsFile_.write("New stats \n");
     statsFile_.close();
 
-    prepareMediasTitles();
+    prepareMediasStrings();
     clearCounters();
 
     myTimer_.setInterval(interval);
@@ -29,7 +29,7 @@ QVersareStatistics::~QVersareStatistics()
     storeMedias(calculateMedias());
 }
 
-void QVersareStatistics::prepareMediasTitles()
+void QVersareStatistics::prepareMediasStrings()
 {
     mediasTitles_.append("Login media time: ");
     mediasTitles_.append("Parsing media time: ");
@@ -43,7 +43,7 @@ void QVersareStatistics::prepareMediasTitles()
 QList<float> QVersareStatistics::calculateMedias()
 {
     QList<float> medias;
-    QVectorIterator<QPair<qint32,qint32>> auxIterator(timesAndCounters);
+    QVectorIterator<QPair<qint32,qint32>> auxIterator(collectorAndCounter);
 
     while (auxIterator.hasNext()) {
         QPair<qint32,qint32> tmp = auxIterator.next();
@@ -73,76 +73,76 @@ void QVersareStatistics::storeMedias(QList<float> medias)
 
 void QVersareStatistics::clearCounters()
 {
-    timesAndCounters.clear();
+    collectorAndCounter.clear();
     QPair<qint32,qint32> aux;
     aux.first = 0;
     aux.second = 0;
 
     for (int i = 0; i < mediasTitles_.size(); i++)
-        timesAndCounters.push_back(aux);
+        collectorAndCounter.push_back(aux);
 }
 
 void QVersareStatistics::recordLogin(qint32 timeElapsed)
 {
     QPair<qint32,qint32> aux;
-    aux = timesAndCounters.takeAt(statsTypes::login);
+    aux = collectorAndCounter.takeAt(statsTypes::login);
     aux.first += timeElapsed;
     aux.second++;
-    timesAndCounters.insert(statsTypes::login, aux);
+    collectorAndCounter.insert(statsTypes::login, aux);
 }
 
 void QVersareStatistics::recordMessageAdded(qint32 timeElapsed)
 {
     QPair<qint32,qint32> aux;
-    aux = timesAndCounters.takeAt(statsTypes::addMessage);
+    aux = collectorAndCounter.takeAt(statsTypes::addMessage);
     aux.first += timeElapsed;
     aux.second++;
-    timesAndCounters.insert(statsTypes::addMessage, aux);
+    collectorAndCounter.insert(statsTypes::addMessage, aux);
 }
 
 void QVersareStatistics::recordParseTime(qint32 timeElapsed)
 {
     QPair<qint32,qint32> aux;
-    aux = timesAndCounters.takeAt(statsTypes::parse);
+    aux = collectorAndCounter.takeAt(statsTypes::parse);
     aux.first += timeElapsed;
     aux.second++;
-    timesAndCounters.insert(statsTypes::parse, aux);
+    collectorAndCounter.insert(statsTypes::parse, aux);
 }
 
 void QVersareStatistics::recordForward(qint32 timeElapsed)
 {
     QPair<qint32,qint32> aux;
-    aux = timesAndCounters.takeAt(statsTypes::forward);
+    aux = collectorAndCounter.takeAt(statsTypes::forward);
     aux.first += timeElapsed;
     aux.second++;
-    timesAndCounters.insert(statsTypes::forward, aux);
+    collectorAndCounter.insert(statsTypes::forward, aux);
 }
 
 void QVersareStatistics::recordLastTenMessages(qint32 timeElapsed)
 {
     QPair<qint32,qint32> aux;
-    aux = timesAndCounters.takeAt(statsTypes::lastTen);
+    aux = collectorAndCounter.takeAt(statsTypes::lastTen);
     aux.first += timeElapsed;
     aux.second++;
-    timesAndCounters.insert(statsTypes::lastTen, aux);
+    collectorAndCounter.insert(statsTypes::lastTen, aux);
 }
 
 void QVersareStatistics::recordTimeStamps(qint32 timeElapsed)
 {
     QPair<qint32,qint32> aux;
-    aux = timesAndCounters.takeAt(statsTypes::timeStamps);
+    aux = collectorAndCounter.takeAt(statsTypes::timeStamps);
     aux.first += timeElapsed;
     aux.second++;
-    timesAndCounters.insert(statsTypes::timeStamps, aux);
+    collectorAndCounter.insert(statsTypes::timeStamps, aux);
 }
 
 void QVersareStatistics::avatarUpdated(qint32 timeElapsed)
 {
     QPair<qint32,qint32> aux;
-    aux = timesAndCounters.takeAt(statsTypes::avatarUpdates);
+    aux = collectorAndCounter.takeAt(statsTypes::avatarUpdates);
     aux.first += timeElapsed;
     aux.second++;
-    timesAndCounters.insert(statsTypes::avatarUpdates, aux);
+    collectorAndCounter.insert(statsTypes::avatarUpdates, aux);
 }
 
 void QVersareStatistics::onTimerTimeout()
