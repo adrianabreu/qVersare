@@ -14,7 +14,7 @@ class QVersareStatistics : public QObject
     Q_ENUMS(statsTypes)
 
 public:
-    QVersareStatistics(bool daemonMode_);
+    QVersareStatistics(bool daemonMode_, qint32 interval);
     ~QVersareStatistics();
 
     void prepareMediasTitles();
