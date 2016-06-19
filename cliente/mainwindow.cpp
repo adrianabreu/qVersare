@@ -19,16 +19,39 @@ MainWindow::MainWindow(QWidget *parent) :
     QPixmap pixmap;
     pixmap.load(path_ + "qVersareDefaultAvatar.jpg");
     QIcon icon(pixmap);
+    file_ = new QFile(path_ + "avatarList.txt");
+    if(file_->open(QIODevice::ReadWrite)) {
+        QTextStream stream(file_);
+        QStringList line;
+        while(!stream.atEnd()) {
+            line = stream.readLine().split(',');
+            QDateTime temp = QDateTime::fromString(line[1],"yyyy-MM-ddTHH:mm:ss");
+            lista_.append(QPair<QString, QDateTime>(line[0], temp));
+        }
+    }
+    file_->close();
 
     ui->setupUi(this);
 
     ui->imageButton->setIcon(icon);
     ui->imageButton->setIconSize(pixmap.size());
     client_ = nullptr;
+    connect(this, &MainWindow::emitUpdateUserList, this, &MainWindow::refreshUser);
 }
 
 MainWindow::~MainWindow()
 {
+    file_->remove(path_ + "avatarList.txt");
+    file_ = new QFile(path_ + "avatarList.txt");
+    if(file_->open(QIODevice::ReadWrite)) {
+        QTextStream stream(file_);
+        for(int aux = 0; aux < lista_.size(); aux++)
+        {
+            stream << lista_[aux].first << "," <<
+                      lista_[aux].second.toString("yyyy-MM-ddTHH:mm:ss") << "\n";
+        }
+    }
+
     delete ui;
 }
 
@@ -114,6 +137,12 @@ void MainWindow::send_login(QString username, QString password)
 {
     client_->log_me_in(username, password);
     client_->setName(username);
+    QDateTime time = QDateTime::fromMSecsSinceEpoch(0);
+    int aux = searchUser(username);
+    if(aux == 15000) {
+        emitUpdateUserList(username, time);
+    }
+
 }
 
 void MainWindow::refreshAvatar(QString filename)
@@ -133,6 +162,8 @@ void MainWindow::refreshAvatar(QString filename)
         QIcon icon(pixmap);
 
         ui->imageButton->setIcon(icon);
+        QDateTime time = QDateTime::currentDateTimeUtc();
+        emitUpdateUserList(userName,time);
     } else {
         QMessageBox::critical(this, "Avatar", "Conectate al Servidor Primero");
     }
@@ -150,6 +181,38 @@ void MainWindow::setAvatar(QString username)
     ui->imageButton->setIcon(icon);
 }
 
+void MainWindow::addUser(QString username, QDateTime time)
+{
+    lista_.append(QPair<QString, QDateTime>(username, time));
+}
+
+int MainWindow::searchUser(QString username)
+{
+    for( int auxiliar=0; auxiliar < lista_.size(); auxiliar++)
+    {
+        if(lista_[auxiliar].first == username) {
+            QPixmap pixmap;
+            if (!pixmap.load(path_ + username + ".jpg")) {
+                QDateTime time = QDateTime::fromMSecsSinceEpoch(0);
+                lista_[auxiliar].second = time;
+            }
+            return auxiliar;
+        }
+    }
+    return 15000;
+}
+
+void MainWindow::refreshUser(QString username, QDateTime time)
+{
+    int localizacion = searchUser(username);
+    if (localizacion != 15000) {
+        if (lista_[localizacion].second.operator <(time))
+            lista_[localizacion].second = time;
+    } else {
+        addUser(username, time);
+    }
+
+}
 
 void MainWindow::on_imageButton_clicked()
 {
