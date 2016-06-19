@@ -6,6 +6,8 @@
 
 QT       += core gui
 QT       += network
+QT       += multimedia
+QT       += multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,7 +26,8 @@ SOURCES += main.cpp\
     client.cpp \
     logindialog.cpp \
     QVERSO.pb.cc \
-    loaddialog.cpp
+    loaddialog.cpp \
+    cameradialog.cpp
 
 HEADERS  += mainwindow.h \
     aboutdialog.h \
@@ -32,13 +35,15 @@ HEADERS  += mainwindow.h \
     client.h \
     logindialog.h \
     QVERSO.pb.h \
-    loaddialog.h
+    loaddialog.h \
+    cameradialog.h
 
 FORMS    += mainwindow.ui \
     aboutdialog.ui \
     confdialog.ui \
     logindialog.ui \
-    loaddialog.ui
+    loaddialog.ui \
+    cameradialog.ui
 
 DISTFILES += \
     QVERSO.proto
