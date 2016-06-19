@@ -16,7 +16,10 @@ class loadDialog : public QDialog
 public:
     explicit loadDialog(QWidget *parent = 0);
     ~loadDialog();
+    void setFinalPath(QString filename);
 
+public slots:
+    void camAvatar(QString filename);
 
 signals:
     void emit_load_data(QString filename);
@@ -24,8 +27,11 @@ signals:
 private slots:
     void on_searchButton_clicked();
 
+    void on_camPushButton_clicked();
+
 private:
     Ui::loadDialog *ui;
+    QString finalPath_;
 };
 
 #endif // LOADDIALOG_H

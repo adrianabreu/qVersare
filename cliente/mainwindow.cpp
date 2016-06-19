@@ -156,5 +156,14 @@ void MainWindow::on_imageButton_clicked()
     loadDialog fotoCargada;
     connect(&fotoCargada, &loadDialog::emit_load_data, this,
             &MainWindow::refreshAvatar);
-    fotoCargada.exec();
+    if (client_ != nullptr) {
+        QString userName = client_->getName();
+        QString finalPath;
+        finalPath += "/tmp/" + userName + ".jpg";
+        fotoCargada.setFinalPath(finalPath);
+        fotoCargada.exec();
+
+    } else {
+        QMessageBox::critical(this, "Avatar", "Conectate al Servidor Primero");
+    }
 }
