@@ -5,6 +5,10 @@
 #include <QRegExp>
 #include <QDebug>
 #include <QPixmap>
+#include <QFile>
+#include <QPair>
+#include <QList>
+#include <QDateTime>
 #include "client.h"
 
 namespace Ui {
@@ -18,6 +22,9 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+signals:
+    void emitUpdateUserList(QString username, QDateTime time);
 
 
 private slots:
@@ -43,12 +50,20 @@ public slots:
 
     void setAvatar(QString username);
 
+    void addUser(QString username, QDateTime time);
+
+    int searchUser(QString username);
+
+    void refreshUser(QString username, QDateTime time);
+
 private:
     Ui::MainWindow *ui;
     bool isConectedButton_;
     bool isConectedToServer_;
     Client *client_;
     QString path_;
+    QFile *file_;
+    QList<QPair<QString, QDateTime>> lista_;
 };
 
 #endif // MAINWINDOW_H
