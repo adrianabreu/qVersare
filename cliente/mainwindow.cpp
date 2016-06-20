@@ -55,6 +55,13 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::updateAvatar(QString username, QPixmap image)
+{
+    image.scaled(100,100,Qt::KeepAspectRatio);
+    if ( !image.save(path_ + username + ".jpg") )
+        qDebug() << "no se guarda";
+}
+
 void MainWindow::on_exitButton_clicked()
 {
     qApp->quit();
@@ -164,6 +171,7 @@ void MainWindow::refreshAvatar(QString filename)
         ui->imageButton->setIcon(icon);
         QDateTime time = QDateTime::currentDateTimeUtc();
         emitUpdateUserList(userName,time);
+        client_->sendNewAvatar(pixmap);
     } else {
         QMessageBox::critical(this, "Avatar", "Conectate al Servidor Primero");
     }
@@ -191,27 +199,41 @@ int MainWindow::searchUser(QString username)
     for( int auxiliar=0; auxiliar < lista_.size(); auxiliar++)
     {
         if(lista_[auxiliar].first == username) {
-            QPixmap pixmap;
-            if (!pixmap.load(path_ + username + ".jpg")) {
-                QDateTime time = QDateTime::fromMSecsSinceEpoch(0);
-                lista_[auxiliar].second = time;
+            if(username == client_->getName()) {
+                QPixmap pixmap;
+                if (!pixmap.load(path_ + username + ".jpg")) {
+                    QDateTime time = QDateTime::fromMSecsSinceEpoch(0);
+                    lista_[auxiliar].second = time;
+                }
             }
             return auxiliar;
         }
     }
-    return 15000;
+     return 15000;
 }
 
 void MainWindow::refreshUser(QString username, QDateTime time)
 {
-    int localizacion = searchUser(username);
-    if (localizacion != 15000) {
-        if (lista_[localizacion].second.operator <(time))
-            lista_[localizacion].second = time;
+    if(username == client_->getName()){
+        int localizacion = searchUser(username);
+        if (localizacion != 15000) {
+            if (lista_[localizacion].second.operator <(time))
+                lista_[localizacion].second = time;
+        } else {
+            addUser(username, time);
+        }
     } else {
-        addUser(username, time);
-    }
 
+    }
+}
+
+void MainWindow::sendOrUpdate(QString username, QPixmap image, QDateTime time)
+{
+    if(username == client_->getName()) {
+
+    } else {
+
+    }
 }
 
 void MainWindow::on_imageButton_clicked()

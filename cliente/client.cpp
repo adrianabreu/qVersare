@@ -1,6 +1,7 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <QMessageBox>
+#include <QBuffer>
 
 #include <QAbstractSocket>
 #include <QNetworkSession>
@@ -159,4 +160,24 @@ void Client::setName(const QString &name)
 QString Client::getName()
 {
     return userName_;
+}
+
+void Client::sendNewAvatar(QPixmap pixmap)
+{
+    QByteArray bArray;
+    QBuffer buffer(&bArray);
+    buffer.open(QIODevice::WriteOnly);
+    pixmap.save(&buffer, "PNG");
+
+    QVERSO aux;
+    aux.set_username(userName_.toStdString());
+    aux.set_requestavatar(true);
+    aux.set_avatar(bArray.toBase64().toStdString());
+    aux.set_room(actualRoom_.toStdString());
+    QDateTime time;
+    aux.set_timestamp(time.currentDateTime()
+                      .toString("yyyy-MM-ddTHH:mm:ss")
+                      .toStdString());
+    //Deberiamos guardar el timestamp en un fichero junto al nombre de usuario
+    sentTo(aux);
 }

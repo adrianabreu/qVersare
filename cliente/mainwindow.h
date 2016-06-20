@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void updateAvatar(QString username, QPixmap image);
 
 signals:
     void emitUpdateUserList(QString username, QDateTime time);
@@ -56,6 +57,8 @@ public slots:
 
     void refreshUser(QString username, QDateTime time);
 
+    void sendOrUpdate(QString username, QPixmap image, QDateTime time);
+
 private:
     Ui::MainWindow *ui;
     bool isConectedButton_;
@@ -64,6 +67,7 @@ private:
     QString path_;
     QFile *file_;
     QList<QPair<QString, QDateTime>> lista_;
+
 };
 
 #endif // MAINWINDOW_H

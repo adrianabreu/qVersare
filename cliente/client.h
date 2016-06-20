@@ -34,6 +34,8 @@ public:
 
     QString getName();
 
+    void sendNewAvatar(QPixmap pixmap);
+
 public slots:
     void recivedFrom();
 
