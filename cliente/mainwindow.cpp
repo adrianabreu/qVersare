@@ -36,7 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->imageButton->setIcon(icon);
     ui->imageButton->setIconSize(pixmap.size());
     client_ = nullptr;
-    connect(this, &MainWindow::emitUpdateUserList, this, &MainWindow::refreshUser);
+    connect(this, &MainWindow::emitUpdateUserList, this, &MainWindow::refreshLocalUser);
 }
 
 MainWindow::~MainWindow()
@@ -55,11 +55,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updateAvatar(QString username, QPixmap image)
+void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image)
 {
-    image.scaled(100,100,Qt::KeepAspectRatio);
-    if ( !image.save(path_ + username + ".jpg") )
-        qDebug() << "no se guarda";
+    int aux = searchUser(username);
+    if(aux != 15000) {
+        lista_[aux].second = time;
+        image.scaled(100,100,Qt::KeepAspectRatio);
+        if ( !image.save(path_ + username + ".jpg") )
+            qDebug() << "no se guarda";
+
+    }
 }
 
 void MainWindow::on_exitButton_clicked()
@@ -100,6 +105,8 @@ void MainWindow::on_conectButton_clicked()
         }
         client_->setList(lista_);
         connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
+        connect(client_, &Client::emitNeedAvatar, this, &MainWindow::needAvatar);
+        connect(client_, &Client::emitUpdateAvatar, this, &MainWindow::updateAvatar);
     }
 
 
@@ -210,44 +217,29 @@ int MainWindow::searchUser(QString username)
             return auxiliar;
         }
     }
-     return 15000;
+    return 15000;
 }
 
-void MainWindow::refreshUser(QString username, QDateTime time)
+void MainWindow::refreshLocalUser(QString username, QDateTime time)
 {
-    needUpdate_ = false;
     int localizacion = searchUser(username);
     if (localizacion != 15000) {
-        if (lista_[localizacion].second.operator <(time)) {
+        if (lista_[localizacion].second.operator <(time))
             lista_[localizacion].second = time;
-            if(username != client_->getName())
-                needUpdate_ = true;
-        }
     } else {
         addUser(username, time);
-        if(username != client_->getName())
-            needUpdate_ = true;
     }
 }
 
-void MainWindow::sendOrUpdate(QString username, QPixmap image, QDateTime time)
+void MainWindow::needAvatar(QString username, QDateTime time)
 {
-    if(username == client_->getName()) {
-        int aux = searchUser(username);
-        if (aux != 15000) {
-            if(lista_[aux].second.operator <(time)) {
-                refreshUser(username, time);
-                updateAvatar(username,image);
-            } else if(lista_[aux].second.operator >(time)){
-                QPixmap pixmap;
-                pixmap.load(path_ + username + ".jpg");
-                client_->sendNewAvatar(pixmap);
-            }
-        }
+    int localizacion = searchUser(username);
+    if (localizacion != 15000) {
+        if (lista_[localizacion].second.operator <(time))
+            client_->askForAvatar(username);
     } else {
-        refreshUser(username, time);
-        if(needUpdate_)
-            updateAvatar(username, image);
+        addUser(username, time);
+        client_->askForAvatar(username);
     }
 }
 

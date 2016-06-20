@@ -8,6 +8,7 @@
 #include <QList>
 #include <QPair>
 #include <QDateTime>
+#include <QPixmap>
 
 #include <QVERSO.pb.h>
 
@@ -43,6 +44,8 @@ public:
 
     void setList(QList<QPair<QString, QDateTime>> lista);
 
+    void askForAvatar(QString username);
+
 public slots:
     void recivedFrom();
 
@@ -52,6 +55,10 @@ signals:
     void messageRecive(QString message);
 
     void avatar(QString username);
+
+    void emitNeedAvatar(QString username, QDateTime time);
+
+    void emitUpdateAvatar(QString username, QDateTime time, QPixmap image);
 
 private:
     QSslSocket socket_;

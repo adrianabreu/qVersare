@@ -22,7 +22,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void updateAvatar(QString username, QPixmap image);
 
 signals:
     void emitUpdateUserList(QString username, QDateTime time);
@@ -43,7 +42,6 @@ private slots:
 
     void on_imageButton_clicked();
 
-
 public slots:
     void send_login(QString username, QString password);
 
@@ -55,9 +53,12 @@ public slots:
 
     int searchUser(QString username);
 
-    void refreshUser(QString username, QDateTime time);
+    void refreshLocalUser(QString username, QDateTime time);
 
-    void sendOrUpdate(QString username, QPixmap image, QDateTime time);
+    void needAvatar(QString username, QDateTime time);
+
+    void updateAvatar(QString username, QDateTime time, QPixmap image);
+
 
 private:
     Ui::MainWindow *ui;
@@ -67,7 +68,6 @@ private:
     QString path_;
     QFile *file_;
     QList<QPair<QString, QDateTime>> lista_;
-    bool needUpdate_;
 
 };
 
