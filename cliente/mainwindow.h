@@ -67,6 +67,7 @@ private:
     QString path_;
     QFile *file_;
     QList<QPair<QString, QDateTime>> lista_;
+    bool needUpdate_;
 
 };
 

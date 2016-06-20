@@ -96,42 +96,50 @@ void Client::createMessageText(QString textLine)
 
 void Client::recivedFrom()
 {
-    qint32 buffer_size = 0;
-    QVERSO my_verso;
+    qint32 bufferSize = 0;
+    QVERSO aVerso;
+    //First we should check if we are reading something from and older chunk
+    QByteArray tmp;
+    QDataStream in(&socket_);
+    bool something;
+    if (largeChunkSize_ > 0) {
+       if(socket_.bytesAvailable() >= largeChunkSize_) {
+          buffer_ += socket_.read(largeChunkSize_);
+          largeChunkSize_ = 0;
+          aVerso.ParseFromString(buffer_.toStdString());
+          parseVerso(aVerso);
+          buffer_.clear();
+       } else {
+          largeChunkSize_ -= socket_.bytesAvailable();
+          buffer_ += socket_.readAll();
+       }
+    } else {
+        while (socket_.bytesAvailable() > 0){
+            if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
+            (bufferSize == 0) ) {
+                in >> bufferSize;
+            }
 
-    while(socket_.bytesAvailable() > 0){
-        QByteArray algo;
-        QDataStream in(&socket_);
-            //Recogiendo en tamaño del paquete
-         if (socket_.bytesAvailable() >= (int)( sizeof(qint32) ) &&
-                 (buffer_size == 0) ) {
-             in >> buffer_size;
-             //Teniendo el tamaño de paquete lo leemos del buffer
-         } if ((buffer_size != 0) && (socket_.bytesAvailable() >= buffer_size)) {
-            algo=socket_.read(buffer_size);
-            my_verso.ParseFromString(algo.toStdString());
-            buffer_size = 0;
-         } else {
-             socket_.readAll();
-         }
+            if ( (bufferSize != 0) &&
+                 (socket_.bytesAvailable() >= bufferSize )) {
+                tmp = socket_.read(bufferSize);
+                something = true;
+                bufferSize = 0;
+            } else if (bufferSize > socket_.bytesAvailable()){
+                largeChunkSize_ = bufferSize - socket_.bytesAvailable();
+                buffer_ += socket_.readAll();
 
-
-         //You Are Loggin
-         if (!connected_) {
-             if (my_verso.has_login() && my_verso.login() == true) {
-                 emit messageRecive("Welcome " + userName_);
-                 emit avatar(userName_);
-                 connected_ = true;
-             } else {
-                 emit messageRecive("Login Incorrecto");
-             }
-
-         } else {
-             QString username = QString::fromStdString(my_verso.username());
-             QString message = QString::fromStdString(my_verso.message());
-             emit messageRecive(username + ": " + message);
-         }
+            } else {
+               socket_.readAll();
+            }
+            if(something) {
+                something = false;
+                aVerso.ParseFromString(tmp.toStdString());
+                parseVerso(aVerso);
+            }
+        }
     }
+
 }
 
 void Client::procesarErroresSsl(QList<QSslError> myList)
@@ -180,4 +188,71 @@ void Client::sendNewAvatar(QPixmap pixmap)
                       .toStdString());
     //Deberiamos guardar el timestamp en un fichero junto al nombre de usuario
     sentTo(aux);
+}
+
+void Client::parseVerso(QVERSO my_verso)
+{
+     //You Are Loggin
+     if (!connected_) {
+         if (my_verso.has_login() && my_verso.login() == true) {
+             emit messageRecive("Welcome " + userName_);
+             emit avatar(userName_);
+             connected_ = true;
+         } else {
+             emit messageRecive("Login Incorrecto");
+         }
+
+     } else {
+         if (my_verso.requestavatar()) {
+            if (!my_verso.avatar().empty()) {
+                QDateTime dateTime;
+                dateTime = QDateTime::fromString(
+                            QString::fromStdString(my_verso.timestamp()),
+                                                 "yyyy-MM-ddTHH:mm:ss");
+                QString username = QString::fromStdString(my_verso.username());
+                QPair<QString,QDateTime> aux;
+                QListIterator<QPair<QString,QDateTime>> it(list_);
+                bool notFound = false;
+                while (it.hasNext() && !notFound) {
+                    aux = it.next();
+                    if (aux.first == username) {
+                        notFound = true;
+                        QDateTime storeTime;
+                        storeTime = aux.second;
+                        if (storeTime < dateTime)
+                            //request that avatar
+                            bool name;
+                    }
+                }
+            } else {
+                QPair<QString,QDateTime> aux;
+                QListIterator<QPair<QString,QDateTime>> it(list_);
+                aux.first = QString::fromStdString(my_verso.username());
+                QDateTime auxDateTime;
+                auxDateTime = QDateTime::fromString(QString::fromStdString(my_verso.timestamp()),
+                                            "yyyy-MM-ddTHH:mm:ss");
+                aux.second = auxDateTime;
+                //store avatar
+                bool notFound = false;
+                for (int i = 0; i < list_.size(); i++) {
+                    if (list_.at(i).first == aux.first) {
+                        list_.takeAt(i);
+                        list_.push_back(aux);
+                    }
+                }
+            }
+         } else {
+            QString username = QString::fromStdString(my_verso.username());
+            QString message = QString::fromStdString(my_verso.message());
+            //Lo dejamos como qstring para imprimirlo si eso?
+            QString timestamp = QString::fromStdString(my_verso.timestamp());
+
+            emit messageRecive(username + ": " + message);
+         }
+     }
+}
+
+void Client::setList(QList<QPair<QString, QDateTime> > lista)
+{
+    list_ = lista;
 }

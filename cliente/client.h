@@ -5,6 +5,9 @@
 #include <QSslSocket>
 #include <QThread>
 #include <QDebug>
+#include <QList>
+#include <QPair>
+#include <QDateTime>
 
 #include <QVERSO.pb.h>
 
@@ -36,6 +39,10 @@ public:
 
     void sendNewAvatar(QPixmap pixmap);
 
+    void parseVerso(QVERSO my_verso);
+
+    void setList(QList<QPair<QString, QDateTime>> lista);
+
 public slots:
     void recivedFrom();
 
@@ -53,6 +60,9 @@ private:
     QString userName_;
     bool connected_;
     QString actualRoom_;
+    QList<QPair<QString, QDateTime>> list_;
+    qint32 largeChunkSize_;
+    QByteArray buffer_;
 };
 
 #endif // CLIENT_H
