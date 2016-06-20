@@ -192,6 +192,7 @@ void Client::sendNewAvatar(QPixmap pixmap)
 
 void Client::parseVerso(QVERSO my_verso)
 {
+    qDebug() << "Entro en parse";
      //You Are Loggin
      if (!connected_) {
          if (my_verso.has_login() && my_verso.login() == true) {
@@ -202,57 +203,46 @@ void Client::parseVerso(QVERSO my_verso)
              emit messageRecive("Login Incorrecto");
          }
 
-     } else {
-         if (my_verso.requestavatar()) {
-            if (!my_verso.avatar().empty()) {
-                QDateTime dateTime;
-                dateTime = QDateTime::fromString(
-                            QString::fromStdString(my_verso.timestamp()),
-                                                 "yyyy-MM-ddTHH:mm:ss");
-                QString username = QString::fromStdString(my_verso.username());
-                QPair<QString,QDateTime> aux;
-                QListIterator<QPair<QString,QDateTime>> it(list_);
-                bool notFound = false;
-                while (it.hasNext() && !notFound) {
-                    aux = it.next();
-                    if (aux.first == username) {
-                        notFound = true;
-                        QDateTime storeTime;
-                        storeTime = aux.second;
-                        if (storeTime < dateTime)
-                            //request that avatar
-                            bool name;
-                    }
-                }
+    } else {
+        if (my_verso.requestavatar()) {
+            QDateTime dateTime;
+            dateTime = QDateTime::fromString(
+                        QString::fromStdString(my_verso.timestamp()),
+                                             "yyyy-MM-ddTHH:mm:ss");
+            QString username = QString::fromStdString(my_verso.username());
+            QPixmap pixmap;
+            //QByteArray aux(my_verso.avatar().c_str(), my_verso.avatar().length());
+            //QByteArray array = QByteArray::fromBase64(aux);
+            QByteArray array(my_verso.avatar().c_str());
+            pixmap.loadFromData(array);
+            if (!my_verso.avatar().empty()){
+                qDebug() << "Actualizo avatar";
+                emitUpdateAvatar(username, dateTime, pixmap);
             } else {
-                QPair<QString,QDateTime> aux;
-                QListIterator<QPair<QString,QDateTime>> it(list_);
-                aux.first = QString::fromStdString(my_verso.username());
-                QDateTime auxDateTime;
-                auxDateTime = QDateTime::fromString(QString::fromStdString(my_verso.timestamp()),
-                                            "yyyy-MM-ddTHH:mm:ss");
-                aux.second = auxDateTime;
-                //store avatar
-                bool notFound = false;
-                for (int i = 0; i < list_.size(); i++) {
-                    if (list_.at(i).first == aux.first) {
-                        list_.takeAt(i);
-                        list_.push_back(aux);
-                    }
-                }
+                qDebug() << "Necesito el Avatar¿?";
+                emitNeedAvatar(username, dateTime);
             }
-         } else {
+        } else {
             QString username = QString::fromStdString(my_verso.username());
             QString message = QString::fromStdString(my_verso.message());
             //Lo dejamos como qstring para imprimirlo si eso?
             QString timestamp = QString::fromStdString(my_verso.timestamp());
 
             emit messageRecive(username + ": " + message);
-         }
-     }
+        }
+    }
 }
 
 void Client::setList(QList<QPair<QString, QDateTime> > lista)
 {
     list_ = lista;
+}
+
+void Client::askForAvatar(QString username)
+{
+    QVERSO myVerso;
+    myVerso.set_username(username.toStdString());
+    myVerso.set_requestavatar(true);
+
+    sentTo(myVerso);
 }
