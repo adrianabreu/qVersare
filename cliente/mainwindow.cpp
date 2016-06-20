@@ -98,6 +98,7 @@ void MainWindow::on_conectButton_clicked()
             client_->setActualRoom("lobby");
             isConectedToServer_ = true;
         }
+        client_->setList(lista_);
         connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
     }
 
@@ -214,25 +215,39 @@ int MainWindow::searchUser(QString username)
 
 void MainWindow::refreshUser(QString username, QDateTime time)
 {
-    if(username == client_->getName()){
-        int localizacion = searchUser(username);
-        if (localizacion != 15000) {
-            if (lista_[localizacion].second.operator <(time))
-                lista_[localizacion].second = time;
-        } else {
-            addUser(username, time);
+    needUpdate_ = false;
+    int localizacion = searchUser(username);
+    if (localizacion != 15000) {
+        if (lista_[localizacion].second.operator <(time)) {
+            lista_[localizacion].second = time;
+            if(username != client_->getName())
+                needUpdate_ = true;
         }
     } else {
-
+        addUser(username, time);
+        if(username != client_->getName())
+            needUpdate_ = true;
     }
 }
 
 void MainWindow::sendOrUpdate(QString username, QPixmap image, QDateTime time)
 {
     if(username == client_->getName()) {
-
+        int aux = searchUser(username);
+        if (aux != 15000) {
+            if(lista_[aux].second.operator <(time)) {
+                refreshUser(username, time);
+                updateAvatar(username,image);
+            } else if(lista_[aux].second.operator >(time)){
+                QPixmap pixmap;
+                pixmap.load(path_ + username + ".jpg");
+                client_->sendNewAvatar(pixmap);
+            }
+        }
     } else {
-
+        refreshUser(username, time);
+        if(needUpdate_)
+            updateAvatar(username, image);
     }
 }
 
