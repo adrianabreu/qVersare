@@ -27,7 +27,7 @@ public:
 
     //Add a message to history table
     void addMessage(QString room, QString username, QString message,
-                    int datetime);
+                    QString datetime);
     QList<QVERSO> getLastTenMessages(QString room);
 
     //Avatar section
