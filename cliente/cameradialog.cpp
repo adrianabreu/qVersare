@@ -9,13 +9,17 @@ cameradialog::cameradialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::cameradialog)
 {
+
     ui->setupUi(this);
-    mCamera_ = new QCamera(this);
-    mCameraViewfinder_ = new QCameraViewfinder(this);
+    QList<QByteArray> devices = QCamera::availableDevices();
+    mCamera_ = new QCamera(devices.at(0));
+
+    mCameraViewfinder_ = new QCameraViewfinder;
     mCameraImageCapture_ = new QCameraImageCapture(mCamera_, this);
     mLayout_ = new QVBoxLayout;
 
     mCamera_->setViewfinder(mCameraViewfinder_);
+
     mLayout_->addWidget(mCameraViewfinder_);
     mLayout_->setMargin(0);
     ui->scrollArea->setLayout(mLayout_);
@@ -23,6 +27,8 @@ cameradialog::cameradialog(QWidget *parent) :
 
 cameradialog::~cameradialog()
 {
+    if(mCamera_->status() == QCamera::ActiveStatus)
+        mCamera_->stop();
     delete ui;
 }
 
