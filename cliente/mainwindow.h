@@ -9,6 +9,7 @@
 #include <QPair>
 #include <QList>
 #include <QDateTime>
+#include <QTimer>
 #include "client.h"
 
 namespace Ui {
@@ -59,6 +60,8 @@ public slots:
 
     void updateAvatar(QString username, QDateTime time, QPixmap image, bool same);
 
+    void updateFile(void);
+
 
 private:
     Ui::MainWindow *ui;
@@ -68,6 +71,7 @@ private:
     QString path_;
     QFile *file_;
     QList<QPair<QString, QDateTime>> lista_;
+    QTimer myTimer_;
 
 };
 

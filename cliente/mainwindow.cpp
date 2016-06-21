@@ -37,6 +37,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->imageButton->setIconSize(pixmap.size());
     client_ = nullptr;
     connect(this, &MainWindow::emitUpdateUserList, this, &MainWindow::refreshLocalUser);
+    myTimer_.setInterval(300000);
+    myTimer_.start();
+    connect(&myTimer_,&QTimer::timeout,this,&MainWindow::updateFile);
 }
 
 MainWindow::~MainWindow()
@@ -69,6 +72,21 @@ void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image, b
     }
 }
 
+void MainWindow::updateFile()
+{
+    file_->remove(path_ + "avatarList.txt");
+    file_ = new QFile(path_ + "avatarList.txt");
+    if(file_->open(QIODevice::ReadWrite)) {
+        QTextStream stream(file_);
+        for(int aux = 0; aux < lista_.size(); aux++)
+        {
+            stream << lista_[aux].first << "," <<
+                      lista_[aux].second.toString("yyyy-MM-ddTHH:mm:ss") << "\n";
+        }
+    }
+
+}
+
 void MainWindow::on_exitButton_clicked()
 {
     qApp->quit();
@@ -82,6 +100,7 @@ void MainWindow::on_conectButton_clicked()
         delete client_;
         isConectedButton_ = false;
         isConectedToServer_ = false;
+        updateFile();
     } else {
         QSettings settings;
         QString ip = settings.value("serverAddress").toString();
