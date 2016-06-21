@@ -26,6 +26,8 @@ Client::Client(QString ip, int port)
     userName_ = "";
     actualRoom_ = "";
     connected_ = false;
+    buffer_.clear();
+    largeChunkSize_ = 0;
     connect(&socket_, SIGNAL(sslErrors(QList<QSslError>)), this,
             SLOT(procesarErroresSsl(QList<QSslError>)));
 }
@@ -192,7 +194,6 @@ void Client::sendNewAvatar(QPixmap pixmap)
 
 void Client::parseVerso(QVERSO my_verso)
 {
-    qDebug() << "Entro en parse";
      //You Are Loggin
      if (!connected_) {
          if (my_verso.has_login() && my_verso.login() == true) {
