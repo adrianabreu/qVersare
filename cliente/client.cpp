@@ -226,9 +226,10 @@ void Client::parseVerso(QVERSO my_verso)
             QByteArray array(my_verso.avatar().c_str());
             array = QByteArray::fromBase64(array);
             pixmap.loadFromData(array);
+            bool same = (my_verso.username() == userName_.toStdString());
             if (!my_verso.avatar().empty()){
                 qDebug() << "Actualizo avatar";
-                emitUpdateAvatar(username, dateTime, pixmap);
+                emitUpdateAvatar(username, dateTime, pixmap, same);
             } else {
                 qDebug() << "Necesito el Avatar¿?";
                 emitNeedAvatar(username, dateTime);

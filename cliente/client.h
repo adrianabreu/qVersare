@@ -58,7 +58,7 @@ signals:
 
     void emitNeedAvatar(QString username, QDateTime time);
 
-    void emitUpdateAvatar(QString username, QDateTime time, QPixmap image);
+    void emitUpdateAvatar(QString username, QDateTime time, QPixmap image, bool same);
 
 private:
     QSslSocket socket_;

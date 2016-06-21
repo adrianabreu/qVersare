@@ -55,7 +55,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image)
+void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image, bool same)
 {
     int aux = searchUser(username);
     if(aux != 15000) {
@@ -63,7 +63,8 @@ void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image)
         image.scaled(100,100,Qt::KeepAspectRatio);
         if ( !image.save(path_ + username + ".jpg") )
             qDebug() << "no se guarda";
-        setAvatar(username);
+        if(same)
+            setAvatar(username);
 
     }
 }
