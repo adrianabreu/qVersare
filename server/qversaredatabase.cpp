@@ -45,6 +45,8 @@ QList<QVERSO> QVersareDataBase::getLastTenMessages(QString room)
     QList<QVERSO>aux;
     //Query for extract the messages from the ddbb
     //The list comes on desc type!!
+    QList<QString>users;
+
     QSqlQuery query(mydb_);
     query.prepare("SELECT * FROM messages WHERE room=(:ROOM) ORDER BY id "
                   "desc limit 10");
@@ -54,6 +56,12 @@ QList<QVERSO> QVersareDataBase::getLastTenMessages(QString room)
     } else {
         while(query.next()) {
             QVERSO tempVerso;
+            if (!users.contains(query.value("username").toString())) {
+                users.append(query.value("username").toString());
+                QVERSO auxAvatar = getThisUserAvatar(query.value("username")
+                                                     .toString());
+                aux.push_front(auxAvatar);
+            }
             tempVerso.set_username(query.value("username").toString()
                                    .toStdString());
             tempVerso.set_room(room.toStdString());
