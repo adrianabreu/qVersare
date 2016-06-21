@@ -36,13 +36,6 @@ void logindialog::done(int r)
             crypto.addData(ui->passUser->text().toUtf8());
             QString encrypted(crypto.result().toHex());
             emit emit_login_data(ui->userName->text(),encrypted);
-            //prueba
-            //QMessageBox aux;
-            //aux.setText(encrypted);
-            //aux.exec();
-            /*QString decrypted = crypto.decryptToString(encrypted);
-            aux.setText(decrypted);
-            aux.exec();*/
 
             settings.setValue("userName", ui->userName->text());
             QDialog::done(r);

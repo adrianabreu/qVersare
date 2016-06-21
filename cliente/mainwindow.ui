@@ -30,7 +30,14 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QTextEdit" name="ReciveTextEdit"/>
+       <widget class="QTextEdit" name="ReciveTextEdit">
+        <property name="cursor" stdset="0">
+         <cursorShape>ForbiddenCursor</cursorShape>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::NoTextInteraction</set>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="SendTextEdit"/>
@@ -40,7 +47,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QPushButton" name="conectButton">
+       <widget class="QPushButton" name="connectButton">
         <property name="minimumSize">
          <size>
           <width>94</width>

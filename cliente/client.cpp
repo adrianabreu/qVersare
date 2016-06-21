@@ -45,7 +45,7 @@ void Client::sendUpdateRoom(QString room)
     QVERSO myVerso;
     myVerso.set_username(userName_.toStdString());
     myVerso.set_room(room.toStdString());
-    sentTo(myVerso);
+    sendTo(myVerso);
 }
 
 int Client::connectTo()
@@ -63,10 +63,10 @@ int Client::connectTo()
     return result;
 }
 
-void Client::sentTo(QVERSO a_verso)
+void Client::sendTo(QVERSO aVerso)
 {
     std::string buffer;
-    a_verso.SerializeToString(&buffer);
+    aVerso.SerializeToString(&buffer);
     quint32 bufferSize = buffer.size();
 
     QByteArray block;
@@ -79,40 +79,37 @@ void Client::sentTo(QVERSO a_verso)
     socket_.write(buffer.c_str(), bufferSize);
 }
 
-void Client::log_me_in(QString username, QString password)
+void Client::logMeIn(QString username, QString password)
 {
     QVERSO logMessage;
     logMessage.set_login(true);
     logMessage.set_username(username.toStdString());
     logMessage.set_password(password.toStdString());
 
-    sentTo(logMessage);
+    sendTo(logMessage);
 }
 
-void Client::createMessageText(QString textLine)
+void Client::createMessageText(QString textLine, QDateTime timestamp)
 {
     QVERSO myVerso;
     myVerso.set_username(userName_.toStdString());
     myVerso.set_room(actualRoom_.toStdString());
     myVerso.set_message(textLine.toStdString());
-    QDateTime currentTime = currentTime.currentDateTime();
-    myVerso.set_timestamp(currentTime.toString("yyyy-MM-ddTHH:mm:ss")
+    myVerso.set_timestamp(timestamp.toString("yyyy-MM-ddTHH:mm:ss")
                           .toStdString());
 
-    sentTo(myVerso);
-
+    sendTo(myVerso);
 }
 
 void Client::recivedFrom()
 {
-    //qDebug() << "There is data!";
-    //qDebug() << largeChunkSize_;
     qint32 bufferSize = 0;
     QVERSO aVerso;
     //First we should check if we are reading something from and older chunk
     QByteArray tmp;
     QDataStream in(&socket_);
     bool something;
+
     if (largeChunkSize_ > 0) {
        if(socket_.bytesAvailable() >= largeChunkSize_) {
           buffer_ += socket_.read(largeChunkSize_);
@@ -166,6 +163,16 @@ void Client::procesarErroresSsl(QList<QSslError> myList)
         socket_.ignoreSslErrors(myList);
 }
 
+QString Client::getLastUser() const
+{
+    return lastUser_;
+}
+
+void Client::setLastUser(const QString &lastUser)
+{
+    lastUser_ = lastUser;
+}
+
 void Client::setActualRoom(const QString &actualRoom)
 {
     actualRoom_ = actualRoom;
@@ -202,72 +209,46 @@ void Client::sendNewAvatar(QPixmap pixmap)
     aux.set_timestamp(time.currentDateTime()
                       .toString("yyyy-MM-ddTHH:mm:ss")
                       .toStdString());
-    qDebug() << aux.timestamp().c_str();
-    //Deberiamos guardar el timestamp en un fichero junto al nombre de usuario
-    sentTo(aux);
+
+    sendTo(aux);
 }
 
-void Client::parseVerso(QVERSO my_verso)
+void Client::parseVerso(QVERSO myVerso)
 {
-    qDebug() << "Entro en parse";
-     //You Are Loggin
      if (!connected_) {
-         if (my_verso.has_login() && my_verso.login() == true) {
+         if (myVerso.has_login() && myVerso.login() == true) {
              QString htmlMessage = "<h1 align=center>Welcome " + userName_ + "</h1><br />";
-             emit messageRecive(htmlMessage);
+             emit messageReceived(htmlMessage);
              emit avatar(userName_);
              connected_ = true;
-             qDebug() << "Pero solo soy un login";
+
          } else {
              QString htmlMessage = "<h2> Login Incorrecto </h2><br />";
-             emit messageRecive(htmlMessage);
+             emit messageReceived(htmlMessage);
          }
 
     } else {
-        if (my_verso.requestavatar()) {
+        if (myVerso.requestavatar()) {
+
             QDateTime dateTime;
-            QString tmpDateString = QString::fromStdString(my_verso.timestamp());
-            qDebug() << dateTime.currentDateTime().toString("yyyy-MM-ddTHH:mm:ss");
+            QString tmpDateString = QString::fromStdString(myVerso.timestamp());
             dateTime = QDateTime::fromString(tmpDateString,
                                              "yyyy-MM-ddTHH:mm:ss");
-            qDebug() << tmpDateString;
-            QString username = QString::fromStdString(my_verso.username());
+            QString username = QString::fromStdString(myVerso.username());
             QPixmap pixmap;
-            //QByteArray aux(my_verso.avatar().c_str(), my_verso.avatar().length());
-            //QByteArray array = QByteArray::fromBase64(aux);
-            QByteArray array(my_verso.avatar().c_str());
+            QByteArray array(myVerso.avatar().c_str());
             array = QByteArray::fromBase64(array);
             pixmap.loadFromData(array);
-            bool same = (my_verso.username() == userName_.toStdString());
-            if (!my_verso.avatar().empty()){
-                qDebug() << "Actualizo avatar";
+
+            bool same = (myVerso.username() == userName_.toStdString());
+
+            if (!myVerso.avatar().empty()){
                 emitUpdateAvatar(username, dateTime, pixmap, same);
             } else {
-                qDebug() << "Necesito el Avatar¿?";
                 emitNeedAvatar(username, dateTime);
             }
         } else {
-            QString username = QString::fromStdString(my_verso.username());
-            QString message = QString::fromStdString(my_verso.message());
-            //Lo dejamos como qstring para imprimirlo si eso?
-            QString timestamp = QString::fromStdString(my_verso.timestamp());
-            QString htmlMessage;
-            QString imageText = basicPath_ + username + ".jpg";
-            QDateTime messageTime;
-            QString tmpDateString = QString::fromStdString(my_verso.timestamp());
-            qDebug() << "tmpDateString";
-            qDebug() << tmpDateString;
-            messageTime = QDateTime::fromString(tmpDateString, "yyyy-MM-ddTHH:mm:ss");
-            if(!isLastUser(username)){
-                lastUser_ = username;
-                htmlMessage = "<img src='" + imageText+ "' height='42'> <b>" +
-                        username + ": </b>" + message + "  " +
-                        messageTime.toString("dd-MM HH:mm") + "<br />";
-            } else {
-                htmlMessage = "<b>" + username + ": </b>" + message + "  " +
-                        messageTime.toString("dd-MM HH:mm") + "<br />";
-            }
-            emit messageRecive(htmlMessage);
+            showMessage(myVerso);
         }
     }
 }
@@ -277,20 +258,42 @@ void Client::setList(QList<QPair<QString, QDateTime> > lista)
     list_ = lista;
 }
 
+void Client::showMessage(QVERSO myVerso)
+{
+    //Extraer componentes del mensaje
+    QString username = QString::fromStdString(myVerso.username());
+    QString message = QString::fromStdString(myVerso.message());
+    QString timestamp = QString::fromStdString(myVerso.timestamp());
+    QString tmpDateString = QString::fromStdString(myVerso.timestamp());
+
+    QDateTime messageTime;
+    messageTime = QDateTime::fromString(tmpDateString, "yyyy-MM-ddTHH:mm:ss");
+
+    //Preparar el mensaje
+    QString htmlMessage;
+    QString imageText = basicPath_ + username + ".jpg";
+    //En caso de que sean usuarios distintos
+    //messageTime.toString("dd-MM HH:mm")
+
+    if(lastUser_ != username){
+        lastUser_ = username;
+        htmlMessage = "<img src='" + imageText+ "' height='40'> <b>" +
+                username + ": </b>" + message + "  "  + "<br />";
+    } else {
+        for(int i = 0; i < 9; i++) {
+            htmlMessage +="&nbsp;";
+        };
+
+        htmlMessage += message + "  " + "<br />";
+    }
+    emit messageReceived(htmlMessage);
+}
+
 void Client::askForAvatar(QString username)
 {
     QVERSO myVerso;
     myVerso.set_username(username.toStdString());
     myVerso.set_requestavatar(true);
 
-    qDebug() << "Lo necesito";
-    sentTo(myVerso);
-}
-
-bool Client::isLastUser(QString username)
-{
-    bool aux = false;
-    if(lastUser_ == username)
-        aux = true;
-    return aux;
+    sendTo(myVerso);
 }

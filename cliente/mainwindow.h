@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
 #include <QMainWindow>
 #include <QRegExp>
 #include <QDebug>
@@ -10,6 +11,8 @@
 #include <QList>
 #include <QDateTime>
 #include <QTimer>
+
+#include "avatarmanager.h"
 #include "client.h"
 
 namespace Ui {
@@ -28,10 +31,11 @@ signals:
     void emitUpdateUserList(QString username, QDateTime time);
 
 
+
 private slots:
     void on_exitButton_clicked();
 
-    void on_conectButton_clicked();
+    void on_connectButton_clicked();
 
     void on_aboutButton_clicked();
 
@@ -44,15 +48,11 @@ private slots:
     void on_imageButton_clicked();
 
 public slots:
-    void send_login(QString username, QString password);
+    void sendLogin(QString username, QString password);
 
     void refreshAvatar(QString filename);
 
-    void setAvatar(QString username);
-
     void addUser(QString username, QDateTime time);
-
-    int searchUser(QString username);
 
     void refreshLocalUser(QString username, QDateTime time);
 
@@ -60,18 +60,21 @@ public slots:
 
     void updateAvatar(QString username, QDateTime time, QPixmap image, bool same);
 
-    void updateFile(void);
+    void setAvatar(QString username);
+
+    void onErrorLoadingAvatar();
+
 
 
 private:
     Ui::MainWindow *ui;
-    bool isConectedButton_;
-    bool isConectedToServer_;
+    bool isConnectedButton_;
+    bool isConnectedToServer_;
     Client *client_;
-    QString path_;
-    QFile *file_;
-    QList<QPair<QString, QDateTime>> lista_;
+
+    AvatarManager myAvatarManager_;
     QTimer myTimer_;
+    QString paddingHtmlWithSpaces(int number);
 
 };
 
