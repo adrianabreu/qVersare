@@ -57,7 +57,7 @@ public slots:
 
     void needAvatar(QString username, QDateTime time);
 
-    void updateAvatar(QString username, QDateTime time, QPixmap image);
+    void updateAvatar(QString username, QDateTime time, QPixmap image, bool same);
 
 
 private:
