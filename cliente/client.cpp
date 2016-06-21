@@ -93,6 +93,9 @@ void Client::createMessageText(QString textLine)
     myVerso.set_username(userName_.toStdString());
     myVerso.set_room(actualRoom_.toStdString());
     myVerso.set_message(textLine.toStdString());
+    QDateTime currentTime = currentTime.currentDateTime();
+    myVerso.set_timestamp(currentTime.toString("yyyy-MM-ddTHH:mm:ss")
+                          .toStdString());
 
     sentTo(myVerso);
 

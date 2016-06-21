@@ -77,12 +77,10 @@ void QVersareServer::newMessageFromClient(QVERSO aVerso,Client *fd)
         QString room = QString::fromStdString(aVerso.room());
         QString username = QString::fromStdString(aVerso.username());
         QString message = QString::fromStdString(aVerso.message());
-        QDateTime timestamp;
-        timestamp = QDateTime::fromString(QString::fromStdString(aVerso.timestamp()),
-                                          "yyyy-MM-ddTHH:mm:ss");
+        QString timestamp = QString::fromStdString(aVerso.timestamp());
         QTime timer;
         timer.start();
-        mydb_.addMessage(room,username, message,timestamp.toMSecsSinceEpoch());
+        mydb_.addMessage(room,username, message,timestamp);
 
         if(timer.elapsed() > 1)
             mystats_.recordMessageAdded(timer.elapsed());

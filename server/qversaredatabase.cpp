@@ -25,11 +25,11 @@ QVersareDataBase::QVersareDataBase(QSqlDatabase *ddbb,QCoreApplication *app,
 }
 
 void QVersareDataBase::addMessage(QString room, QString username,
-                                  QString message, int datetime)
+                                  QString message, QString datetime)
 {
     QSqlQuery query(mydb_);
     query.prepare("INSERT INTO messages (room,username,message,timestamp)"
-                  "VALUES (:room, :username, :message)");
+                  "VALUES (:room, :username, :message, :timestamp)");
     query.bindValue(":room", room);
     query.bindValue(":username",username);
     query.bindValue(":message",message);
