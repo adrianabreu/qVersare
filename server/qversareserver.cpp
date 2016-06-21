@@ -120,7 +120,6 @@ void QVersareServer::newInTheRoom(QString room, Client *fd)
 
     if(messagesTimer.elapsed() > 1)
         mystats_.recordLastTenMessages(messagesTimer.elapsed());
-
     //Emitimos los timestamps de los avatares de los demás al usuario
     QTime timestampTimer;
     timestampTimer.start();
