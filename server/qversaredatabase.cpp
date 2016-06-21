@@ -91,6 +91,7 @@ QList<QVERSO> QVersareDataBase::getOthersUsersTimestamps(QList<QString> users)
                 auxVerso.set_username(auxName.toStdString());
                 QDateTime auxTime = QDateTime::fromMSecsSinceEpoch(query.value(0)
                                                                 .toInt());
+                auxVerso.set_requestavatar(true);
                 auxVerso.set_timestamp(auxTime.toString().toStdString());
                 aux.push_back(auxVerso);
             }
