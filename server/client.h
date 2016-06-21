@@ -49,6 +49,8 @@ signals:
 
     void requestThatAvatar(QString user, Client *fd);
 
+    void requestThatTimestamp(QString user, Client *fd);
+
     void deleteMeFromThisRoom(QString room, Client *fd);
 
     void timersResult(QString type, int elapsedTime);
