@@ -36,6 +36,8 @@ public:
 
     void setName(const QString &name);
 
+    void setBasicPath(QString path);
+
     QString getName();
 
     void sendNewAvatar(QPixmap pixmap);
@@ -45,6 +47,8 @@ public:
     void setList(QList<QPair<QString, QDateTime>> lista);
 
     void askForAvatar(QString username);
+
+    bool isLastUser(QString username);
 
 public slots:
     void recivedFrom();
@@ -70,6 +74,9 @@ private:
     QList<QPair<QString, QDateTime>> list_;
     qint32 largeChunkSize_;
     QByteArray buffer_;
+    QString basicPath_;
+    QString lastUser_;
 };
+
 
 #endif // CLIENT_H

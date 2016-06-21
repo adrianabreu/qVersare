@@ -30,11 +30,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QPlainTextEdit" name="ReciveTextEdit">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-       </widget>
+       <widget class="QTextEdit" name="ReciveTextEdit"/>
       </item>
       <item>
        <widget class="QLineEdit" name="SendTextEdit"/>

@@ -18,6 +18,7 @@ Client::Client()
     connected_ = false;
     buffer_.clear();
     largeChunkSize_ = 0;
+    lastUser_= "";
 }
 
 Client::Client(QString ip, int port)
@@ -30,6 +31,7 @@ Client::Client(QString ip, int port)
     connected_ = false;
     buffer_.clear();
     largeChunkSize_ = 0;
+    lastUser_ = "";
     connect(&socket_, SIGNAL(sslErrors(QList<QSslError>)), this,
             SLOT(procesarErroresSsl(QList<QSslError>)));
 }
@@ -174,6 +176,11 @@ void Client::setName(const QString &name)
     userName_ = name;
 }
 
+void Client::setBasicPath(QString path)
+{
+    basicPath_ = path;
+}
+
 QString Client::getName()
 {
     return userName_;
@@ -206,12 +213,14 @@ void Client::parseVerso(QVERSO my_verso)
      //You Are Loggin
      if (!connected_) {
          if (my_verso.has_login() && my_verso.login() == true) {
-             emit messageRecive("Welcome " + userName_);
+             QString htmlMessage = "<h1 align=center>Welcome " + userName_ + "</h1><br />";
+             emit messageRecive(htmlMessage);
              emit avatar(userName_);
              connected_ = true;
              qDebug() << "Pero solo soy un login";
          } else {
-             emit messageRecive("Login Incorrecto");
+             QString htmlMessage = "<h2> Login Incorrecto </h2><br />";
+             emit messageRecive(htmlMessage);
          }
 
     } else {
@@ -242,8 +251,23 @@ void Client::parseVerso(QVERSO my_verso)
             QString message = QString::fromStdString(my_verso.message());
             //Lo dejamos como qstring para imprimirlo si eso?
             QString timestamp = QString::fromStdString(my_verso.timestamp());
-
-            emit messageRecive(username + ": " + message);
+            QString htmlMessage;
+            QString imageText = basicPath_ + username + ".jpg";
+            QDateTime messageTime;
+            QString tmpDateString = QString::fromStdString(my_verso.timestamp());
+            qDebug() << "tmpDateString";
+            qDebug() << tmpDateString;
+            messageTime = QDateTime::fromString(tmpDateString, "yyyy-MM-ddTHH:mm:ss");
+            if(!isLastUser(username)){
+                lastUser_ = username;
+                htmlMessage = "<img src='" + imageText+ "' height='42'> <b>" +
+                        username + ": </b>" + message + "  " +
+                        messageTime.toString("dd-MM HH:ss") + "<br />";
+            } else {
+                htmlMessage = "<b>" + username + ": </b>" + message + "  " +
+                        messageTime.toString("dd-MM HH:ss") + "<br />";
+            }
+            emit messageRecive(htmlMessage);
         }
     }
 }
@@ -261,4 +285,12 @@ void Client::askForAvatar(QString username)
 
     qDebug() << "Lo necesito";
     sentTo(myVerso);
+}
+
+bool Client::isLastUser(QString username)
+{
+    bool aux = false;
+    if(lastUser_ == username)
+        aux = true;
+    return aux;
 }

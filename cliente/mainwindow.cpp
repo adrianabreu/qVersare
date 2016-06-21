@@ -106,6 +106,7 @@ void MainWindow::on_conectButton_clicked()
             isConectedToServer_ = true;
         }
         client_->setList(lista_);
+        client_->setBasicPath(path_);
         connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
         connect(client_, &Client::emitNeedAvatar, this, &MainWindow::needAvatar);
         connect(client_, &Client::emitUpdateAvatar, this, &MainWindow::updateAvatar);
@@ -122,6 +123,7 @@ void MainWindow::on_aboutButton_clicked()
 void MainWindow::on_SendTextEdit_returnPressed()
 {
     QString line = ui->SendTextEdit->text();
+    line += "\n";
 
     QRegExp myExp("(^/\\w+)");
     if (line.contains(myExp)) {
@@ -135,7 +137,7 @@ void MainWindow::on_SendTextEdit_returnPressed()
     } else {
         //Construir qVerso y no llamar a sentto directamente
         client_->createMessageText(line);
-        ui->ReciveTextEdit->appendPlainText(line);
+        ui->ReciveTextEdit->insertPlainText(line);
         ui->SendTextEdit->clear();
     }
 }
@@ -147,7 +149,7 @@ void MainWindow::on_confButton_clicked()
 }
 
 void MainWindow::readyToRead(QString read){
-    ui->ReciveTextEdit->appendPlainText(read);
+    ui->ReciveTextEdit->insertHtml(read);
 }
 
 void MainWindow::send_login(QString username, QString password)
