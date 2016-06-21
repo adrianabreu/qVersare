@@ -117,7 +117,7 @@ void Client::readyValidate(bool status, Client *whoClient)
         if(status == true) {
            room_ = "lobby";
            emit imNewInTheRoom("lobby", this);
-           emit requestThatAvatar(name_, this);
+           emit this->requestThatTimestamp(name_, this);
         }
     }
 }
@@ -192,6 +192,12 @@ void Client::makeAvatarConnections(QObject *parent)
 
     connect(static_cast<QVersareServer*>(parent), &QVersareServer::userTimeStamp,
             this, &Client::onMessageToSame);
+
+    connect(this, &Client::requestThatAvatar, static_cast<QVersareServer*>(parent),
+            &QVersareServer::onRequestedAvatar);
+
+    connect(this, &Client::requestThatTimestamp, static_cast<QVersareServer*>(parent),
+            &QVersareServer::onRequestedTimestamp);
 }
 
 void Client::sendVerso(QVERSO aVerso)
@@ -243,7 +249,7 @@ void Client::parseVerso(std::string verso)
                                              this);
             } else {
                 //It may be requesting my avatar or updating it
-                if(!QString::fromStdString(aVerso.avatar()).isNull()) {
+                if(!aVerso.avatar().empty()) {
                     helperDebug(daemonMode_, "Updating " + name_ + " avatar");
                     emit updateMyAvatar(name_,QString::fromStdString(aVerso.avatar()),
                                         QDateTime::fromString(

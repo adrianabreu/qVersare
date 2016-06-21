@@ -36,7 +36,8 @@ void QVersareDataBase::addMessage(QString room, QString username,
     query.bindValue(":timestamp",datetime);
 
     if (!query.exec())
-        helperDebug(daemonMode_,query.lastError().text());
+        helperDebug(daemonMode_,"Error añadiendo el mensaje" +
+                    query.lastError().text());
 }
 
 QList<QVERSO> QVersareDataBase::getLastTenMessages(QString room)
@@ -116,11 +117,8 @@ QVERSO QVersareDataBase::getThisUserAvatar(QString user)
                                    .toStdString());
             tempVerso.set_requestavatar(true);
             tempVerso.set_avatar(query.value("avatar").toString().toStdString());
-            tempVerso.set_timestamp(QDateTime::fromMSecsSinceEpoch(
-                                        query.value("avtimestamp").toInt())
-                                    .toString()
+            tempVerso.set_timestamp(query.value("avtimestamp").toString()
                                     .toStdString());
-
         }
     }
     return tempVerso;
@@ -141,10 +139,8 @@ QVERSO QVersareDataBase::getThisUserTimeStamp(QString user)
         if(query.next()) {
             tempVerso.set_username(query.value("username").toString().toStdString());
             tempVerso.set_requestavatar(true);
-            QDateTime auxTime = QDateTime::fromMSecsSinceEpoch(query
-                                                            .value("avtimestamp")
-                                                            .toInt());
-            tempVerso.set_timestamp(auxTime.toString().toStdString());
+            tempVerso.set_timestamp(query.value("avtimestamp").toString()
+                                    .toStdString());
         } else {
             helperDebug(daemonMode_, "El usuario no tiene avatar registrado");
         }
@@ -160,14 +156,14 @@ void QVersareDataBase::setupDatabase()
                   "USERNAME VARCHAR(60) PRIMARY KEY,"
                   "PASSWORD VARCHAR(40),"
                   "AVATAR BLOB,"
-                  "AVTIMESTAMP INTEGER)");
+                  "AVTIMESTAMP VARCHAR(20))");
     //Create table for msgs
     query.exec("CREATE TABLE IF NOT EXISTS messages ("
                "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                "ROOM VARCHAR(60),"
                "USERNAME VARCHAR(60),"
                "MESSAGE VARCHAR(2000),"
-               "TIMESTAMP INTEGER)");
+               "TIMESTAMP VARCHAR(20))");
 
     //Insert basic users
     query.prepare("INSERT INTO users (username,password,avatar,avtimestamp)"
@@ -175,7 +171,7 @@ void QVersareDataBase::setupDatabase()
     query.bindValue(":username","pepito");
     query.bindValue(":password","50648aff18d36a6b89cb7dcda2e4e8c5");
     query.bindValue(":avatar","");
-    query.bindValue(":avtimestamp",0);
+    query.bindValue(":avtimestamp","1970-01-01T00:00:00");
     query.exec();
 
     query.prepare("INSERT INTO users (username,password,avatar,avtimestamp)"
@@ -183,7 +179,7 @@ void QVersareDataBase::setupDatabase()
     query.bindValue(":username","tiger");
     query.bindValue(":password","9e95f6d797987b7da0fb293a760fe57e");
     query.bindValue(":avatar","");
-    query.bindValue(":avtimestamp",0);
+    query.bindValue(":avtimestamp","1970-01-01T00:00:00");
     query.exec();
 
     query.prepare("INSERT INTO users (username,password,avatar,avtimestamp)"
@@ -191,7 +187,7 @@ void QVersareDataBase::setupDatabase()
     query.bindValue(":username","qversare");
     query.bindValue(":password","3b867c3941a04ab062bba35d8a69a1d9");
     query.bindValue(":avatar","");
-    query.bindValue(":avtimestamp",0);
+    query.bindValue(":avtimestamp","1970-01-01T00:00:00");
 
     query.exec();
 }
@@ -207,10 +203,9 @@ void QVersareDataBase::updateClientAvatar(QString user,
                   "WHERE USERNAME = :username");
     query.bindValue(":username", user);
     query.bindValue(":avatar", avatar);
-    query.bindValue(":timestamp",timestamp.toMSecsSinceEpoch());
+    query.bindValue(":timestamp",timestamp.toString("yyyy-MM-ddTHH:mm:ss"));
     if(!query.exec())
-        helperDebug(daemonMode_, "Error updating avatar " +
-                    query.lastError().text());
+        helperDebug(daemonMode_, "Error updating avatar ");
 }
 
 bool QVersareDataBase::goodCredentials(QString user, QString password)
