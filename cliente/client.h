@@ -20,35 +20,33 @@ public:
     Client(QString ip, int port);
     ~Client();
 
-    void sendUpdateRoom(QString room);
     //establecer conexion
     int connectTo();
-
     void makeConnect(QObject *parent);
 
-    void sentTo(QVERSO a_verso);
+    //Getters
+    QString getName();
+    QString getLastUser() const;
 
-    void log_me_in(QString username, QString password);
-
-    void createMessageText(QString textLine);
-
+    //Setters basicos
     void setActualRoom(const QString &actualRoom);
-
+    void setBasicPath(QString path);
+    void setList(QList<QPair<QString, QDateTime>> lista);
     void setName(const QString &name);
 
-    void setBasicPath(QString path);
-
-    QString getName();
-
-    void sendNewAvatar(QPixmap pixmap);
-
-    void parseVerso(QVERSO my_verso);
-
-    void setList(QList<QPair<QString, QDateTime>> lista);
-
+    //Funciones de envio
     void askForAvatar(QString username);
+    void logMeIn(QString username, QString password);
+    void sendNewAvatar(QPixmap pixmap);
+    void sendTo(QVERSO aVerso);
+    void sendUpdateRoom(QString room);
 
-    bool isLastUser(QString username);
+    //Funciones de recepcion
+    void createMessageText(QString textLine, QDateTime timestamp);
+    void parseVerso(QVERSO my_verso);
+    void setLastUser(const QString &lastUser);
+    void showMessage(QVERSO myVerso);
+
 
 public slots:
     void recivedFrom();
@@ -56,7 +54,7 @@ public slots:
     void procesarErroresSsl(QList<QSslError> myList);
 
 signals:
-    void messageRecive(QString message);
+    void messageReceived(QString message);
 
     void avatar(QString username);
 

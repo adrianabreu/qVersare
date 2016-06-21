@@ -8,99 +8,89 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+
+#include <QCursor>
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    isConectedButton_(false),
-    isConectedToServer_(false)
+    isConnectedButton_(false),
+    isConnectedToServer_(false)
 {
-    path_ = QString::fromUtf8(getenv("HOME"));
-    path_ += "/.local/share/qVersare/";
-    QPixmap pixmap;
-    pixmap.load(path_ + "qVersareDefaultAvatar.jpg");
-    QIcon icon(pixmap);
-    file_ = new QFile(path_ + "avatarList.txt");
-    if(file_->open(QIODevice::ReadWrite)) {
-        QTextStream stream(file_);
-        QStringList line;
-        while(!stream.atEnd()) {
-            line = stream.readLine().split(',');
-            QDateTime temp = QDateTime::fromString(line[1],"yyyy-MM-ddTHH:mm:ss");
-            lista_.append(QPair<QString, QDateTime>(line[0], temp));
-        }
-    }
-    file_->close();
 
     ui->setupUi(this);
 
+    QPair<QPixmap,QSize> tmp = myAvatarManager_.getDefaultAvatar();
+    QIcon icon(tmp.first);
+
     ui->imageButton->setIcon(icon);
-    ui->imageButton->setIconSize(pixmap.size());
+    ui->imageButton->setIconSize(tmp.second);
     client_ = nullptr;
     connect(this, &MainWindow::emitUpdateUserList, this, &MainWindow::refreshLocalUser);
-    myTimer_.setInterval(300000);
-    myTimer_.start();
-    connect(&myTimer_,&QTimer::timeout,this,&MainWindow::updateFile);
+    connect(&myAvatarManager_, &AvatarManager::errorLoadingAvatar, this, &MainWindow::onErrorLoadingAvatar);
 }
 
 MainWindow::~MainWindow()
 {
-    file_->remove(path_ + "avatarList.txt");
-    file_ = new QFile(path_ + "avatarList.txt");
-    if(file_->open(QIODevice::ReadWrite)) {
-        QTextStream stream(file_);
-        for(int aux = 0; aux < lista_.size(); aux++)
-        {
-            stream << lista_[aux].first << "," <<
-                      lista_[aux].second.toString("yyyy-MM-ddTHH:mm:ss") << "\n";
-        }
-    }
 
     delete ui;
 }
 
 void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image, bool same)
 {
-    int aux = searchUser(username);
-    if(aux != 15000) {
-        lista_[aux].second = time;
-        image.scaled(100,100,Qt::KeepAspectRatio);
-        if ( !image.save(path_ + username + ".jpg") )
-            qDebug() << "no se guarda";
-        if(same)
-            setAvatar(username);
-
-    }
+    myAvatarManager_.updateAvatar(username, time, image);
+    if(same)
+        setAvatar(username);
 }
 
-void MainWindow::updateFile()
+void MainWindow::setAvatar(QString username)
 {
-    file_->remove(path_ + "avatarList.txt");
-    file_ = new QFile(path_ + "avatarList.txt");
-    if(file_->open(QIODevice::ReadWrite)) {
-        QTextStream stream(file_);
-        for(int aux = 0; aux < lista_.size(); aux++)
-        {
-            stream << lista_[aux].first << "," <<
-                      lista_[aux].second.toString("yyyy-MM-ddTHH:mm:ss") << "\n";
+
+    QPixmap pixmap;
+    if (!pixmap.load(myAvatarManager_.getUserAvatarFilePath(username)))
+        pixmap = myAvatarManager_.getDefaultAvatar().first;
+
+    QIcon icon(pixmap);
+    ui->imageButton->setIcon(icon);
+}
+
+void MainWindow::onErrorLoadingAvatar()
+{
+    QMessageBox::critical(this, "Avatar", "Error Cargando el Avatar");
+}
+
+QString MainWindow::paddingHtmlWithSpaces(int number)
+{
+    QString aux = "";
+    if (number > 0) {
+
+        for(int i = 0; i < number; i++) {
+            aux +="&nbsp;";
         }
     }
-
+    return aux;
 }
+
+void MainWindow::refreshLocalUser(QString username, QDateTime time)
+{
+    myAvatarManager_.refreshLocalUser(username, time);
+}
+
 
 void MainWindow::on_exitButton_clicked()
 {
     qApp->quit();
 }
 
-void MainWindow::on_conectButton_clicked()
+void MainWindow::on_connectButton_clicked()
 {
-    if(isConectedButton_) {
-        ui->conectButton->setText("Conectar");
+    if(isConnectedButton_) {
+        ui->connectButton->setText("Conectar");
         ui->ReciveTextEdit->clear();
         delete client_;
-        isConectedButton_ = false;
-        isConectedToServer_ = false;
-        updateFile();
+        isConnectedButton_ = false;
+        isConnectedToServer_ = false;
+        myAvatarManager_.updateFile();
     } else {
         QSettings settings;
         QString ip = settings.value("serverAddress").toString();
@@ -111,22 +101,22 @@ void MainWindow::on_conectButton_clicked()
         if (result == 10) {
             QMessageBox::critical(this, "Conectar", "Host inacesible o datos "
                                                     "incorrectos");
-            ui->conectButton->setText("Conectar");
-            isConectedButton_ = false;
-            isConectedToServer_ = false;
+            ui->connectButton->setText("Conectar");
+            isConnectedButton_ = false;
+            isConnectedToServer_ = false;
         } else {
-            ui->conectButton->setText("Desconectar");
-            isConectedButton_ = true;
+            ui->connectButton->setText("Desconectar");
+            isConnectedButton_ = true;
             logindialog login;
             connect(&login, &logindialog::emit_login_data, this,
-                    &MainWindow::send_login);
+                    &MainWindow::sendLogin);
             login.exec();
             client_->setActualRoom("lobby");
-            isConectedToServer_ = true;
+            isConnectedToServer_ = true;
         }
-        client_->setList(lista_);
-        client_->setBasicPath(path_);
-        connect(client_, &Client::messageRecive, this, &MainWindow::readyToRead);
+        client_->setList(myAvatarManager_.getLista());
+        client_->setBasicPath(myAvatarManager_.getPath());
+        connect(client_, &Client::messageReceived, this, &MainWindow::readyToRead);
         connect(client_, &Client::emitNeedAvatar, this, &MainWindow::needAvatar);
         connect(client_, &Client::emitUpdateAvatar, this, &MainWindow::updateAvatar);
     }
@@ -154,9 +144,26 @@ void MainWindow::on_SendTextEdit_returnPressed()
 
 
     } else {
-        //Construir qVerso y no llamar a sentto directamente
-        client_->createMessageText(line);
-        ui->ReciveTextEdit->insertPlainText(line);
+        //Construir qVerso y cambiar el ultimo usuario por el que envia
+        QDateTime currentTime = currentTime.currentDateTime();
+        client_->createMessageText(line, currentTime);
+        QString tmp;
+        //Si no somos el ultimo en hablar, mostrar nuestro avatar
+        //currentTime.toString("dd-MM HH:mm")
+
+        if(client_->getLastUser() != client_->getName()) {
+            client_->setLastUser(client_->getName());
+            //¿Donde está el avatar?
+            tmp = "<img src='" + myAvatarManager_.getUserAvatarFilePath(client_->getName()) + "' height='40'> <b>" +
+                    client_->getName() + ": </b>" + line + "  " + "<br />";
+        } else {
+            //"<b>" + client_->getName() + ": </b>"
+            //currentTime.toString("dd-MM HH:mm")
+            tmp = paddingHtmlWithSpaces(9) + line + "  " + "<br />";
+        }
+
+        ui->ReciveTextEdit->insertHtml(tmp);
+
         ui->SendTextEdit->clear();
     }
 }
@@ -171,106 +178,45 @@ void MainWindow::readyToRead(QString read){
     ui->ReciveTextEdit->insertHtml(read);
 }
 
-void MainWindow::send_login(QString username, QString password)
+void MainWindow::sendLogin(QString username, QString password)
 {
-    client_->log_me_in(username, password);
+    client_->logMeIn(username, password);
     client_->setName(username);
     QDateTime time = QDateTime::fromMSecsSinceEpoch(0);
-    int aux = searchUser(username);
-    if(aux == 15000) {
-        emitUpdateUserList(username, time);
-    }
+
+    myAvatarManager_.checkIfUpdateList(username);
 
 }
 
 void MainWindow::refreshAvatar(QString filename)
 {
     if (client_ != nullptr) {
-        QString userName = client_->getName();
-        QString finalPath;
-        finalPath += path_ + userName + ".jpg";
-        QPixmap pixmap;
-        if ( !pixmap.load(filename) ) {
-            QMessageBox::critical(this, "Avatar", "Error Cargando el Avatar");
-        } else {
-            pixmap = pixmap.scaled(100,100,Qt::KeepAspectRatio);
-            if ( !pixmap.save(finalPath) )
-                qDebug() << "no se guarda";
-        }
-        QIcon icon(pixmap);
-
+        QPixmap aux(filename);
+        QIcon icon(aux);
         ui->imageButton->setIcon(icon);
+
         QDateTime time = QDateTime::currentDateTimeUtc();
-        emitUpdateUserList(userName,time);
-        client_->sendNewAvatar(pixmap);
+        myAvatarManager_.updateAvatar(client_->getName(), time, aux);
+
+        client_->sendNewAvatar(aux);
     } else {
         QMessageBox::critical(this, "Avatar", "Conectate al Servidor Primero");
     }
 }
 
-void MainWindow::setAvatar(QString username)
-{
-    QString finalPath = path_ + username + ".jpg";
-    QPixmap pixmap;
-    if (!pixmap.load(finalPath)) {
-        pixmap.load(path_ + "qVersareDefaultAvatar.jpg");
-    }
-
-    QIcon icon(pixmap);
-    ui->imageButton->setIcon(icon);
-}
-
 void MainWindow::addUser(QString username, QDateTime time)
 {
-    lista_.append(QPair<QString, QDateTime>(username, time));
-}
-
-int MainWindow::searchUser(QString username)
-{
-    for( int auxiliar=0; auxiliar < lista_.size(); auxiliar++)
-    {
-        if(lista_[auxiliar].first == username) {
-            if(username == client_->getName()) {
-                QPixmap pixmap;
-                if (!pixmap.load(path_ + username + ".jpg")) {
-                    QDateTime time = QDateTime::fromMSecsSinceEpoch(0);
-                    lista_[auxiliar].second = time;
-                }
-            }
-            return auxiliar;
-        }
-    }
-    return 15000;
-}
-
-void MainWindow::refreshLocalUser(QString username, QDateTime time)
-{
-    int localizacion = searchUser(username);
-    if (localizacion != 15000) {
-        if (lista_[localizacion].second.operator < (time))
-            lista_[localizacion].second = time;
-    } else {
-        addUser(username, time);
-    }
+    myAvatarManager_.addUser(username, time);
 }
 
 void MainWindow::needAvatar(QString username, QDateTime time)
 {
-    int localizacion = searchUser(username);
-    if (localizacion != 15000) {
-        qDebug() << "Estaba alli";
-        qDebug() << time.toString("yyyy-MM-ddTHH:mm:ss");
-        if (lista_[localizacion].second.operator <(time))
-            client_->askForAvatar(username);
-    } else {
-        qDebug() << "No estaba alli";
-        addUser(username, time);
-        client_->askForAvatar(username);
-    }
+    myAvatarManager_.needAvatar(username,time, client_);
 }
 
 void MainWindow::on_imageButton_clicked()
 {
+    QCursor saveCursor = ui->ReciveTextEdit->cursor();
     loadDialog fotoCargada;
     connect(&fotoCargada, &loadDialog::emit_load_data, this,
             &MainWindow::refreshAvatar);
@@ -280,7 +226,7 @@ void MainWindow::on_imageButton_clicked()
         finalPath += "/tmp/" + userName + ".jpg";
         fotoCargada.setFinalPath(finalPath);
         fotoCargada.exec();
-
+        ui->ReciveTextEdit->setCursor(saveCursor);
     } else {
         QMessageBox::critical(this, "Avatar", "Conectate al Servidor Primero");
     }

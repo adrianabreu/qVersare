@@ -27,7 +27,8 @@ SOURCES += main.cpp\
     logindialog.cpp \
     QVERSO.pb.cc \
     loaddialog.cpp \
-    cameradialog.cpp
+    cameradialog.cpp \
+    avatarmanager.cpp
 
 HEADERS  += mainwindow.h \
     aboutdialog.h \
@@ -36,7 +37,8 @@ HEADERS  += mainwindow.h \
     logindialog.h \
     QVERSO.pb.h \
     loaddialog.h \
-    cameradialog.h
+    cameradialog.h \
+    avatarmanager.h
 
 FORMS    += mainwindow.ui \
     aboutdialog.ui \
