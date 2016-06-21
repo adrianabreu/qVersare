@@ -262,10 +262,10 @@ void Client::parseVerso(QVERSO my_verso)
                 lastUser_ = username;
                 htmlMessage = "<img src='" + imageText+ "' height='42'> <b>" +
                         username + ": </b>" + message + "  " +
-                        messageTime.toString("dd-MM HH:ss") + "<br />";
+                        messageTime.toString("dd-MM HH:mm") + "<br />";
             } else {
                 htmlMessage = "<b>" + username + ": </b>" + message + "  " +
-                        messageTime.toString("dd-MM HH:ss") + "<br />";
+                        messageTime.toString("dd-MM HH:mm") + "<br />";
             }
             emit messageRecive(htmlMessage);
         }
