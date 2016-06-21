@@ -63,6 +63,7 @@ void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image)
         image.scaled(100,100,Qt::KeepAspectRatio);
         if ( !image.save(path_ + username + ".jpg") )
             qDebug() << "no se guarda";
+        setAvatar(username);
 
     }
 }
@@ -224,7 +225,7 @@ void MainWindow::refreshLocalUser(QString username, QDateTime time)
 {
     int localizacion = searchUser(username);
     if (localizacion != 15000) {
-        if (lista_[localizacion].second.operator <(time))
+        if (lista_[localizacion].second.operator < (time))
             lista_[localizacion].second = time;
     } else {
         addUser(username, time);
@@ -235,9 +236,12 @@ void MainWindow::needAvatar(QString username, QDateTime time)
 {
     int localizacion = searchUser(username);
     if (localizacion != 15000) {
+        qDebug() << "Estaba alli";
+        qDebug() << time.toString("yyyy-MM-ddTHH:mm:ss");
         if (lista_[localizacion].second.operator <(time))
             client_->askForAvatar(username);
     } else {
+        qDebug() << "No estaba alli";
         addUser(username, time);
         client_->askForAvatar(username);
     }
