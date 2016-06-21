@@ -16,6 +16,8 @@ Client::Client()
     userName_ = "";
     actualRoom_ = "";
     connected_ = false;
+    buffer_.clear();
+    largeChunkSize_ = 0;
 }
 
 Client::Client(QString ip, int port)
@@ -98,6 +100,8 @@ void Client::createMessageText(QString textLine)
 
 void Client::recivedFrom()
 {
+    //qDebug() << "There is data!";
+    //qDebug() << largeChunkSize_;
     qint32 bufferSize = 0;
     QVERSO aVerso;
     //First we should check if we are reading something from and older chunk
@@ -188,18 +192,21 @@ void Client::sendNewAvatar(QPixmap pixmap)
     aux.set_timestamp(time.currentDateTime()
                       .toString("yyyy-MM-ddTHH:mm:ss")
                       .toStdString());
+    qDebug() << aux.timestamp().c_str();
     //Deberiamos guardar el timestamp en un fichero junto al nombre de usuario
     sentTo(aux);
 }
 
 void Client::parseVerso(QVERSO my_verso)
 {
+    qDebug() << "Entro en parse";
      //You Are Loggin
      if (!connected_) {
          if (my_verso.has_login() && my_verso.login() == true) {
              emit messageRecive("Welcome " + userName_);
              emit avatar(userName_);
              connected_ = true;
+             qDebug() << "Pero solo soy un login";
          } else {
              emit messageRecive("Login Incorrecto");
          }
@@ -207,14 +214,17 @@ void Client::parseVerso(QVERSO my_verso)
     } else {
         if (my_verso.requestavatar()) {
             QDateTime dateTime;
-            dateTime = QDateTime::fromString(
-                        QString::fromStdString(my_verso.timestamp()),
+            QString tmpDateString = QString::fromStdString(my_verso.timestamp());
+            qDebug() << dateTime.currentDateTime().toString("yyyy-MM-ddTHH:mm:ss");
+            dateTime = QDateTime::fromString(tmpDateString,
                                              "yyyy-MM-ddTHH:mm:ss");
+            qDebug() << tmpDateString;
             QString username = QString::fromStdString(my_verso.username());
             QPixmap pixmap;
             //QByteArray aux(my_verso.avatar().c_str(), my_verso.avatar().length());
             //QByteArray array = QByteArray::fromBase64(aux);
             QByteArray array(my_verso.avatar().c_str());
+            array = QByteArray::fromBase64(array);
             pixmap.loadFromData(array);
             if (!my_verso.avatar().empty()){
                 qDebug() << "Actualizo avatar";
@@ -245,5 +255,6 @@ void Client::askForAvatar(QString username)
     myVerso.set_username(username.toStdString());
     myVerso.set_requestavatar(true);
 
+    qDebug() << "Lo necesito";
     sentTo(myVerso);
 }
