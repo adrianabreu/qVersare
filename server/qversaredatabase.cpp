@@ -60,10 +60,12 @@ QList<QVERSO> QVersareDataBase::getLastTenMessages(QString room)
             tempVerso.set_message(query.value("message").toString()
                                   .toStdString());
             QDateTime timestamp;
-            timestamp = QDateTime::fromMSecsSinceEpoch(query
-                                                       .value("timestamp")
-                                                       .toInt());
-            tempVerso.set_timestamp(timestamp.toString().toStdString());
+            timestamp = QDateTime::fromString(query.value("timestamp")
+                                              .toString(),
+                                              "yyyy-MM-ddTHH:mm:ss");
+            tempVerso.set_timestamp(timestamp
+                                    .toString("yyyy-MM-ddTHH:mm:ss")
+                                    .toStdString());
             aux.push_front(tempVerso);
         }
     }
