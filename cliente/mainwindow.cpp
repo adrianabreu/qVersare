@@ -26,7 +26,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->imageButton->setIcon(icon);
     ui->imageButton->setIconSize(tmp.second);
     client_ = nullptr;
-    connect(this, &MainWindow::emitUpdateUserList, this, &MainWindow::refreshLocalUser);
+    connect(this, &MainWindow::emitUpdateUserList,
+            this, &MainWindow::refreshLocalUser);
     connect(&myAvatarManager_, &AvatarManager::errorLoadingAvatar, this, &MainWindow::onErrorLoadingAvatar);
 }
 
@@ -36,7 +37,8 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updateAvatar(QString username, QDateTime time, QPixmap image, bool same)
+void MainWindow::updateAvatar(QString username, QDateTime time,
+                              QPixmap image, bool same)
 {
     myAvatarManager_.updateAvatar(username, time, image);
     if(same)
@@ -116,9 +118,12 @@ void MainWindow::on_connectButton_clicked()
         }
         client_->setList(myAvatarManager_.getLista());
         client_->setBasicPath(myAvatarManager_.getPath());
-        connect(client_, &Client::messageReceived, this, &MainWindow::readyToRead);
-        connect(client_, &Client::emitNeedAvatar, this, &MainWindow::needAvatar);
-        connect(client_, &Client::emitUpdateAvatar, this, &MainWindow::updateAvatar);
+        connect(client_, &Client::messageReceived,
+                this, &MainWindow::readyToRead);
+        connect(client_, &Client::emitNeedAvatar,
+                this, &MainWindow::needAvatar);
+        connect(client_, &Client::emitUpdateAvatar,
+                this, &MainWindow::updateAvatar);
     }
 
 
@@ -132,7 +137,7 @@ void MainWindow::on_aboutButton_clicked()
 void MainWindow::on_SendTextEdit_returnPressed()
 {
     QString line = ui->SendTextEdit->text();
-    line += "\n";
+
 
     QRegExp myExp("(^/\\w+)");
     if (line.contains(myExp)) {
@@ -144,6 +149,7 @@ void MainWindow::on_SendTextEdit_returnPressed()
 
 
     } else {
+        line += "\n";
         //Construir qVerso y cambiar el ultimo usuario por el que envia
         QDateTime currentTime = currentTime.currentDateTime();
         client_->createMessageText(line, currentTime);
@@ -154,7 +160,9 @@ void MainWindow::on_SendTextEdit_returnPressed()
         if(client_->getLastUser() != client_->getName()) {
             client_->setLastUser(client_->getName());
             //¿Donde está el avatar?
-            tmp = "<img src='" + myAvatarManager_.getUserAvatarFilePath(client_->getName()) + "' height='40'> <b>" +
+            tmp = "<img src='" + myAvatarManager_
+                    .getUserAvatarFilePath(client_->getName()) +
+                    "' width='40'> <b>" +
                     client_->getName() + ": </b>" + line + "  " + "<br />";
         } else {
             //"<b>" + client_->getName() + ": </b>"
@@ -163,6 +171,8 @@ void MainWindow::on_SendTextEdit_returnPressed()
         }
 
         ui->ReciveTextEdit->insertHtml(tmp);
+
+        ui->ReciveTextEdit->ensureCursorVisible();
 
         ui->SendTextEdit->clear();
     }
@@ -176,6 +186,7 @@ void MainWindow::on_confButton_clicked()
 
 void MainWindow::readyToRead(QString read){
     ui->ReciveTextEdit->insertHtml(read);
+    ui->ReciveTextEdit->ensureCursorVisible();
 }
 
 void MainWindow::sendLogin(QString username, QString password)

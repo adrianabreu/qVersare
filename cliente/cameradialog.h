@@ -25,8 +25,6 @@ signals:
     void emit_load_data(QString filename);
 
 private slots:
-    void on_onPushButton_clicked();
-
     void on_captPushButton_clicked();
 
 private:

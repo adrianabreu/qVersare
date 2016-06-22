@@ -42,6 +42,7 @@ Client::~Client(){
 
 void Client::sendUpdateRoom(QString room)
 {
+    lastUser_ = "";
     QVERSO myVerso;
     myVerso.set_username(userName_.toStdString());
     myVerso.set_room(room.toStdString());
@@ -277,7 +278,7 @@ void Client::showMessage(QVERSO myVerso)
 
     if(lastUser_ != username){
         lastUser_ = username;
-        htmlMessage = "<img src='" + imageText+ "' height='40'> <b>" +
+        htmlMessage = "<img src='" + imageText+ "' width='40'> <b>" +
                 username + ": </b>" + message + "  "  + "<br />";
     } else {
         for(int i = 0; i < 9; i++) {
