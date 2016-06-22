@@ -33,8 +33,7 @@ cameradialog::cameradialog(QWidget *parent) :
 cameradialog::~cameradialog()
 {
     if (mCamera_ != nullptr) {
-        if(mCamera_->status() == QCamera::ActiveStatus)
-            mCamera_->stop();
+        mCamera_->stop();
     }
     delete ui;
 }
@@ -57,9 +56,10 @@ void cameradialog::on_captPushButton_clicked()
         mCamera_->start();
         mCamera_->searchAndLock();
         if(mCameraImageCapture_->isReadyForCapture()) {
-            mCameraImageCapture_->capture(fileName_);
+            QString aux = "/tmp/cameraCapture.jpg";
+            mCameraImageCapture_->capture(aux);
             mCamera_->unlock();
-            emit_load_data(fileName_);
+            emit_load_data(aux);
 
         } else {
             mCamera_->unlock();
