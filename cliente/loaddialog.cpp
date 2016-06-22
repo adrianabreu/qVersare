@@ -2,12 +2,14 @@
 #include "ui_loaddialog.h"
 #include "qsettings.h"
 #include "cameradialog.h"
+#include <QDebug>
 
 loadDialog::loadDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::loadDialog)
 {
     ui->setupUi(this);
+    tempPath_.clear();
 }
 
 loadDialog::~loadDialog()
@@ -26,7 +28,8 @@ void loadDialog::camAvatar(QString filename)
     bool valid = finalImage.load(filename);
 
     if (valid) {
-        emit emit_load_data(filename);
+        tempPath_ = filename;
+        //emit emit_load_data(filename);
         finalImage = finalImage.scaledToWidth(ui->image->width(),
                                               Qt::SmoothTransformation);
         ui->image->setPixmap(QPixmap::fromImage(finalImage));
@@ -44,7 +47,8 @@ void loadDialog::on_searchButton_clicked()
         bool valid = finalImage.load(filename);
 
         if (valid) {
-            emit emit_load_data(filename);
+            tempPath_ = filename;
+            //emit emit_load_data(filename);
             finalImage = finalImage.scaledToWidth(ui->image->width(),
                                                   Qt::SmoothTransformation);
             ui->image->setPixmap(QPixmap::fromImage(finalImage));
@@ -60,4 +64,16 @@ void loadDialog::on_camPushButton_clicked()
     connect(&camera, &cameradialog::emit_load_data, this, &loadDialog::camAvatar);
     camera.setfileName(finalPath_);
     camera.exec();
+}
+
+void loadDialog::on_buttonBox_accepted()
+{
+    if(!tempPath_.isEmpty()) {
+        QPixmap pixmap;
+        pixmap.load(tempPath_);
+        pixmap = pixmap.scaled(100,100,Qt::KeepAspectRatio);
+           if ( !pixmap.save(finalPath_) )
+               qDebug() << "no se guarda";
+        emit_load_data(finalPath_);
+    }
 }

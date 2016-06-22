@@ -29,9 +29,12 @@ private slots:
 
     void on_camPushButton_clicked();
 
+    void on_buttonBox_accepted();
+
 private:
     Ui::loadDialog *ui;
     QString finalPath_;
+    QString tempPath_;
 };
 
 #endif // LOADDIALOG_H
