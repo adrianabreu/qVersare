@@ -139,7 +139,7 @@ void QVersareServer::newInTheRoom(QString room, Client *fd)
         mystats_.recordTimeStamps(timestampTimer.elapsed());
 
     //Añadimos al usuario a la lista
-    helperDebug(daemonMode_, "User added to room: " + room);
+    //helperDebug(daemonMode_, "User added to room: " + room);
     addClientToList(room, fd);
 }
 
