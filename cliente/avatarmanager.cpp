@@ -68,6 +68,11 @@ void AvatarManager::updateUserList(QString username, QDateTime time)
 
     if(aux != 15000) {
         lista_[aux].second = time;
+    } else {
+        QPair<QString,QDateTime> auxPair;
+        auxPair.first = username;
+        auxPair.second = time;
+        lista_.append(auxPair);
     }
 }
 
