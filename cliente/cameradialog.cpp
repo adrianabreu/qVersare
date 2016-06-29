@@ -34,6 +34,7 @@ cameradialog::~cameradialog()
 {
     if (mCamera_ != nullptr) {
         mCamera_->stop();
+        delete mCamera_;
     }
     delete ui;
 }
