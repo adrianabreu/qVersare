@@ -81,7 +81,7 @@ void QVersareServer::newMessageFromClient(QVERSO aVerso,Client *fd)
         QTime timer;
         timer.start();
         mydb_.addMessage(room,username, message,timestamp);
-        
+
         if(timer.elapsed() > 1)
             mystats_.recordMessageAdded(timer.elapsed());
 
@@ -147,61 +147,7 @@ void QVersareServer::removeMeFromRoom(QString room, Client *fd)
     removeClientFromList(room, fd);
 }
 
-void QVersareServer::updateClientAvatar(QString user, QString avatar,
-                                        QDateTime timestamp)
-{
-    QTime updateAvatarTimer;
-    updateAvatarTimer.start();
-    mydb_.updateClientAvatar(user, avatar, timestamp);
-    if (updateAvatarTimer.elapsed() > 1)
-        mystats_.avatarUpdated(updateAvatarTimer.elapsed());
-}
 
-
-
-void QVersareServer::setupDatabase()
-{
-    //Create table for users
-    QSqlQuery query(mydb_);
-    query.exec("CREATE TABLE IF NOT EXISTS users ("
-                  "USERNAME VARCHAR(60) PRIMARY KEY,"
-                  "PASSWORD VARCHAR(40),"
-                  "AVATAR BLOB,"
-                  "AVTIMESTAMP INTEGER)");
-    //Create table for msgs
-    query.exec("CREATE TABLE IF NOT EXISTS messages ("
-               "ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-               "ROOM VARCHAR(60),"
-               "USERNAME VARCHAR(60),"
-               "MESSAGE VARCHAR(2000),"
-               "TIMESTAMP INTEGER)");
-
-    //Insert basic users
-    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
-                  "VALUES (:username, :password)");
-    query.bindValue(":username","pepito");
-    query.bindValue(":password","50648aff18d36a6b89cb7dcda2e4e8c5");
-    query.bindValue(":avatar","null");
-    query.bindValue(":avtimestamp",0);
-    query.exec();
-
-    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
-                  "VALUES (:username, :password)");
-    query.bindValue(":username","tiger");
-    query.bindValue(":password","9e95f6d797987b7da0fb293a760fe57e");
-    query.bindValue(":avatar","null");
-    query.bindValue(":avtimestamp",0);
-    query.exec();
-
-    query.prepare("INSERT ON CONFLICT IGNORE INTO users (username,password)"
-                  "VALUES (:username, :password)");
-    query.bindValue(":username","qversare");
-    query.bindValue(":password","3b867c3941a04ab062bba35d8a69a1d9");
-    query.bindValue(":avatar","null");
-    query.bindValue(":avtimestamp",0);
-
-    query.exec();
-}
 
 void QVersareServer::updateClientAvatar(QString user, QString avatar,
                                         QDateTime timestamp)
@@ -214,52 +160,6 @@ void QVersareServer::updateClientAvatar(QString user, QString avatar,
 }
 
 void QVersareServer::onRequestedAvatar(QString user, Client *fd)
-{
-    emit userAvatar(mydb_.getThisUserAvatar(user), fd);
-}
-
-void QVersareServer::onRequestedTimestamp(QString user, Client *fd)
-{
-    emit userTimeStamp(mydb_.getThisUserTimeStamp(user), fd);
-}
-
-void QVersareServer::onTimeFromClient(QString type, int elapsedTime)
-{
-    if (type == "parsing")
-        mystats_.recordParseTime(elapsedTime);
-    else if (type == "login")
-        mystats_.recordLogin(elapsedTime);
-    else if (type == "forward")
-        mystats_.recordForward(elapsedTime);
-}
-
-void QVersareServer::addClientToList(QString room, Client *client)
-{
-    QList<Client*> aux;
-    if(clientsPerRoom_.contains(room)) {
-        aux = clientsPerRoom_.take(room);
-        aux.append(client);
-        clientsPerRoom_.insert(room, aux);
-    } else {
-        aux.append(client);
-        clientsPerRoom_.insert(room, aux);
-    }
-}
-
-void QVersareServer::removeClientFromList(QString room, Client *client)
-{
-    QList<Client*> aux;
-
-    if(clientsPerRoom_.contains(room)) {
-        aux = clientsPerRoom_.take(room);
-        if(aux.contains(client))
-            aux.removeOne(client);
-    }
-    if(!aux.empty())
-        clientsPerRoom_.insert(room, aux);
-}
-
-QList<QVERSO> QVersareServer::getOthersUsersTimestamps(QString room)
 {
     emit userAvatar(mydb_.getThisUserAvatar(user), fd);
 }
