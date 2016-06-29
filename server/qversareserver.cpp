@@ -81,7 +81,7 @@ void QVersareServer::newMessageFromClient(QVERSO aVerso,Client *fd)
         QTime timer;
         timer.start();
         mydb_.addMessage(room,username, message,timestamp);
-
+        
         if(timer.elapsed() > 1)
             mystats_.recordMessageAdded(timer.elapsed());
 
@@ -137,7 +137,6 @@ void QVersareServer::newInTheRoom(QString room, Client *fd)
 
     if(timestampTimer.elapsed() > 0)
         mystats_.recordTimeStamps(timestampTimer.elapsed());
-
     //Añadimos al usuario a la lista
     //helperDebug(daemonMode_, "User added to room: " + room);
     addClientToList(room, fd);
@@ -204,38 +203,60 @@ void QVersareServer::setupDatabase()
     query.exec();
 }
 
-void QVersareServer::addMessage(QString room, QString username, QString message)
+void QVersareServer::updateClientAvatar(QString user, QString avatar,
+                                        QDateTime timestamp)
 {
-    QSqlQuery query(mydb_);
-    query.prepare("INSERT INTO messages (room,username,message)"
-                  "VALUES (:room, :username, :message)");
-    query.bindValue(":room",room);
-    query.bindValue(":username",username);
-    query.bindValue(":message",message);
-    query.exec();
+    QTime updateAvatarTimer;
+    updateAvatarTimer.start();
+    mydb_.updateClientAvatar(user, avatar, timestamp);
+    if (updateAvatarTimer.elapsed() > 1)
+        mystats_.avatarUpdated(updateAvatarTimer.elapsed());
 }
 
-QList<QVERSO> QVersareServer::getLastTenMessages(QString room)
+void QVersareServer::onRequestedAvatar(QString user, Client *fd)
 {
-    QList<QVERSO>aux;
-    //Query for extract the messages from the ddbb
-    //The list comes on desc type!!
-    QSqlQuery query(mydb_);
-    query.prepare("SELECT * FROM messages WHERE room=(:ROOM) ORDER BY id "
-                  "desc limit 10");
-    query.bindValue(":ROOM",room);
-    query.exec();
+    emit userAvatar(mydb_.getThisUserAvatar(user), fd);
+}
 
-    while(query.next()) {
-        QVERSO tempVerso;
-        tempVerso.set_username(query.value("username").toString().toStdString());
-        tempVerso.set_room(room.toStdString());
-        tempVerso.set_message(query.value("message").toString().toStdString());
-        aux.push_front(tempVerso);
+void QVersareServer::onRequestedTimestamp(QString user, Client *fd)
+{
+    emit userTimeStamp(mydb_.getThisUserTimeStamp(user), fd);
+}
+
+void QVersareServer::onTimeFromClient(QString type, int elapsedTime)
+{
+    if (type == "parsing")
+        mystats_.recordParseTime(elapsedTime);
+    else if (type == "login")
+        mystats_.recordLogin(elapsedTime);
+    else if (type == "forward")
+        mystats_.recordForward(elapsedTime);
+}
+
+void QVersareServer::addClientToList(QString room, Client *client)
+{
+    QList<Client*> aux;
+    if(clientsPerRoom_.contains(room)) {
+        aux = clientsPerRoom_.take(room);
+        aux.append(client);
+        clientsPerRoom_.insert(room, aux);
+    } else {
+        aux.append(client);
+        clientsPerRoom_.insert(room, aux);
     }
+}
 
-    return aux;
+void QVersareServer::removeClientFromList(QString room, Client *client)
+{
+    QList<Client*> aux;
 
+    if(clientsPerRoom_.contains(room)) {
+        aux = clientsPerRoom_.take(room);
+        if(aux.contains(client))
+            aux.removeOne(client);
+    }
+    if(!aux.empty())
+        clientsPerRoom_.insert(room, aux);
 }
 
 QList<QVERSO> QVersareServer::getOthersUsersTimestamps(QString room)
